@@ -222,12 +222,12 @@ Núcleo del producto. Pedido directo del cliente.
 
 | Prioridad | Cantidad | | Tipo | Cantidad |
 |---|---|---|---|---|
-| MUST | **80** | | WEB | 61 |
-| SHOULD | 11 | | DATA | 24 |
-| COULD | 5 | | HYBRID | 17 |
-| WON'T | 6 | | ML | 6 |
-| Derogado | 1 | | AI | 4 |
-| **En alcance** | **96** | | **Total en alcance** | **96** |
+| MUST | **92** | | WEB | 66 |
+| SHOULD | 13 | | DATA | 22 |
+| COULD | 6 | | HYBRID | 15 |
+| WON'T | 6 | | ML | 5 |
+| Derogado | 1 | | AI | 3 |
+| **En alcance** | **111** | | **Total en alcance** | **111** |
 
 Identificadores en uso: RF-001 a RF-118. RF-004 derogado, sin reutilización.
 
