@@ -1,7 +1,5 @@
 # Proyecto Gimnasio
 
-Base de un monorepo para una plataforma web de entrenamiento asistido. No contiene funcionalidades de negocio todavía; incluye el esqueleto de frontend, backend, contratos, motor analítico y automatización.
-
 ## Arquitectura
 
 ```text
