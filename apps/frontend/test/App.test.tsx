@@ -7,6 +7,8 @@ describe('App', () => {
   it('renders the project shell', () => {
     render(<App />);
 
-    expect(screen.getByRole('heading', { name: 'Base del sistema lista' })).toBeVisible();
+    expect(
+      screen.getByRole('heading', { name: 'Base del sistema lista' }),
+    ).toBeVisible();
   });
 });

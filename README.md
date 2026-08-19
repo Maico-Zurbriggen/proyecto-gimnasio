@@ -44,4 +44,4 @@ Copiar `.env.example` a `.env` antes de iniciar. El frontend queda en `http://lo
 npm run check
 ```
 
-El repositorio aún no incluye `package-lock.json`: debe generarse con el primer `npm install` que tenga acceso al registro npm y subirse antes del primer PR funcional. En ese mismo PR, cambiar CI de `npm install` a `npm ci`.
+`package-lock.json` forma parte del repositorio. Usar `npm ci` en CI y para instalaciones locales completamente reproducibles.
