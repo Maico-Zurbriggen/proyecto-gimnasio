@@ -131,7 +131,7 @@ Corpus normativo en [docs/](docs/) — no lo transcribas acá, leé el documento
 
 - [D1](docs/D1-vision-y-objetivos.md) visión y capacidad central · [D2](docs/D2-glosario.md) glosario y enumeraciones cerradas · [D3](docs/D3-actores-roles-permisos.md) matriz de permisos y reglas de acceso.
 - [D4](docs/D4-modelo-de-dominio.md) entidades, puntos difíciles y restricciones de integridad · [D5](docs/D5-reglas-de-negocio.md) las reglas RN con sus constantes y umbrales.
-- [D6](docs/D6-ciclos-de-vida-y-estados.md) estados y **transiciones imposibles** · [D7](docs/D7-flujos-funcionales.md) los 18 flujos con cursos alternativos y de excepción.
+- [D6](docs/D6-ciclos-de-vida-y-estados.md) estados y **transiciones imposibles** · [D7](docs/D7-flujos-funcionales.md) los 21 flujos con cursos alternativos y de excepción.
 - [D8](docs/D8-requerimientos-funcionales.md) requerimientos y prioridades · [D9](docs/D9-requerimientos-no-funcionales.md) criterios de verificación · [D10](docs/D10-casos-borde.md) casos borde: revisalos antes de dar por terminada una funcionalidad.
 - [D11](docs/D11-decisiones-de-diseno.md) por qué algo es así, antes de cambiarlo · [D12](docs/D12-riesgos-y-supuestos.md) supuestos abiertos y orden de recorte · [D13](docs/D13-trazabilidad.md) qué quedó sin cubrir.
 - [docs/architecture.md](docs/architecture.md) invariantes y fronteras de arquitectura · [docs/github-workflow.md](docs/github-workflow.md) ramas, PR y protección.
