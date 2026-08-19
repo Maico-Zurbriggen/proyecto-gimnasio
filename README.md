@@ -1,7 +1,5 @@
 # Proyecto Gimnasio
 
-Base de un monorepo para una plataforma web de entrenamiento asistido. No contiene funcionalidades de negocio todavía; incluye el esqueleto de frontend, backend, contratos, motor analítico y automatización.
-
 ## Arquitectura
 
 ```text
@@ -12,7 +10,7 @@ apps/frontend ──REST/JSON──> apps/backend ──> PostgreSQL
 ```
 
 - Frontend: React + Vite + TypeScript.
-- Backend: NestJS + Prisma + PostgreSQL, como monolito modular.
+- Backend: Node.js + Express + TypeScript + Prisma + PostgreSQL, como monolito modular.
 - Motor: Python + pandas + scikit-learn, ejecutado por lote.
 - Contratos: paquete TypeScript compartido para esquemas de entrada/salida.
 
@@ -44,4 +42,4 @@ Copiar `.env.example` a `.env` antes de iniciar. El frontend queda en `http://lo
 npm run check
 ```
 
-El repositorio aún no incluye `package-lock.json`: debe generarse con el primer `npm install` que tenga acceso al registro npm y subirse antes del primer PR funcional. En ese mismo PR, cambiar CI de `npm install` a `npm ci`.
+`package-lock.json` forma parte del repositorio. Usar `npm ci` en CI y para instalaciones locales completamente reproducibles.

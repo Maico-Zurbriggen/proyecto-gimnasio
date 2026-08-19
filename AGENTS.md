@@ -14,7 +14,7 @@ Este monorepo implementa una plataforma web de entrenamiento asistido. Su núcle
 ## Arquitectura
 
 - `apps/frontend`: SPA React, TypeScript y Vite; móvil primero para la sesión activa.
-- `apps/backend`: monolito modular NestJS; una API REST y una base PostgreSQL.
+- `apps/backend`: monolito modular Express con TypeScript; una API REST y una base PostgreSQL.
 - `motor`: jobs Python batch para análisis/ML; no es un microservicio online.
 - `packages/contracts`: contratos compartidos de API. No compartir lógica de negocio entre capas.
 - `docs`: decisiones de arquitectura y proceso.

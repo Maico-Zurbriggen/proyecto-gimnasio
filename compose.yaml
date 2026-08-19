@@ -6,12 +6,12 @@ services:
       POSTGRES_USER: gym
       POSTGRES_PASSWORD: gym
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U gym -d gym"]
+      test: ['CMD-SHELL', 'pg_isready -U gym -d gym']
       interval: 5s
       timeout: 5s
       retries: 10
     ports:
-      - "5432:5432"
+      - '5432:5432'
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
@@ -26,7 +26,7 @@ services:
       db:
         condition: service_healthy
     ports:
-      - "3000:3000"
+      - '3000:3000'
     volumes:
       - ./apps/backend/src:/workspace/apps/backend/src
 
@@ -39,7 +39,7 @@ services:
     depends_on:
       - backend
     ports:
-      - "5173:5173"
+      - '5173:5173'
     volumes:
       - ./apps/frontend/src:/workspace/apps/frontend/src
 
