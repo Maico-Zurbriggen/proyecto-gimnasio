@@ -1,11 +1,11 @@
 # D1 — Visión y objetivos del producto
 
-| | |
-|---|---|
-| **Versión** | 2.0 |
-| **Fecha** | 2026-08-18 |
-| **Estado** | Aprobado en Fase 1, base para el resto del corpus |
-| **Depende de** | Nada. Es el documento raíz |
+|                    |                                                         |
+| ------------------ | ------------------------------------------------------- |
+| **Versión**        | 2.0                                                     |
+| **Fecha**          | 2026-08-18                                              |
+| **Estado**         | Aprobado en Fase 1, base para el resto del corpus       |
+| **Depende de**     | Nada. Es el documento raíz                              |
 | **Es criterio de** | Todos. Una funcionalidad que no se conecte con §3 sobra |
 
 **Marcas usadas en todo el corpus:** `[F]` lo afirma una fuente · `[I]` inferencia · `[S]` supuesto por ausencia de información (registrado en D12).
@@ -16,12 +16,12 @@
 
 Una persona que entrena necesita que lo que hace hoy tenga en cuenta lo que le pasó hasta hoy: cómo viene respondiendo, qué le duele, qué equipamiento tiene, qué se propuso lograr. Esa adecuación permanente es un trabajo que hoy nadie hace de forma sostenida.
 
-| Actor | Problema |
-|---|---|
-| **Alumno** | Entrena durante meses con un plan que se decidió una sola vez. Si progresa, el plan se le queda corto; si se estanca, el plan no cambia; si se lesiona o cambia de objetivo, el plan sigue igual `[I]` |
-| **Gimnasio (como sostén)** | Es quien tiene las máquinas, el espacio y los entrenadores. El plan de una persona sólo es realizable con lo que ese gimnasio efectivamente tiene, y hoy nadie cruza ambas cosas de forma sistemática `[F: cliente]` |
-| **Entrenador** | Sabe qué habría que ajustarle a cada alumno pero no puede hacerlo para todos. Revisar a fondo a veinticinco personas cada pocas semanas no entra en su jornada, así que atiende a los que preguntan y a los que ve `[F: A §2.1, autoridad baja]` |
-| **Gimnasio** | Pierde socios que se fueron apagando de a poco y se entera cuando ya se dieron de baja `[F: A §2.1, autoridad baja]` |
+| Actor                      | Problema                                                                                                                                                                                                                                         |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Alumno**                 | Entrena durante meses con un plan que se decidió una sola vez. Si progresa, el plan se le queda corto; si se estanca, el plan no cambia; si se lesiona o cambia de objetivo, el plan sigue igual `[I]`                                           |
+| **Gimnasio (como sostén)** | Es quien tiene las máquinas, el espacio y los entrenadores. El plan de una persona sólo es realizable con lo que ese gimnasio efectivamente tiene, y hoy nadie cruza ambas cosas de forma sistemática `[F: cliente]`                             |
+| **Entrenador**             | Sabe qué habría que ajustarle a cada alumno pero no puede hacerlo para todos. Revisar a fondo a veinticinco personas cada pocas semanas no entra en su jornada, así que atiende a los que preguntan y a los que ve `[F: A §2.1, autoridad baja]` |
+| **Gimnasio**               | Pierde socios que se fueron apagando de a poco y se entera cuando ya se dieron de baja `[F: A §2.1, autoridad baja]`                                                                                                                             |
 
 `[S-04]` Esta caracterización no fue contrastada con un gimnasio real: proviene de un análisis interno del equipo. Es el supuesto sobre el que se apoya todo el producto y el más barato de verificar. Ver D12.
 
@@ -41,13 +41,13 @@ Una aplicación que sólo registre entrenamientos resuelve el punto 1 y ninguno 
 
 Cinco componentes que sólo tienen valor juntos `[F: RF-086, RF-087, RF-088, RF-089, RF-090, RF-091, RF-094 y decisión del cliente de 2026-08-18]`:
 
-| | Capacidad | Requerimientos |
-|---|---|---|
-| C1 | **Nadie queda sin plan.** Todo alumno incorporado obtiene de inmediato una rutina propuesta, compatible con sus condiciones, aunque no tenga ningún historial | RF-087, RF-025 |
-| C2 | **Ninguna prescripción contradice el estado de la persona**, ni al asignarla ni después, cuando cambia una condición, el objetivo o la aptitud | RF-086, RF-094 |
-| C3 | **La evolución se evalúa sola.** El sistema distingue periódicamente entre progresión adecuada, estancamiento y sobreexigencia | RF-088 |
-| C4 | **El cambio lo decide la inteligencia del sistema, con fundamento**, a partir del contexto completo del alumno | RF-089, RF-090, RF-054 |
-| C5 | **El entrenador es la puerta.** Ninguna rutina llega vigente a un alumno sin que un entrenador la haya revisado y aprobado. Sin excepciones, cualquiera sea el origen de la rutina | RF-091, RF-110 |
+|     | Capacidad                                                                                                                                                                          | Requerimientos         |
+| --- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------- |
+| C1  | **Nadie queda sin plan.** Todo alumno incorporado obtiene de inmediato una rutina propuesta, compatible con sus condiciones, aunque no tenga ningún historial                      | RF-087, RF-025         |
+| C2  | **Ninguna prescripción contradice el estado de la persona**, ni al asignarla ni después, cuando cambia una condición, el objetivo o la aptitud                                     | RF-086, RF-094         |
+| C3  | **La evolución se evalúa sola.** El sistema distingue periódicamente entre progresión adecuada, estancamiento y sobreexigencia                                                     | RF-088                 |
+| C4  | **El cambio lo decide la inteligencia del sistema, con fundamento**, a partir del contexto completo del alumno                                                                     | RF-089, RF-090, RF-054 |
+| C5  | **El entrenador es la puerta.** Ninguna rutina llega vigente a un alumno sin que un entrenador la haya revisado y aprobado. Sin excepciones, cualquiera sea el origen de la rutina | RF-091, RF-110         |
 
 ### 3.0 Dónde está la inteligencia
 
@@ -89,14 +89,14 @@ Es decir: si falla el servicio externo el sistema sigue decidiendo, sólo que de
 
 ## 4. Actores
 
-| Actor | ¿Va? | Justificación |
-|---|---|---|
-| Proveedor del sistema | Sí, fuera de la aplicación | Aprovisiona el gimnasio afiliado y su primer administrador. Sin él ningún gimnasio arranca. No es un rol, no inicia sesión. Ver D11/DD-30 |
-| Alumno | Sí | Actor central. Puede elegir y pedir una rutina, pero no ponerla en vigencia por sí mismo. **Sólo existe por invitación de un gimnasio afiliado** |
-| Entrenador | Sí | **Actor obligatorio del ciclo.** Revisa y aprueba toda rutina antes de que rija, resuelve las propuestas de adaptación, interviene sobre las rutinas de su cartera |
-| Administrador de gimnasio | Sí, acotado | Invita usuarios, gestiona roles y asignaciones, **mantiene el inventario de equipamiento** y accede a la analítica agregada. El inventario determina qué puede prescribirse en todo el gimnasio: no es un rol administrativo puro |
-| Visitante no autenticado | No | Ver D11/DD-21 |
-| Recepcionista, nutricionista, superadministrador multi-gimnasio | No | Dependen de funcionalidades fuera de alcance (§6) |
+| Actor                                                           | ¿Va?                       | Justificación                                                                                                                                                                                                                     |
+| --------------------------------------------------------------- | -------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Proveedor del sistema                                           | Sí, fuera de la aplicación | Aprovisiona el gimnasio afiliado y su primer administrador. Sin él ningún gimnasio arranca. No es un rol, no inicia sesión. Ver D11/DD-30                                                                                         |
+| Alumno                                                          | Sí                         | Actor central. Puede elegir y pedir una rutina, pero no ponerla en vigencia por sí mismo. **Sólo existe por invitación de un gimnasio afiliado**                                                                                  |
+| Entrenador                                                      | Sí                         | **Actor obligatorio del ciclo.** Revisa y aprueba toda rutina antes de que rija, resuelve las propuestas de adaptación, interviene sobre las rutinas de su cartera                                                                |
+| Administrador de gimnasio                                       | Sí, acotado                | Invita usuarios, gestiona roles y asignaciones, **mantiene el inventario de equipamiento** y accede a la analítica agregada. El inventario determina qué puede prescribirse en todo el gimnasio: no es un rol administrativo puro |
+| Visitante no autenticado                                        | No                         | Ver D11/DD-21                                                                                                                                                                                                                     |
+| Recepcionista, nutricionista, superadministrador multi-gimnasio | No                         | Dependen de funcionalidades fuera de alcance (§6)                                                                                                                                                                                 |
 
 ## 5. Propuesta de valor
 
@@ -108,39 +108,39 @@ Para el **gimnasio**: aviso temprano de deserción y visibilidad de la actividad
 
 No porque cueste construirlo, sino porque no es este problema.
 
-| Fuera | Precisión |
-|---|---|
-| **Decidir por la persona** | El sistema propone; el entrenador aprueba. Ninguna rutina rige ni cambia sin su autorización explícita `[F: RF-091 + decisión del cliente]` |
-| **Entrenar sin entrenador** | Todo alumno tiene un entrenador vigente. Un alumno sin entrenador no puede recibir ninguna rutina nueva ni ninguna adaptación —conserva la vigente— y el sistema lo señala al administrador `[F: decisión del cliente]` |
-| **Usarse sin gimnasio** | El sistema no es abierto. Nadie se registra por su cuenta: la cuenta nace de una invitación de un gimnasio afiliado, y la prescripción depende del equipamiento que ese gimnasio tiene `[F: decisión del cliente]` |
-| **Prescribir con equipamiento propio del alumno** | Lo disponible es el inventario del gimnasio. Un alumno que además entrena en su casa no recibe una rutina para su casa `[F: decisión del cliente]` · Ver D11/DD-26 |
-| **Seguimiento de comidas** | Sin base de alimentos, sin composición ni registro de ingesta `[F: decisión del cliente]`. Ver DD-13 |
-| **Salud clínica** | No diagnostica, no rehabilita, no corrige técnica, no reemplaza a un profesional |
-| **Operación del gimnasio como negocio** | Cobros, cuotas, facturación, control de acceso físico, reservas de clases |
-| **Alta y administración de gimnasios y sucursales** | El sistema sirve a varios gimnasios; no los gestiona `[F: decisión del cliente]` |
-| **Comunicación en vivo** | Hay comentarios asincrónicos sobre una sesión o rutina; no hay mensajería `[F: RF-077 WON'T]` |
-| **Lo que el sistema no puede medir** | Calorías quemadas, calidad de ejecución, datos de dispositivos externos `[F: RF-081 WON'T]` |
-| **Alojamiento de video propio** | Se referencian recursos externos `[F: RF-079 WON'T]` |
-| **Representación tridimensional del cuerpo** | La representación bidimensional cubre la misma necesidad `[F: RF-080 WON'T]` |
+| Fuera                                               | Precisión                                                                                                                                                                                                               |
+| --------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Decidir por la persona**                          | El sistema propone; el entrenador aprueba. Ninguna rutina rige ni cambia sin su autorización explícita `[F: RF-091 + decisión del cliente]`                                                                             |
+| **Entrenar sin entrenador**                         | Todo alumno tiene un entrenador vigente. Un alumno sin entrenador no puede recibir ninguna rutina nueva ni ninguna adaptación —conserva la vigente— y el sistema lo señala al administrador `[F: decisión del cliente]` |
+| **Usarse sin gimnasio**                             | El sistema no es abierto. Nadie se registra por su cuenta: la cuenta nace de una invitación de un gimnasio afiliado, y la prescripción depende del equipamiento que ese gimnasio tiene `[F: decisión del cliente]`      |
+| **Prescribir con equipamiento propio del alumno**   | Lo disponible es el inventario del gimnasio. Un alumno que además entrena en su casa no recibe una rutina para su casa `[F: decisión del cliente]` · Ver D11/DD-26                                                      |
+| **Seguimiento de comidas**                          | Sin base de alimentos, sin composición ni registro de ingesta `[F: decisión del cliente]`. Ver DD-13                                                                                                                    |
+| **Salud clínica**                                   | No diagnostica, no rehabilita, no corrige técnica, no reemplaza a un profesional                                                                                                                                        |
+| **Operación del gimnasio como negocio**             | Cobros, cuotas, facturación, control de acceso físico, reservas de clases                                                                                                                                               |
+| **Alta y administración de gimnasios y sucursales** | El sistema sirve a varios gimnasios; no los gestiona `[F: decisión del cliente]`                                                                                                                                        |
+| **Comunicación en vivo**                            | Hay comentarios asincrónicos sobre una sesión o rutina; no hay mensajería `[F: RF-077 WON'T]`                                                                                                                           |
+| **Lo que el sistema no puede medir**                | Calorías quemadas, calidad de ejecución, datos de dispositivos externos `[F: RF-081 WON'T]`                                                                                                                             |
+| **Alojamiento de video propio**                     | Se referencian recursos externos `[F: RF-079 WON'T]`                                                                                                                                                                    |
+| **Representación tridimensional del cuerpo**        | La representación bidimensional cubre la misma necesidad `[F: RF-080 WON'T]`                                                                                                                                            |
 
 ## 7. Criterios de éxito
 
 No son métricas de tablero: son las preguntas que, contestadas con datos del propio sistema, dicen si esto sirvió.
 
-| # | Pregunta | Observación | Verificable sin usuarios reales |
-|---|---|---|---|
-| E1 | ¿Alguien se quedó sin plan? | Todo alumno incorporado tiene una rutina propuesta el mismo día, y vigente en cuanto su entrenador la revisa. Ningún alumno queda sin entrenador vigente | Sí |
-| E1b | ¿Cuánto tarda la puerta? | Días entre que una rutina se propone y su entrenador la resuelve. Si crece, el sistema deja de servir por congestión humana, no por defecto técnico | No |
-| E2 | ¿Alguna rutina vigente prescribe algo incompatible con las condiciones vigentes de esa persona? | Cero casos | Sí |
-| E3 | ¿Cuánto tarda el sistema en reaccionar? | Días entre la aparición de un estancamiento o caída de constancia y la existencia de una propuesta | No |
-| E4 | ¿Las propuestas se aceptan? | Proporción aprobada total o parcialmente. Una tasa de rechazo alta significa que el diagnóstico es malo, y es más útil saberlo que no tenerlo | No |
-| E5 | ¿El entrenador atiende a quien lo necesita? | Sus intervenciones se concentran en alumnos señalados | No |
-| E6 | ¿El pasado se mantuvo intacto? | Una sesión ejecutada nunca cambia porque la rutina haya cambiado después | Sí |
-| E7 | ¿Cada cambio tiene explicación? | Toda adaptación conserva el criterio que la motivó y los datos que lo sustentan | Sí |
-| E8 | ¿El alumno percibe que progresa? | Puede responder "¿estoy mejor que hace tres meses?" sin que se lo explique nadie | No |
-| E9 | ¿La decisión automática es mejor que una regla trivial? | Cada componente de decisión y de estimación se compara contra un criterio de referencia simple sobre un conjunto reservado, y se conservan ambas métricas. Que la regla simple gane también es un resultado, y hay que informarlo | Sí |
-| E10 | ¿Lo narrado es cierto? | Ningún valor numérico presente en un texto generado está ausente de sus datos de entrada. Cero excepciones | Sí |
-| E11 | ¿El contexto está completo? | Proporción de alumnos con contexto suficiente para decidir: objetivo, condiciones, equipamiento y nivel declarados. Un contexto pobre degrada toda decisión aguas abajo | Sí |
+| #   | Pregunta                                                                                        | Observación                                                                                                                                                                                                                       | Verificable sin usuarios reales |
+| --- | ----------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------- |
+| E1  | ¿Alguien se quedó sin plan?                                                                     | Todo alumno incorporado tiene una rutina propuesta el mismo día, y vigente en cuanto su entrenador la revisa. Ningún alumno queda sin entrenador vigente                                                                          | Sí                              |
+| E1b | ¿Cuánto tarda la puerta?                                                                        | Días entre que una rutina se propone y su entrenador la resuelve. Si crece, el sistema deja de servir por congestión humana, no por defecto técnico                                                                               | No                              |
+| E2  | ¿Alguna rutina vigente prescribe algo incompatible con las condiciones vigentes de esa persona? | Cero casos                                                                                                                                                                                                                        | Sí                              |
+| E3  | ¿Cuánto tarda el sistema en reaccionar?                                                         | Días entre la aparición de un estancamiento o caída de constancia y la existencia de una propuesta                                                                                                                                | No                              |
+| E4  | ¿Las propuestas se aceptan?                                                                     | Proporción aprobada total o parcialmente. Una tasa de rechazo alta significa que el diagnóstico es malo, y es más útil saberlo que no tenerlo                                                                                     | No                              |
+| E5  | ¿El entrenador atiende a quien lo necesita?                                                     | Sus intervenciones se concentran en alumnos señalados                                                                                                                                                                             | No                              |
+| E6  | ¿El pasado se mantuvo intacto?                                                                  | Una sesión ejecutada nunca cambia porque la rutina haya cambiado después                                                                                                                                                          | Sí                              |
+| E7  | ¿Cada cambio tiene explicación?                                                                 | Toda adaptación conserva el criterio que la motivó y los datos que lo sustentan                                                                                                                                                   | Sí                              |
+| E8  | ¿El alumno percibe que progresa?                                                                | Puede responder "¿estoy mejor que hace tres meses?" sin que se lo explique nadie                                                                                                                                                  | No                              |
+| E9  | ¿La decisión automática es mejor que una regla trivial?                                         | Cada componente de decisión y de estimación se compara contra un criterio de referencia simple sobre un conjunto reservado, y se conservan ambas métricas. Que la regla simple gane también es un resultado, y hay que informarlo | Sí                              |
+| E10 | ¿Lo narrado es cierto?                                                                          | Ningún valor numérico presente en un texto generado está ausente de sus datos de entrada. Cero excepciones                                                                                                                        | Sí                              |
+| E11 | ¿El contexto está completo?                                                                     | Proporción de alumnos con contexto suficiente para decidir: objetivo, condiciones, equipamiento y nivel declarados. Un contexto pobre degrada toda decisión aguas abajo                                                           | Sí                              |
 
 | E12 | ¿Lo que se prescribe se puede hacer en este gimnasio? | Ninguna rutina vigente contiene un ejercicio que exija equipamiento ausente del inventario. Cero casos | Sí |
 

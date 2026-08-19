@@ -1,10 +1,10 @@
 # D7 — Flujos funcionales
 
-| | |
-|---|---|
-| **Versión** | 2.0 |
-| **Fecha** | 2026-08-18 |
-| **Estado** | Normativo |
+|                |                    |
+| -------------- | ------------------ |
+| **Versión**    | 2.0                |
+| **Fecha**      | 2026-08-18         |
+| **Estado**     | Normativo          |
 | **Depende de** | D2, D3, D4, D5, D6 |
 
 **Cambios de la v1.0:** flujos nuevos FL-00 (aprovisionamiento), FL-19 (invitación), FL-20 (inventario), FL-21 (paneles agregados) · FL-01 rehecho: el alta es por invitación y el alumno ya no declara equipamiento · FL-08 corregido: la contradicción entre RN-51, RN-59 y el registro diferido bajo rutina archivada · FL-09 y FL-10 remiten a los criterios de D5/§9.1 y §9.2, que en la v1.0 no existían.
@@ -15,12 +15,12 @@ Los cursos alternativos y de excepción no son un apéndice: son la mayor parte 
 
 ## FL-00 · Aprovisionamiento de un gimnasio afiliado
 
-| | |
-|---|---|
-| **Actor** | Proveedor del sistema, fuera de la aplicación |
-| **Precondiciones** | Afiliación acordada fuera del sistema |
+|                     |                                                                                          |
+| ------------------- | ---------------------------------------------------------------------------------------- |
+| **Actor**           | Proveedor del sistema, fuera de la aplicación                                            |
+| **Precondiciones**  | Afiliación acordada fuera del sistema                                                    |
 | **Postcondiciones** | Gimnasio creado con su zona horaria, y un usuario con rol ADMINISTRADOR en estado activo |
-| **Reglas** | RN-02e, RN-03a, RI-23 |
+| **Reglas**          | RN-02e, RN-03a, RI-23                                                                    |
 
 **Curso normal.** Se crea el gimnasio con su nombre y zona horaria, y su primer administrador con una invitación de arranque que el propio aprovisionamiento marca como emitida. La persona completa su registro por FL-19.
 
@@ -32,12 +32,12 @@ Los cursos alternativos y de excepción no son un apéndice: son la mayor parte 
 
 ## FL-19 · Invitación y alta de un usuario
 
-| | |
-|---|---|
-| **Actor** | Administrador o entrenador · Persona invitada |
-| **Precondiciones** | El emisor pertenece al gimnasio y tiene el rol que lo habilita |
+|                     |                                                                              |
+| ------------------- | ---------------------------------------------------------------------------- |
+| **Actor**           | Administrador o entrenador · Persona invitada                                |
+| **Precondiciones**  | El emisor pertenece al gimnasio y tiene el rol que lo habilita               |
 | **Postcondiciones** | Usuario activo, vinculado al gimnasio emisor, con los roles de la invitación |
-| **Reglas** | RN-02a a RN-02d, RN-104, RA-09, RA-10 |
+| **Reglas**          | RN-02a a RN-02d, RN-104, RA-09, RA-10                                        |
 
 **Curso normal**
 
@@ -49,31 +49,31 @@ Los cursos alternativos y de excepción no son un apéndice: son la mayor parte 
 
 **Cursos alternativos**
 
-| | |
-|---|---|
-| A1 · El emisor revoca antes de que se use | La invitación pasa a REVOCADA y el enlace deja de funcionar |
-| A2 · La persona no otorga el consentimiento | La cuenta se crea. No puede declarar condiciones ni mediciones y, por lo tanto, no alcanza contexto suficiente: no se le genera rutina. El sistema explica exactamente qué falta y por qué |
-| A3 · El administrador invita con varios roles | Admitido. Los roles se otorgan juntos (RA-09) |
+|                                               |                                                                                                                                                                                            |
+| --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| A1 · El emisor revoca antes de que se use     | La invitación pasa a REVOCADA y el enlace deja de funcionar                                                                                                                                |
+| A2 · La persona no otorga el consentimiento   | La cuenta se crea. No puede declarar condiciones ni mediciones y, por lo tanto, no alcanza contexto suficiente: no se le genera rutina. El sistema explica exactamente qué falta y por qué |
+| A3 · El administrador invita con varios roles | Admitido. Los roles se otorgan juntos (RA-09)                                                                                                                                              |
 
 **Cursos de excepción**
 
-| | |
-|---|---|
-| E1 · La invitación caducó | Se informa y se ofrece solicitar una nueva al gimnasio. No se permite crear la cuenta |
-| E2 · Se intenta usar dos veces | Rechazo: es de un solo uso (RI-19) |
-| E3 · El correo ya tiene cuenta en ese gimnasio | Rechazo con mensaje genérico, sin revelar si el correo existe |
+|                                                 |                                                                                               |
+| ----------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| E1 · La invitación caducó                       | Se informa y se ofrece solicitar una nueva al gimnasio. No se permite crear la cuenta         |
+| E2 · Se intenta usar dos veces                  | Rechazo: es de un solo uso (RI-19)                                                            |
+| E3 · El correo ya tiene cuenta en ese gimnasio  | Rechazo con mensaje genérico, sin revelar si el correo existe                                 |
 | E4 · El correo ya tiene cuenta en otro gimnasio | Se admite: son cuentas distintas (RN-02, DD-24). El ingreso resuelve a qué cuenta corresponde |
 
 ---
 
 ## FL-01 · Puesta en contexto del alumno
 
-| | |
-|---|---|
-| **Actor** | Alumno · Sistema · Administrador (asignación) |
-| **Precondiciones** | Usuario creado por FL-19 con rol ALUMNO |
+|                     |                                                                  |
+| ------------------- | ---------------------------------------------------------------- |
+| **Actor**           | Alumno · Sistema · Administrador (asignación)                    |
+| **Precondiciones**  | Usuario creado por FL-19 con rol ALUMNO                          |
 | **Postcondiciones** | Contexto suficiente y una rutina en estado PROPUESTA o BLOQUEADA |
-| **Reglas** | RN-09, RN-97b, RN-21, RF-111 |
+| **Reglas**          | RN-09, RN-97b, RN-21, RF-111                                     |
 
 **Curso normal**
 
@@ -87,18 +87,18 @@ Los cursos alternativos y de excepción no son un apéndice: son la mayor parte 
 
 **Cursos alternativos**
 
-| | |
-|---|---|
-| A1 · Declara no tener ninguna condición física | Es una declaración positiva, distinta de no haber contestado. Cuenta para el contexto suficiente |
-| A2 · No tiene entrenador asignado | La rutina se genera igual y queda BLOQUEADA. El sistema lo señala al administrador (RN-21) y al alumno le informa que espera la asignación de un entrenador |
-| A3 · Fue invitado por un entrenador | Ya tiene asignación desde FL-19/paso 4; la rutina queda PROPUESTA directamente |
+|                                                |                                                                                                                                                             |
+| ---------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| A1 · Declara no tener ninguna condición física | Es una declaración positiva, distinta de no haber contestado. Cuenta para el contexto suficiente                                                            |
+| A2 · No tiene entrenador asignado              | La rutina se genera igual y queda BLOQUEADA. El sistema lo señala al administrador (RN-21) y al alumno le informa que espera la asignación de un entrenador |
+| A3 · Fue invitado por un entrenador            | Ya tiene asignación desde FL-19/paso 4; la rutina queda PROPUESTA directamente                                                                              |
 
 **Cursos de excepción**
 
-| | |
-|---|---|
-| E1 · Contexto insuficiente | No se genera rutina. Se declara exactamente qué falta (RN-97b). Ver CB-10 |
-| E2 · La generación no produce salida válida | Ver CB-20: la tarea pasa al entrenador; nunca se presenta una rutina inválida |
+|                                                                      |                                                                                                                                                                         |
+| -------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| E1 · Contexto insuficiente                                           | No se genera rutina. Se declara exactamente qué falta (RN-97b). Ver CB-10                                                                                               |
+| E2 · La generación no produce salida válida                          | Ver CB-20: la tarea pasa al entrenador; nunca se presenta una rutina inválida                                                                                           |
 | E3 · El catálogo prescribible no permite cubrir los patrones mínimos | Ver CB-22 y RN-118: se genera la rutina posible y se declara qué patrones quedaron sin cubrir, señalándolo también al administrador porque es un problema de inventario |
 
 ---
@@ -107,12 +107,12 @@ Los cursos alternativos y de excepción no son un apéndice: son la mayor parte 
 
 Es la puerta del sistema. Todo lo que llega al alumno pasa por acá.
 
-| | |
-|---|---|
-| **Actor** | Entrenador |
-| **Precondiciones** | Rutina PROPUESTA de un alumno con asignación vigente |
+|                     |                                                                                                |
+| ------------------- | ---------------------------------------------------------------------------------------------- |
+| **Actor**           | Entrenador                                                                                     |
+| **Precondiciones**  | Rutina PROPUESTA de un alumno con asignación vigente                                           |
 | **Postcondiciones** | Rutina VIGENTE o RECHAZADA; en el primer caso la anterior queda ARCHIVADA y se avisa al alumno |
-| **Reglas** | RN-35, RN-36, RN-40, D5/§6, RN-108 |
+| **Reglas**          | RN-35, RN-36, RN-40, D5/§6, RN-108                                                             |
 
 **Curso normal**
 
@@ -123,34 +123,34 @@ Es la puerta del sistema. Todo lo que llega al alumno pasa por acá.
 
 **Cursos alternativos**
 
-| | |
-|---|---|
-| A1 · Aprueba con cambios | Idéntico. La revisión registra que hubo modificación y cuál |
-| A2 · Rechaza | La rutina pasa a RECHAZADA con motivo. Se avisa al alumno, que puede solicitar otra. Su rutina vigente anterior, si existía, sigue vigente |
-| A3 · El tipo de rutina no corresponde al objetivo | Advertencia y confirmación obligatoria (RN-40). No se impide |
-| A4 · Falta la aptitud o está vencida | Advertencia destacada. No impide aprobar (RN-13) |
-| A5 · Hay ejercicios ADVERTIDOS por condición leve | Se señalan. No impiden |
+|                                                   |                                                                                                                                            |
+| ------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| A1 · Aprueba con cambios                          | Idéntico. La revisión registra que hubo modificación y cuál                                                                                |
+| A2 · Rechaza                                      | La rutina pasa a RECHAZADA con motivo. Se avisa al alumno, que puede solicitar otra. Su rutina vigente anterior, si existía, sigue vigente |
+| A3 · El tipo de rutina no corresponde al objetivo | Advertencia y confirmación obligatoria (RN-40). No se impide                                                                               |
+| A4 · Falta la aptitud o está vencida              | Advertencia destacada. No impide aprobar (RN-13)                                                                                           |
+| A5 · Hay ejercicios ADVERTIDOS por condición leve | Se señalan. No impiden                                                                                                                     |
 
 **Cursos de excepción**
 
-| | |
-|---|---|
-| E1 · Hay un ejercicio INCOMPATIBLE | La aprobación se impide. El sistema ofrece las alternativas admisibles de RN-49a. El entrenador sustituye o retira, y vuelve al paso 3 |
-| E2 · No hay alternativa admisible | Ver CB-21 y RN-49: se declara explícitamente; el entrenador retira el ejercicio o deja la rutina propuesta |
-| E3 · La asignación termina mientras revisa | Ver CB-31: la confirmación se rechaza; la rutina queda BLOQUEADA |
-| E4 · Un ejercicio fue desactivado entre la propuesta y la revisión | Ver CB-13: se marca y se propone sustituto |
-| E5 · El inventario cambió entre la propuesta y la revisión | Los ejercicios afectados pasan a INCOMPATIBLE y se aplica E1 |
+|                                                                    |                                                                                                                                        |
+| ------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------- |
+| E1 · Hay un ejercicio INCOMPATIBLE                                 | La aprobación se impide. El sistema ofrece las alternativas admisibles de RN-49a. El entrenador sustituye o retira, y vuelve al paso 3 |
+| E2 · No hay alternativa admisible                                  | Ver CB-21 y RN-49: se declara explícitamente; el entrenador retira el ejercicio o deja la rutina propuesta                             |
+| E3 · La asignación termina mientras revisa                         | Ver CB-31: la confirmación se rechaza; la rutina queda BLOQUEADA                                                                       |
+| E4 · Un ejercicio fue desactivado entre la propuesta y la revisión | Ver CB-13: se marca y se propone sustituto                                                                                             |
+| E5 · El inventario cambió entre la propuesta y la revisión         | Los ejercicios afectados pasan a INCOMPATIBLE y se aplica E1                                                                           |
 
 ---
 
 ## FL-03 · Solicitud de rutina por el alumno
 
-| | |
-|---|---|
-| **Actor** | Alumno |
-| **Precondiciones** | Contexto suficiente |
+|                     |                                |
+| ------------------- | ------------------------------ |
+| **Actor**           | Alumno                         |
+| **Precondiciones**  | Contexto suficiente            |
 | **Postcondiciones** | Una rutina en estado PROPUESTA |
-| **Reglas** | RN-35, RN-36, RN-36a, D5/§6 |
+| **Reglas**          | RN-35, RN-36, RN-36a, D5/§6    |
 
 **Curso normal.** El alumno elige un preset del gimnasio o solicita una rutina generada. El sistema copia o genera la estructura sobre el catálogo prescribible, verifica compatibilidad y la deja PROPUESTA, avisando a su entrenador.
 
@@ -162,12 +162,12 @@ Es la puerta del sistema. Todo lo que llega al alumno pasa por acá.
 
 ## FL-04 · Generación asistida de rutina
 
-| | |
-|---|---|
-| **Actor** | Entrenador · Alumno · Sistema |
-| **Precondiciones** | Contexto suficiente |
-| **Postcondiciones** | Rutina PROPUESTA con justificación asociada |
-| **Reglas** | RN-39a, RN-95, RN-95b, RN-96, RN-97, RN-97b, RN-98, RN-99 |
+|                     |                                                           |
+| ------------------- | --------------------------------------------------------- |
+| **Actor**           | Entrenador · Alumno · Sistema                             |
+| **Precondiciones**  | Contexto suficiente                                       |
+| **Postcondiciones** | Rutina PROPUESTA con justificación asociada               |
+| **Reglas**          | RN-39a, RN-95, RN-95b, RN-96, RN-97, RN-97b, RN-98, RN-99 |
 
 **Curso normal**
 
@@ -180,30 +180,30 @@ Es la puerta del sistema. Todo lo que llega al alumno pasa por acá.
 
 **Cursos alternativos**
 
-| | |
-|---|---|
-| A1 · Servicio externo no disponible | El paso 1 se hace por formulario y el paso 5 se presenta tabulado. La rutina se construye igual. No se muestra error (RN-99) |
-| A2 · La interpretación del lenguaje natural es incorrecta | El solicitante corrige los parámetros en el paso 2. Por eso el paso 2 existe |
+|                                                           |                                                                                                                              |
+| --------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| A1 · Servicio externo no disponible                       | El paso 1 se hace por formulario y el paso 5 se presenta tabulado. La rutina se construye igual. No se muestra error (RN-99) |
+| A2 · La interpretación del lenguaje natural es incorrecta | El solicitante corrige los parámetros en el paso 2. Por eso el paso 2 existe                                                 |
 
 **Cursos de excepción**
 
-| | |
-|---|---|
-| E1 · La salida no supera la validación | Un reintento; si vuelve a fallar, construcción determinística. Nunca se presenta una propuesta inválida (RN-95b) |
-| E2 · Contexto insuficiente | No se genera. Se declara qué falta (RN-97b) |
-| E3 · El catálogo prescribible no cubre los patrones mínimos de RN-39a | Se genera la rutina posible, se declara qué patrones faltan y se avisa al administrador (RN-118) |
+|                                                                       |                                                                                                                  |
+| --------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| E1 · La salida no supera la validación                                | Un reintento; si vuelve a fallar, construcción determinística. Nunca se presenta una propuesta inválida (RN-95b) |
+| E2 · Contexto insuficiente                                            | No se genera. Se declara qué falta (RN-97b)                                                                      |
+| E3 · El catálogo prescribible no cubre los patrones mínimos de RN-39a | Se genera la rutina posible, se declara qué patrones faltan y se avisa al administrador (RN-118)                 |
 
 ---
 
 ## FL-05 · Ejecución de una sesión ⭐
 
-| | |
-|---|---|
-| **Actor** | Alumno |
-| **Precondiciones** | Rutina VIGENTE; ninguna sesión EN_CURSO |
+|                      |                                                                                        |
+| -------------------- | -------------------------------------------------------------------------------------- |
+| **Actor**            | Alumno                                                                                 |
+| **Precondiciones**   | Rutina VIGENTE; ninguna sesión EN_CURSO                                                |
 | **Datos de entrada** | Día elegido; por serie: carga, repeticiones, esfuerzo percibido (opcional), completada |
-| **Postcondiciones** | Sesión COMPLETADA con sus registros; récords detectados; indicadores recalculables |
-| **Reglas** | RN-50 a RN-61, RN-70, RN-13, RN-93 |
+| **Postcondiciones**  | Sesión COMPLETADA con sus registros; récords detectados; indicadores recalculables     |
+| **Reglas**           | RN-50 a RN-61, RN-70, RN-13, RN-93                                                     |
 
 **Curso normal**
 
@@ -217,31 +217,31 @@ Es la puerta del sistema. Todo lo que llega al alumno pasa por acá.
 
 **Cursos alternativos**
 
-| | |
-|---|---|
-| A1 · Agrega series adicionales | Se registran marcadas como adicionales. Cuentan para volumen, no para cumplimiento |
-| A2 · Omite una serie prescripta | Se marca no completada, con motivo opcional. No cuenta para volumen ni como cumplida |
-| A3 · Sustituye un ejercicio | FL-06 |
+|                                           |                                                                                          |
+| ----------------------------------------- | ---------------------------------------------------------------------------------------- |
+| A1 · Agrega series adicionales            | Se registran marcadas como adicionales. Cuentan para volumen, no para cumplimiento       |
+| A2 · Omite una serie prescripta           | Se marca no completada, con motivo opcional. No cuenta para volumen ni como cumplida     |
+| A3 · Sustituye un ejercicio               | FL-06                                                                                    |
 | A4 · Primera vez que ejecuta un ejercicio | Se precarga la carga sugerida de la prescripción, o el campo queda vacío. **Nunca cero** |
-| A5 · Carga un valor atípico | RN-55a: se marca y se pide confirmación. Confirmado, se registra con normalidad |
+| A5 · Carga un valor atípico               | RN-55a: se marca y se pide confirmación. Confirmado, se registra con normalidad          |
 
 **Cursos de excepción**
 
-| | |
-|---|---|
-| E1 · Pérdida de conexión | El estado parcial se conserva localmente y se reintenta. Ver CB-24 |
-| E2 · Cierra la aplicación | La sesión sigue EN_CURSO y se retoma (FL-07) |
-| E3 · Envía dos veces la misma serie | Un único registro (RN-60) |
-| E4 · Valor fuera de rango | Rechazo del lado del sistema con el rango en el mensaje (RN-55) |
-| E5 · Pasan 8 horas sin actividad | Se cierra como ABANDONADA conservando lo registrado (RN-53) |
+|                                                   |                                                                              |
+| ------------------------------------------------- | ---------------------------------------------------------------------------- |
+| E1 · Pérdida de conexión                          | El estado parcial se conserva localmente y se reintenta. Ver CB-24           |
+| E2 · Cierra la aplicación                         | La sesión sigue EN_CURSO y se retoma (FL-07)                                 |
+| E3 · Envía dos veces la misma serie               | Un único registro (RN-60)                                                    |
+| E4 · Valor fuera de rango                         | Rechazo del lado del sistema con el rango en el mensaje (RN-55)              |
+| E5 · Pasan 8 horas sin actividad                  | Se cierra como ABANDONADA conservando lo registrado (RN-53)                  |
 | E6 · Su rutina cambia de versión mientras entrena | La sesión continúa contra la versión con la que se inició (RN-52). Ver CB-14 |
 
 ---
 
 ## FL-06 · Sustitución de un ejercicio durante la sesión
 
-| | |
-|---|---|
+|           |                                                                                |
+| --------- | ------------------------------------------------------------------------------ |
 | **Actor** | Alumno · **Precondiciones** Sesión EN_CURSO · **Reglas** RN-56, RN-102, RN-49a |
 
 **Curso normal.** El alumno indica que no puede hacer un ejercicio. El sistema propone hasta cinco alternativas admisibles (RN-49a), excluidas las contraindicadas y las que exigen equipamiento ausente del inventario. Elige una; las series restantes se registran contra el ejercicio ejecutado, marcadas como sustituidas, y cuentan como cumplidas.
@@ -264,8 +264,8 @@ Es la puerta del sistema. Todo lo que llega al alumno pasa por acá.
 
 ## FL-08 · Registro diferido, corrección y desbloqueo
 
-| | |
-|---|---|
+|           |                                                                           |
+| --------- | ------------------------------------------------------------------------- |
 | **Actor** | Alumno · Entrenador (desbloqueo) · **Reglas** RN-58, RN-58a, RN-59, RN-71 |
 
 **Curso normal.** El alumno registra una sesión indicando la fecha en que ocurrió y completando sus series. La sesión nace COMPLETADA, marcada como diferida, **imputada a la rutina y a la versión que estaban vigentes en esa fecha** — que pueden estar archivadas hoy. La restricción de RN-51 rige sólo para las sesiones iniciadas en tiempo real.
@@ -278,12 +278,12 @@ Es la puerta del sistema. Todo lo que llega al alumno pasa por acá.
 
 ## FL-09 · Diagnóstico periódico de evolución
 
-| | |
-|---|---|
-| **Actor** | Sistema · Entrenador (a demanda) |
-| **Precondiciones** | Alumno con rutina VIGENTE |
-| **Postcondiciones** | Diagnóstico registrado; propuesta generada si corresponde |
-| **Reglas** | **D5/§9.1** (criterios) y **§9.2** (ajustes) · RN-78 a RN-85, RN-98 |
+|                     |                                                                     |
+| ------------------- | ------------------------------------------------------------------- |
+| **Actor**           | Sistema · Entrenador (a demanda)                                    |
+| **Precondiciones**  | Alumno con rutina VIGENTE                                           |
+| **Postcondiciones** | Diagnóstico registrado; propuesta generada si corresponde           |
+| **Reglas**          | **D5/§9.1** (criterios) y **§9.2** (ajustes) · RN-78 a RN-85, RN-98 |
 
 **Curso normal.** Cada dos semanas el sistema evalúa cada ejercicio de la rutina vigente y le asigna una situación según la tabla de precedencia de RN-79a, y determina la situación global. Si corresponde, produce una propuesta aplicando las reglas de ajuste de RN-89a, con un ajuste fundamentado por cada problema detectado. La propuesta se valida contra D5/§6 y se avisa al entrenador.
 
@@ -295,12 +295,12 @@ Es la puerta del sistema. Todo lo que llega al alumno pasa por acá.
 
 ## FL-10 · Resolución de una propuesta de adaptación ⭐
 
-| | |
-|---|---|
-| **Actor** | Entrenador |
-| **Precondiciones** | Propuesta PENDIENTE de un alumno con asignación vigente |
+|                     |                                                                             |
+| ------------------- | --------------------------------------------------------------------------- |
+| **Actor**           | Entrenador                                                                  |
+| **Precondiciones**  | Propuesta PENDIENTE de un alumno con asignación vigente                     |
 | **Postcondiciones** | Propuesta resuelta; si fue aceptada, nueva versión vigente y alumno avisado |
-| **Reglas** | RN-35a, RN-86 a RN-92, RN-108 |
+| **Reglas**          | RN-35a, RN-86 a RN-92, RN-108                                               |
 
 **Curso normal.** El entrenador ve cada ajuste con su criterio y los datos que lo sustentan, junto a la evolución del alumno en el período. Acepta la propuesta. El sistema genera una versión nueva, conserva la anterior, no altera ninguna sesión ejecutada, y avisa al alumno. **No se pide una segunda revisión: la resolución es la revisión** (RN-35a).
 
@@ -322,10 +322,10 @@ Es la puerta del sistema. Todo lo que llega al alumno pasa por acá.
 
 ## FL-12 · Reevaluación por cambio de contexto
 
-| | |
-|---|---|
+|                |                                                                                                                                     |
+| -------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
 | **Disparador** | Cambio de objetivo, alta o cierre de una condición física, cambio de estado de la aptitud, **o cambio del inventario del gimnasio** |
-| **Reglas** | RN-91, RN-92, RN-93, RN-11, RN-117 |
+| **Reglas**     | RN-91, RN-92, RN-93, RN-11, RN-117                                                                                                  |
 
 **Curso normal.** El sistema reevalúa la compatibilidad de la rutina vigente. Si aparece una incompatibilidad, marca los ejercicios afectados **sin retirarlos**, avisa al entrenador y al alumno, y genera la propuesta correspondiente.
 
@@ -359,8 +359,8 @@ Es la puerta del sistema. Todo lo que llega al alumno pasa por acá.
 
 ## FL-15 · Gestión de asignaciones
 
-| | |
-|---|---|
+|           |                                                                 |
+| --------- | --------------------------------------------------------------- |
 | **Actor** | Administrador · **Reglas** RN-18 a RN-23, RA-04, RN-108, RN-114 |
 
 **Curso normal.** El administrador asigna un entrenador a un alumno. Si había otro, se finaliza en el mismo instante. Todo lo pendiente pasa al entrante y los avisos del saliente sobre ese alumno se cierran. El acceso del saliente cesa en ese instante.
@@ -373,8 +373,8 @@ Es la puerta del sistema. Todo lo que llega al alumno pasa por acá.
 
 ## FL-16 · Estimación de riesgo de abandono
 
-| | |
-|---|---|
+|           |                                                                                                                   |
+| --------- | ----------------------------------------------------------------------------------------------------------------- |
 | **Actor** | Sistema (proceso diferido semanal) · Administrador (a demanda) · **Reglas** RN-100, RN-101, RN-98, RN-103, RN-107 |
 
 **Curso normal.** El proceso calcula, para cada alumno con datos suficientes, una estimación con sus factores principales, y la registra con la versión del componente, el contexto y el instante. Entrenadores y administradores la ven; el alumno evaluado nunca.
@@ -405,11 +405,11 @@ Es la puerta del sistema. Todo lo que llega al alumno pasa por acá.
 
 ## FL-20 · Mantenimiento del inventario del gimnasio
 
-| | |
-|---|---|
-| **Actor** | Administrador |
+|                     |                                                                  |
+| ------------------- | ---------------------------------------------------------------- |
+| **Actor**           | Administrador                                                    |
 | **Postcondiciones** | Catálogo prescribible actualizado; rutinas afectadas reevaluadas |
-| **Reglas** | RN-115 a RN-118, RN-45, RN-117, RN-108 |
+| **Reglas**          | RN-115 a RN-118, RN-45, RN-117, RN-108                           |
 
 **Curso normal.** El administrador marca qué equipamiento de la enumeración cerrada posee el gimnasio. El sistema recalcula el catálogo prescribible.
 
@@ -421,8 +421,8 @@ Es la puerta del sistema. Todo lo que llega al alumno pasa por acá.
 
 ## FL-21 · Paneles agregados
 
-| | |
-|---|---|
+|             |                                                                                         |
+| ----------- | --------------------------------------------------------------------------------------- |
 | **Actores** | Entrenador (su cartera) · Administrador (el gimnasio) · **Reglas** RN-73, RN-107, RA-06 |
 
 **Curso normal.** El entrenador consulta la adherencia media de su cartera, la distribución de señales y la evolución de su actividad. El administrador consulta la retención por cohorte de incorporación, la distribución de actividad por día y franja horaria, la adherencia media, la carga de alumnos por entrenador y la cantidad de alumnos sin entrenador vigente.

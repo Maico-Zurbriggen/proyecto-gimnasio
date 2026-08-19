@@ -1,6 +1,6 @@
 name: Historia o feature
 description: Proponer una unidad vertical de valor.
-title: "[Feature]: "
+title: '[Feature]: '
 labels: [feature]
 body:
   - type: textarea

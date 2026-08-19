@@ -94,7 +94,7 @@ Violarlas produce código que compila, pasa tests superficiales y corrompe datos
 ## Convenciones
 
 - Nombrá entidades, campos, módulos y valores de enumeración con los términos literales de D2, en español: `SesionEntrenamiento`, `RegistroSerie`, `cargaEjecutada`, `DOMINANTE_RODILLA`. No traduzcas al inglés ni inventes sinónimos.
-- Respetá los términos prohibidos de D2/§2: nunca "rutina activa" (es **vigente**), "asignar una rutina" (se *solicita*, se *revisa*, se *pone en vigencia*), "tonelaje", "dieta", ni "cumplimiento" sin calificar.
+- Respetá los términos prohibidos de D2/§2: nunca "rutina activa" (es **vigente**), "asignar una rutina" (se _solicita_, se _revisa_, se _pone en vigencia_), "tonelaje", "dieta", ni "cumplimiento" sin calificar.
 - Commits, comentarios de código y mensajes de PR en inglés, con Conventional Commits: `type(scope): summary`.
 - Validá toda entrada con esquemas Zod de `@gym/contracts`; el frontend no duplica DTO a mano.
 - Los rangos admisibles se validan siempre del lado del servidor y el mensaje de rechazo incluye el rango (RN-55, CB-43).

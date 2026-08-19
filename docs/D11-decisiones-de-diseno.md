@@ -1,11 +1,11 @@
 # D11 — Registro de decisiones
 
-| | |
-|---|---|
-| **Versión** | 2.0 |
-| **Fecha** | 2026-08-18 |
-| **Estado** | Normativo |
-| **Depende de** | Todos |
+|                |            |
+| -------------- | ---------- |
+| **Versión**    | 2.0        |
+| **Fecha**      | 2026-08-18 |
+| **Estado**     | Normativo  |
+| **Depende de** | Todos      |
 
 **Cambios de la v1.0:** DD-13 (nutrición) queda resuelta · decisiones nuevas DD-26 a DD-32, que cierran los bloqueantes de la auditoría · 👁 marca las decisiones que las fuentes tomaron sin advertir que estaban decidiendo.
 
@@ -86,11 +86,11 @@ La estructura soporta el historial; RN-18 impone la unicidad. Sin el historial n
 **Contexto.** El cliente pidió generar dietas y descartó el seguimiento de comidas. La especificación heredada había excluido la generación de planes nutricionales por riesgo sanitario sin validador profesional.
 **Opciones.**
 
-| | Forma | Riesgo | Coste |
-|---|---|---|---|
-| (a) | Plan de comidas redactado libremente por un componente generativo | **Alto.** Sin base de alimentos no hay forma de verificar la salida; puede producir déficits o ignorar patologías | Bajo |
-| (b) | Plantillas de menú precargadas y revisadas por el equipo | Bajo | Medio |
-| (c) | **Distribución orientativa de energía y macronutrientes por comida, sin nombrar alimentos** | Bajo | Bajo |
+|     | Forma                                                                                       | Riesgo                                                                                                            | Coste |
+| --- | ------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- | ----- |
+| (a) | Plan de comidas redactado libremente por un componente generativo                           | **Alto.** Sin base de alimentos no hay forma de verificar la salida; puede producir déficits o ignorar patologías | Bajo  |
+| (b) | Plantillas de menú precargadas y revisadas por el equipo                                    | Bajo                                                                                                              | Medio |
+| (c) | **Distribución orientativa de energía y macronutrientes por comida, sin nombrar alimentos** | Bajo                                                                                                              | Bajo  |
 
 **Elegida.** (c). RF-075 y RF-108 quedan redactados en esos términos; RF-076 sigue fuera.
 **Fundamento.** Cumple el pedido —el sistema produce una pauta alimentaria personalizada— sin afirmar nada que no pueda sostener y sin necesitar la base de alimentos que quedó fuera de alcance. (a) es la única opción que reintroduce el riesgo que la especificación había descartado, y también la única sin forma de evaluarse.
