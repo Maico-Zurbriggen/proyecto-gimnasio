@@ -13,7 +13,12 @@
   },
   "scripts": {
     "build": "npm run build --workspaces --if-present",
-    "dev": "concurrently -n backend,frontend \"npm run dev --workspace=@gym/backend\" \"npm run dev --workspace=@gym/frontend\"",
+    "dev": "dotenv -e .env -- concurrently -n backend,frontend \"npm run dev --workspace=@gym/backend\" \"npm run dev --workspace=@gym/frontend\"",
+    "db:deploy": "dotenv -e .env -- prisma migrate deploy --schema apps/backend/prisma/schema.prisma",
+    "db:generate": "dotenv -e .env -- prisma generate --schema apps/backend/prisma/schema.prisma",
+    "db:migrate": "dotenv -e .env -- prisma migrate dev --schema apps/backend/prisma/schema.prisma",
+    "db:status": "dotenv -e .env -- prisma migrate status --schema apps/backend/prisma/schema.prisma",
+    "db:studio": "dotenv -e .env -- prisma studio --schema apps/backend/prisma/schema.prisma",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "lint": "npm run lint --workspaces --if-present && npm run motor:lint",
@@ -27,6 +32,7 @@
   "devDependencies": {
     "@eslint/js": "^9.0.0",
     "concurrently": "^9.0.0",
+    "dotenv-cli": "^8.0.0",
     "eslint": "^9.0.0",
     "globals": "^16.0.0",
     "prettier": "^3.0.0",

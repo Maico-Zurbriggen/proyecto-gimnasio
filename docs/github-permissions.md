@@ -23,8 +23,8 @@ Para permisos granulares, crear una organización, transferir el repositorio y a
 Crear un ruleset activo dirigido a la rama por defecto con estas reglas:
 
 - requerir pull request antes de fusionar;
-- requerir 2 aprobaciones;
-- requerir revisión de Code Owners;
+- requerir 1 aprobación;
+- requerir que esa aprobación sea de un Code Owner;
 - descartar aprobaciones cuando se agreguen commits;
 - requerir aprobación del último push por otra persona;
 - requerir resolución de todas las conversaciones;

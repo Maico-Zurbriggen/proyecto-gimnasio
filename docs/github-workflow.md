@@ -46,7 +46,7 @@ Para `main`, agregar un environment `production` con aprobación manual. Para `r
 
 ### Reglas adicionales de `main`
 
-- exigir dos aprobaciones y revisión del `CODEOWNERS` ya definido;
+- exigir una aprobación obligatoria del `CODEOWNERS` ya definido;
 - exigir aprobación de una persona distinta de quien realizó el último push;
 - impedir que administradores y roles con bypass omitan las reglas;
 - deshabilitar auto-merge en la configuración general del repositorio;
