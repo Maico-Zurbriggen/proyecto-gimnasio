@@ -1,0 +1,30 @@
+# Dependencies and builds
+node_modules/
+dist/
+coverage/
+.turbo/
+
+# Environment and local tooling
+.env
+.env.*
+!.env.example
+.idea/
+.vscode/
+.codex-log/
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+motor/.venv/
+
+# Prisma and local data
+*.db
+*.db-journal
+
+# OS
+.DS_Store
+Thumbs.db
