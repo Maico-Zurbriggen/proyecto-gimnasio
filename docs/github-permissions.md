@@ -11,12 +11,12 @@ Por eso no es posible asignar `Triage`, `Write` o `Maintain` a integrantes disti
 
 Para permisos granulares, crear una organización, transferir el repositorio y aplicar esta matriz:
 
-| Responsabilidad | Rol de organización |
-| --- | --- |
-| 1–2 responsables de seguridad/configuración | Admin |
-| Tech Lead / DevOps | Maintain |
-| Integrantes que programan | Write |
-| QA / Producto sin necesidad de push | Triage |
+| Responsabilidad                             | Rol de organización |
+| ------------------------------------------- | ------------------- |
+| 1–2 responsables de seguridad/configuración | Admin               |
+| Tech Lead / DevOps                          | Maintain            |
+| Integrantes que programan                   | Write               |
+| QA / Producto sin necesidad de push         | Triage              |
 
 ## Ruleset de `main`
 

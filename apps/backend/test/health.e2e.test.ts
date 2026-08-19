@@ -9,7 +9,9 @@ describe('HealthController', () => {
   let app: INestApplication;
 
   beforeEach(async () => {
-    const moduleRef = await Test.createTestingModule({ imports: [AppModule] }).compile();
+    const moduleRef = await Test.createTestingModule({
+      imports: [AppModule],
+    }).compile();
     app = moduleRef.createNestApplication();
     await app.init();
   });
@@ -19,7 +21,9 @@ describe('HealthController', () => {
   });
 
   it('reports that the API is available', async () => {
-    const response = await request(app.getHttpServer()).get('/health').expect(200);
+    const response = await request(app.getHttpServer())
+      .get('/health')
+      .expect(200);
 
     expect(response.body).toEqual({ status: 'ok' });
   });
