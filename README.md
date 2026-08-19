@@ -12,7 +12,7 @@ apps/frontend ──REST/JSON──> apps/backend ──> PostgreSQL
 ```
 
 - Frontend: React + Vite + TypeScript.
-- Backend: NestJS + Prisma + PostgreSQL, como monolito modular.
+- Backend: Node.js + Express + TypeScript + Prisma + PostgreSQL, como monolito modular.
 - Motor: Python + pandas + scikit-learn, ejecutado por lote.
 - Contratos: paquete TypeScript compartido para esquemas de entrada/salida.
 

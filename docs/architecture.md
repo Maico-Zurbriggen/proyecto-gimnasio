@@ -9,7 +9,7 @@ React SPA
    |
    | REST/JSON + cookie httpOnly
    v
-NestJS API
+Express + TypeScript API
    |-- identidad
    |-- catálogo
    |-- rutinas

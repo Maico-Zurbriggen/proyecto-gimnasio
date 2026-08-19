@@ -4,10 +4,12 @@ Estas reglas complementan el `AGENTS.md` raíz para `apps/backend`.
 
 ## Responsabilidad
 
-- Mantener un único despliegue NestJS organizado como monolito modular.
+- Mantener un único despliegue Node.js con Express y TypeScript, organizado como monolito modular.
 - Hacer cumplir invariantes, autorización, transacciones y contratos de la API.
 - Separar los módulos por dominio: identidad, catálogo, rutinas, entrenamiento, métricas, seguimiento y administración.
 - Evitar imports internos entre módulos. Integrarse mediante interfaces/servicios públicos o eventos en proceso cuando haya una necesidad real.
+- Mantener `app.ts` libre del arranque del servidor para poder probar la aplicación con Supertest.
+- Usar routers y middleware explícitos; no crear un framework interno ni contenedores de inyección de dependencias.
 - Mantener Prisma como detalle de infraestructura; no exponer modelos ORM como respuestas HTTP.
 
 ## Dominio y seguridad
@@ -32,6 +34,6 @@ Estas reglas complementan el `AGENTS.md` raíz para `apps/backend`.
 
 ## Code Review Rules
 
-- Señalar controladores con lógica de dominio o acceso directo a Prisma.
+- Señalar routers con lógica de dominio o acceso directo a Prisma.
 - Señalar endpoints con identificadores de usuario que no prueben acceso ajeno (403).
 - Señalar cambios que reescriban sesiones, series históricas o plantillas ya copiadas.
