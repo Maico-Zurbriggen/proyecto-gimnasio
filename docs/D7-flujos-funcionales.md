@@ -2,12 +2,14 @@
 
 |                |                    |
 | -------------- | ------------------ |
-| **Versión**    | 2.0                |
-| **Fecha**      | 2026-08-18         |
+| **Versión**    | 2.1                |
+| **Fecha**      | 2026-08-24         |
 | **Estado**     | Normativo          |
 | **Depende de** | D2, D3, D4, D5, D6 |
 
 **Cambios de la v1.0:** flujos nuevos FL-00 (aprovisionamiento), FL-19 (invitación), FL-20 (inventario), FL-21 (paneles agregados) · FL-01 rehecho: el alta es por invitación y el alumno ya no declara equipamiento · FL-08 corregido: la contradicción entre RN-51, RN-59 y el registro diferido bajo rutina archivada · FL-09 y FL-10 remiten a los criterios de D5/§9.1 y §9.2, que en la v1.0 no existían.
+
+**Cambios de la v2.0:** FL-04 gana el **candidato de rutina** —el solicitante moldea la rutina generada antes de enviarla a revisión, a mano, pidiendo alternativas o volviendo al lenguaje natural (pasos 6 a 8, A3 a A7)— y FL-03 lo hereda. Ver D5/RN-124 a RN-129, D5/§5.2 y D11/DD-33.
 
 Los cursos alternativos y de excepción no son un apéndice: son la mayor parte del trabajo.
 
@@ -81,7 +83,7 @@ Los cursos alternativos y de excepción no son un apéndice: son la mayor parte 
 2. Declara sus condiciones físicas, cada una con su **zona corporal** y su **severidad**, o declara expresamente no tener ninguna.
 3. Opcionalmente registra su peso actual y su aptitud.
 4. El sistema comprueba contexto suficiente y genera una rutina completa sobre el **catálogo prescribible del gimnasio** (FL-04).
-5. La rutina queda PROPUESTA y se avisa a su entrenador.
+5. La rutina queda PROPUESTA y se avisa a su entrenador. La generación del alta **no produce candidato ajustable**: el alumno todavía no solicitó nada que moldear (RN-124). Si quiere intervenir sobre su rutina, la solicita por FL-03.
 
 **El alumno no declara equipamiento:** el disponible es el inventario de su gimnasio (D4/PD-07).
 
@@ -116,7 +118,7 @@ Es la puerta del sistema. Todo lo que llega al alumno pasa por acá.
 
 **Curso normal**
 
-1. El entrenador abre la rutina propuesta desde su cartera y ve, junto a la estructura: el origen de la rutina, el contexto del alumno con el que se construyó, y el estado de compatibilidad de cada ejercicio.
+1. El entrenador abre la rutina propuesta desde su cartera y ve, junto a la estructura: el origen de la rutina, el contexto del alumno con el que se construyó, el estado de compatibilidad de cada ejercicio, y **qué difiere de la salida original del componente o de la plantilla de origen** (RN-129, RF-120).
 2. Revisa día por día. Puede modificar cualquier ejercicio, serie, repetición, carga o descanso antes de aprobar.
 3. Aprueba. El sistema revalida compatibilidad y rangos de RN-39a sobre la versión final.
 4. La rutina pasa a VIGENTE con su versión 1, la anterior queda ARCHIVADA, se registra la revisión en auditoría y se avisa al alumno.
@@ -145,16 +147,16 @@ Es la puerta del sistema. Todo lo que llega al alumno pasa por acá.
 
 ## FL-03 · Solicitud de rutina por el alumno
 
-|                     |                                |
-| ------------------- | ------------------------------ |
-| **Actor**           | Alumno                         |
-| **Precondiciones**  | Contexto suficiente            |
-| **Postcondiciones** | Una rutina en estado PROPUESTA |
-| **Reglas**          | RN-35, RN-36, RN-36a, D5/§6    |
+|                     |                                                       |
+| ------------------- | ----------------------------------------------------- |
+| **Actor**           | Alumno                                                |
+| **Precondiciones**  | Contexto suficiente                                   |
+| **Postcondiciones** | Una rutina en estado PROPUESTA                        |
+| **Reglas**          | RN-35, RN-36, RN-36a, RN-124 a RN-129, D5/§5.2, D5/§6 |
 
-**Curso normal.** El alumno elige un preset del gimnasio o solicita una rutina generada. El sistema copia o genera la estructura sobre el catálogo prescribible, verifica compatibilidad y la deja PROPUESTA, avisando a su entrenador.
+**Curso normal.** El alumno elige un preset del gimnasio o solicita una rutina generada. El sistema copia o genera la estructura sobre el catálogo prescribible, verifica compatibilidad y la presenta como **candidato** (RN-124). El alumno lo ajusta si quiere, dentro de D5/§5.2, y confirma: recién entonces la rutina queda PROPUESTA y se avisa a su entrenador.
 
-**Alternativos.** A1: ya tiene una rutina propuesta → se le informa y, si continúa, la anterior pasa a DESCARTADA (RN-36a). A2: no tiene entrenador vigente → queda BLOQUEADA (RN-23).
+**Alternativos.** A1: ya tiene una rutina propuesta → se le informa **al confirmar** y, si continúa, la anterior pasa a DESCARTADA (RN-36a). A2: no tiene entrenador vigente → queda BLOQUEADA (RN-23). A3: abandona el candidato sin confirmar → no queda rutina ni aviso, y su propuesta anterior sigue intacta (RN-124, CB-73).
 
 **Excepción.** E1: el preset elegido contiene ejercicios incompatibles → se le informa cuáles y por qué, y se le ofrecen presets compatibles. No se propone algo que se sabe que será rechazado.
 
@@ -162,12 +164,12 @@ Es la puerta del sistema. Todo lo que llega al alumno pasa por acá.
 
 ## FL-04 · Generación asistida de rutina
 
-|                     |                                                           |
-| ------------------- | --------------------------------------------------------- |
-| **Actor**           | Entrenador · Alumno · Sistema                             |
-| **Precondiciones**  | Contexto suficiente                                       |
-| **Postcondiciones** | Rutina PROPUESTA con justificación asociada               |
-| **Reglas**          | RN-39a, RN-95, RN-95b, RN-96, RN-97, RN-97b, RN-98, RN-99 |
+|                     |                                                                                             |
+| ------------------- | ------------------------------------------------------------------------------------------- |
+| **Actor**           | Entrenador · Alumno · Sistema                                                               |
+| **Precondiciones**  | Contexto suficiente                                                                         |
+| **Postcondiciones** | Rutina PROPUESTA con justificación asociada, o ningún efecto si el candidato no se confirma |
+| **Reglas**          | RN-39a, RN-95, RN-95b, RN-96, RN-97, RN-97b, RN-98, RN-99, RN-124 a RN-129, D5/§5.2         |
 
 **Curso normal**
 
@@ -176,22 +178,34 @@ Es la puerta del sistema. Todo lo que llega al alumno pasa por acá.
 3. El componente de decisión construye la rutina a partir de esos parámetros y del contexto completo, usando exclusivamente el catálogo prescribible.
 4. El sistema valida la salida contra RN-39a (estructura de días, series, repeticiones, descansos, cobertura mínima de patrones) y contra D5/§6.
 5. Se produce la justificación en lenguaje natural de los criterios aplicados.
-6. La rutina queda PROPUESTA.
+6. La rutina se presenta como **candidato**: la estructura completa, día por día, con el estado de compatibilidad de cada ejercicio y la justificación al lado. Todavía no existe como rutina y nadie fue avisado (RN-124).
+7. El solicitante ajusta el candidato si quiere, por cualquiera de las tres vías de A3, A4 y A5. Cada ajuste revalida en el acto contra RN-39a y D5/§6 (RN-126).
+8. Confirma. La rutina queda PROPUESTA, se registra qué difiere de la salida original del componente y se avisa a su entrenador (RN-129).
+
+**Por qué existe el paso 7.** Si el alumno no puede moldear lo que pidió, que la solicite él o que se la genere el sistema por su cuenta son la misma funcionalidad. El paso 7 es lo que hace que la solicitud sea suya — y está acotado por D5/§5.2 para que moldear no se convierta en prescribir. Ver D11/DD-33.
 
 **Cursos alternativos**
 
-|                                                           |                                                                                                                              |
-| --------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
-| A1 · Servicio externo no disponible                       | El paso 1 se hace por formulario y el paso 5 se presenta tabulado. La rutina se construye igual. No se muestra error (RN-99) |
-| A2 · La interpretación del lenguaje natural es incorrecta | El solicitante corrige los parámetros en el paso 2. Por eso el paso 2 existe                                                 |
+|                                                           |                                                                                                                                                                                                                         |
+| --------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| A1 · Servicio externo no disponible                       | El paso 1 se hace por formulario y el paso 5 se presenta tabulado. La rutina se construye igual. No se muestra error (RN-99)                                                                                            |
+| A2 · La interpretación del lenguaje natural es incorrecta | El solicitante corrige los parámetros en el paso 2. Por eso el paso 2 existe                                                                                                                                            |
+| A3 · Ajusta el candidato **a mano**                       | Sustituye, agrega, quita o reordena ejercicios dentro de lo que admite D5/§5.2, sin volver a llamar al componente. No consume el tope de RN-127 ni cambia el origen de la rutina                                        |
+| A4 · Pide **alternativas** para un ejercicio puntual      | El sistema ofrece las admisibles del mismo patrón dominante, del catálogo prescribible y compatibles con el alumno, ordenadas por el componente (RN-49a, RF-059). El solicitante elige de esa lista; no escribe valores |
+| A5 · Vuelve a **describirla en lenguaje natural**         | Regenera desde el paso 2, con los parámetros corregidos y las preferencias ya declaradas como entrada (RN-128). Consume el tope de RN-127                                                                               |
+| A6 · Abandona el candidato sin confirmar                  | No queda rutina, no se avisa a nadie y la propuesta anterior, si existía, sigue intacta: RN-36a se aplica al confirmar, no al generar. Ver CB-73                                                                        |
+| A7 · El solicitante es el entrenador                      | El ajuste del paso 7 no tiene las restricciones de D5/§5.2, porque ya tiene escritura sobre la rutina. Al confirmar, la rutina entra en FL-02 con él mismo como revisor                                                 |
 
 **Cursos de excepción**
 
-|                                                                       |                                                                                                                  |
-| --------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
-| E1 · La salida no supera la validación                                | Un reintento; si vuelve a fallar, construcción determinística. Nunca se presenta una propuesta inválida (RN-95b) |
-| E2 · Contexto insuficiente                                            | No se genera. Se declara qué falta (RN-97b)                                                                      |
-| E3 · El catálogo prescribible no cubre los patrones mínimos de RN-39a | Se genera la rutina posible, se declara qué patrones faltan y se avisa al administrador (RN-118)                 |
+|                                                                                |                                                                                                                                                                       |
+| ------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| E1 · La salida no supera la validación                                         | Un reintento; si vuelve a fallar, construcción determinística. Nunca se presenta una propuesta inválida (RN-95b)                                                      |
+| E2 · Contexto insuficiente                                                     | No se genera. Se declara qué falta (RN-97b)                                                                                                                           |
+| E3 · El catálogo prescribible no cubre los patrones mínimos de RN-39a          | Se genera la rutina posible, se declara qué patrones faltan y se avisa al administrador (RN-118)                                                                      |
+| E4 · Un ajuste del paso 7 deja el candidato inválido                           | Se rechaza ese ajuste enunciando el rango o el mínimo incumplido, y el candidato queda como estaba. Un candidato inválido no se confirma nunca (RN-126)               |
+| E5 · Agota el tope de regeneraciones sin quedar conforme                       | Ver CB-72: confirma el último candidato, o deriva la construcción a su entrenador adjuntando como comentario lo que no lo convence. No se le muestra un error (RN-99) |
+| E6 · El inventario o una condición del alumno cambian con el candidato abierto | Los ejercicios afectados se remarcan en la revalidación del paso 7. Un candidato con un ejercicio INCOMPATIBLE no se confirma hasta sustituirlo o quitarlo            |
 
 ---
 
@@ -211,19 +225,19 @@ Es la puerta del sistema. Todo lo que llega al alumno pasa por acá.
 2. Si la aptitud está ausente o vencida, se advierte de forma destacada. La sesión se inicia igual.
 3. Si algún ejercicio del día está marcado INCOMPATIBLE, ADVERTIDO o EJERCICIO_DESACTIVADO, se advierte (RN-93).
 4. La sesión pasa a EN_CURSO y **congela la prescripción del día**.
-5. Cada serie se presenta precargada con los valores de la última ejecución del alumno en ese ejercicio.
+5. Cada serie se presenta precargada con los valores óptimos predichos para ese ejercicio en esa sesión.
 6. El alumno confirma o corrige carga y repeticiones, y opcionalmente el esfuerzo percibido.
 7. Finaliza. La sesión pasa a COMPLETADA, se sella la duración, se detectan récords y se avisan.
 
 **Cursos alternativos**
 
-|                                           |                                                                                          |
-| ----------------------------------------- | ---------------------------------------------------------------------------------------- |
-| A1 · Agrega series adicionales            | Se registran marcadas como adicionales. Cuentan para volumen, no para cumplimiento       |
-| A2 · Omite una serie prescripta           | Se marca no completada, con motivo opcional. No cuenta para volumen ni como cumplida     |
-| A3 · Sustituye un ejercicio               | FL-06                                                                                    |
-| A4 · Primera vez que ejecuta un ejercicio | Se precarga la carga sugerida de la prescripción, o el campo queda vacío. **Nunca cero** |
-| A5 · Carga un valor atípico               | RN-55a: se marca y se pide confirmación. Confirmado, se registra con normalidad          |
+|                                           |                                                                                                                                                                                 |
+| ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| A1 · Agrega series adicionales            | Se registran marcadas como adicionales. Cuentan para volumen, no para cumplimiento                                                                                              |
+| A2 · Omite una serie prescripta           | Se marca no completada, con motivo opcional. No cuenta para volumen ni como cumplida                                                                                            |
+| A3 · Sustituye un ejercicio               | FL-06                                                                                                                                                                           |
+| A4 · Primera vez que ejecuta un ejercicio | Se precarga la carga sugerida de la prescripción, o el campo queda vacío o predice en base a un peso lógico para un principiante en ese ejercicio en particular. **Nunca cero** |
+| A5 · Carga un valor atípico               | RN-55a: se marca y se pide confirmación. Confirmado, se registra con normalidad                                                                                                 |
 
 **Cursos de excepción**
 

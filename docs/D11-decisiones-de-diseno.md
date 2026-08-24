@@ -2,12 +2,14 @@
 
 |                |            |
 | -------------- | ---------- |
-| **Versión**    | 2.0        |
-| **Fecha**      | 2026-08-18 |
+| **Versión**    | 2.1        |
+| **Fecha**      | 2026-08-24 |
 | **Estado**     | Normativo  |
 | **Depende de** | Todos      |
 
 **Cambios de la v1.0:** DD-13 (nutrición) queda resuelta · decisiones nuevas DD-26 a DD-32, que cierran los bloqueantes de la auditoría · 👁 marca las decisiones que las fuentes tomaron sin advertir que estaban decidiendo.
+
+**Cambios de la v2.0:** DD-33, el candidato de rutina.
 
 ---
 
@@ -216,3 +218,11 @@ La estructura soporta el historial; RN-18 impone la unicidad. Sin el historial n
 **Elegida.** (b), complementada con el recálculo del récord sobre el histórico completo (RN-71) y con la confirmación de valores atípicos en el momento del registro (RN-55a).
 **Fundamento.** (a) preserva la estabilidad de los indicadores a costa de conservar datos que se sabe que son falsos. (c) elimina la estabilidad de los indicadores. La excepción nominal y auditada conserva ambas cosas.
 **Consecuencia asumida.** El plazo de 48 h deja de ser absoluto. El límite de un desbloqueo por sesión es lo que impide que la excepción se convierta en la norma.
+
+### DD-33 · El candidato se moldea; la propuesta, no
+
+**Contexto.** El corpus dejaba que la rutina generada naciera PROPUESTA y le llegara al entrenador tal como salió del componente. El alumno que la había solicitado no tenía modo de intervenir sobre ella salvo pedir otra entera —consumiendo una rutina DESCARTADA y un aviso por RN-36a— o comentarla. Si el alumno no puede moldear lo que pidió, que la solicite él o que se la genere el sistema por su cuenta son la misma funcionalidad.
+**Opciones.** (a) La rutina generada nace PROPUESTA, sin intervención del solicitante. (b) El alumno edita libremente su rutina propuesta. (c) **La generación produce un candidato ajustable, que sólo al confirmarse se convierte en rutina PROPUESTA.**
+**Elegida.** (c), con las operaciones del alumno acotadas por D5/§5.2, revalidación en el acto (RN-126) y un tope de tres regeneraciones (RN-127).
+**Fundamento.** (a) convierte la solicitud del alumno en un trámite y desaprovecha la ocasión más barata de acercar el plan a lo que la persona efectivamente va a hacer; además empuja toda inconformidad a la única salida disponible, que es pedir otra rutina entera. (b) contradice la matriz de D3 y, sobre todo, borra la frontera entre lo que el alumno elige y lo que el entrenador prescribe: series, repeticiones, descansos y cargas son prescripción. (c) conserva las dos cosas: el alumno decide **qué ejercicios** hace, el entrenador decide **cómo se hacen**, y la puerta de RN-35 sigue intacta porque nada rige sin revisión.
+**Consecuencia asumida.** Aparece un objeto que no está en el ciclo de vida de D6 —el candidato— que no se persiste como rutina y muere si no se confirma; se declara explícitamente en D6/§1 para que nadie lo resuelva agregando un estado BORRADOR. Y el entrenador debe recibir en la revisión la diferencia entre lo que el componente produjo y lo que el alumno confirmó (RN-129, RF-120): sin eso revisaría como `GENERADA` una rutina que en realidad armó el alumno.

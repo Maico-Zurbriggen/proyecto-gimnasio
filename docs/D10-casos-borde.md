@@ -2,12 +2,14 @@
 
 |                |                                        |
 | -------------- | -------------------------------------- |
-| **Versión**    | 2.0                                    |
-| **Fecha**      | 2026-08-18                             |
+| **Versión**    | 2.1                                    |
+| **Fecha**      | 2026-08-24                             |
 | **Estado**     | Normativo                              |
 | **Depende de** | D5 (reglas), D6 (estados), D7 (flujos) |
 
 **Cambios de la v1.0:** los cinco casos que remitían a reglas inexistentes ahora remiten a reglas reales (CB-13, CB-16, CB-21, CB-22, CB-32) · las dos decisiones pendientes quedan cerradas y convertidas en reglas (CB-53, CB-55) · casos nuevos de invitación, inventario, arranque, entrenador que entrena y corrección tardía.
+
+**Cambios de la v2.0:** CB-72 y CB-73, del candidato de rutina (D5/RN-124 a RN-129).
 
 Este documento **no reescribe** reglas ni flujos: los referencia. Si un comportamiento cambia, cambia en D5 o D7 y aquí sólo cambia la referencia.
 
@@ -59,13 +61,14 @@ Este documento **no reescribe** reglas ni flujos: los referencia. Si un comporta
 
 ## D · Interrupción y reanudación
 
-| ID    | Escenario                                                                              | Comportamiento esperado                                                                                          | Regla            |
-| ----- | -------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- | ---------------- |
-| CB-24 | Se pierde la conexión durante el registro de series                                    | Lo ingresado se conserva localmente y se reintenta. Al recuperar, se sincroniza sin duplicar                     | RN-60, RNF-10    |
-| CB-25 | El alumno cierra la aplicación a mitad de sesión y vuelve al rato                      | Retoma en el punto exacto, con las series registradas conservadas                                                | FL-07            |
-| CB-26 | Vuelve pasadas más de 8 horas                                                          | La sesión ya está abandonada, con lo registrado conservado y visible. Se le ofrece registrar una sesión diferida | RN-53, FL-07/E1  |
-| CB-27 | Abandona la puesta en contexto a mitad de camino                                       | Lo declarado se conserva. Al volver, retoma donde quedó. No se genera rutina hasta alcanzar contexto suficiente  | RN-97b, FL-01/E1 |
-| CB-65 | **Una invitación queda a medio usar**: la persona abre el enlace y no completa el alta | La invitación sigue VIGENTE hasta caducar o revocarse. No hay usuario a medio crear                              | D6/§1            |
+| ID    | Escenario                                                                              | Comportamiento esperado                                                                                            | Regla            |
+| ----- | -------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ | ---------------- |
+| CB-24 | Se pierde la conexión durante el registro de series                                    | Lo ingresado se conserva localmente y se reintenta. Al recuperar, se sincroniza sin duplicar                       | RN-60, RNF-10    |
+| CB-25 | El alumno cierra la aplicación a mitad de sesión y vuelve al rato                      | Retoma en el punto exacto, con las series registradas conservadas                                                  | FL-07            |
+| CB-26 | Vuelve pasadas más de 8 horas                                                          | La sesión ya está abandonada, con lo registrado conservado y visible. Se le ofrece registrar una sesión diferida   | RN-53, FL-07/E1  |
+| CB-27 | Abandona la puesta en contexto a mitad de camino                                       | Lo declarado se conserva. Al volver, retoma donde quedó. No se genera rutina hasta alcanzar contexto suficiente    | RN-97b, FL-01/E1 |
+| CB-65 | **Una invitación queda a medio usar**: la persona abre el enlace y no completa el alta | La invitación sigue VIGENTE hasta caducar o revocarse. No hay usuario a medio crear                                | D6/§1            |
+| CB-73 | **El solicitante abandona un candidato de rutina a medio ajustar**                     | No deja rutina, aviso ni propuesta descartada: lo que no se confirmó no ocurrió. Si vuelve, empieza otra solicitud | RN-124, FL-04/A6 |
 
 ## E · Concurrencia
 
@@ -107,17 +110,18 @@ Este documento **no reescribe** reglas ni flujos: los referencia. Si un comporta
 
 ## I · Límites y valores extremos
 
-| ID    | Escenario                                                        | Comportamiento esperado                                                                                                                               | Regla                |
-| ----- | ---------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------- |
-| CB-42 | Carga cero en una serie                                          | Válida: los ejercicios de peso corporal existen. Aporta volumen; no aporta carga máxima estimada; su único tipo de récord posible es por repeticiones | RN-55, RN-65, RN-70a |
-| CB-43 | Carga negativa, o más de 100 repeticiones                        | Rechazo del lado del servidor con el rango admitido en el mensaje                                                                                     | RN-55                |
-| CB-44 | Serie de 30 repeticiones                                         | Se registra y aporta volumen. **No se calcula carga máxima estimada**: por encima de 12 repeticiones la estimación no es fiable                       | RN-65                |
-| CB-45 | Fecha de sesión o de medición en el futuro, o anterior a 90 días | Rechazo indicando el rango admitido                                                                                                                   | RN-16, RN-59         |
-| CB-46 | Sesión iniciada a las 23:30 y finalizada a las 00:40             | Se imputa a la fecha de inicio en la zona horaria del gimnasio. Un entrenamiento no se parte en dos días                                              | RN-110               |
-| CB-47 | Alumno en otra zona horaria que la del gimnasio                  | Todo se calcula y se presenta en la zona horaria del gimnasio. Una única definición de día y de semana para todos                                     | RN-110               |
-| CB-48 | Cargas con más de dos decimales                                  | Se redondean a 0,01 al ingresar. El redondeo ocurre una sola vez, nunca en cada cálculo                                                               | D2/§3                |
-| CB-49 | Alumno con diez mil sesiones                                     | Las vistas siguen dentro de RNF-01 y RNF-02. Los históricos se presentan por ventana                                                                  | RNF-01               |
-| CB-50 | Rutina con siete días y treinta ejercicios por día               | Se rechaza: excede los rangos del tipo de rutina, y la frecuencia 7 no tiene estructura admisible                                                     | RN-39a, RN-41        |
+| ID    | Escenario                                                                       | Comportamiento esperado                                                                                                                                                 | Regla                   |
+| ----- | ------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------- |
+| CB-42 | Carga cero en una serie                                                         | Válida: los ejercicios de peso corporal existen. Aporta volumen; no aporta carga máxima estimada; su único tipo de récord posible es por repeticiones                   | RN-55, RN-65, RN-70a    |
+| CB-43 | Carga negativa, o más de 100 repeticiones                                       | Rechazo del lado del servidor con el rango admitido en el mensaje                                                                                                       | RN-55                   |
+| CB-44 | Serie de 30 repeticiones                                                        | Se registra y aporta volumen. **No se calcula carga máxima estimada**: por encima de 12 repeticiones la estimación no es fiable                                         | RN-65                   |
+| CB-45 | Fecha de sesión o de medición en el futuro, o anterior a 90 días                | Rechazo indicando el rango admitido                                                                                                                                     | RN-16, RN-59            |
+| CB-46 | Sesión iniciada a las 23:30 y finalizada a las 00:40                            | Se imputa a la fecha de inicio en la zona horaria del gimnasio. Un entrenamiento no se parte en dos días                                                                | RN-110                  |
+| CB-47 | Alumno en otra zona horaria que la del gimnasio                                 | Todo se calcula y se presenta en la zona horaria del gimnasio. Una única definición de día y de semana para todos                                                       | RN-110                  |
+| CB-48 | Cargas con más de dos decimales                                                 | Se redondean a 0,01 al ingresar. El redondeo ocurre una sola vez, nunca en cada cálculo                                                                                 | D2/§3                   |
+| CB-49 | Alumno con diez mil sesiones                                                    | Las vistas siguen dentro de RNF-01 y RNF-02. Los históricos se presentan por ventana                                                                                    | RNF-01                  |
+| CB-50 | Rutina con siete días y treinta ejercicios por día                              | Se rechaza: excede los rangos del tipo de rutina, y la frecuencia 7 no tiene estructura admisible                                                                       | RN-39a, RN-41           |
+| CB-72 | **El alumno agota el tope de regeneraciones del candidato sin quedar conforme** | Confirma el último candidato, o deriva la construcción a su entrenador adjuntando como comentario lo que no lo convence. **No se le muestra un error ni queda sin vía** | RN-127, RN-99, FL-04/E5 |
 
 ## J · Comportamiento absurdo pero posible
 
