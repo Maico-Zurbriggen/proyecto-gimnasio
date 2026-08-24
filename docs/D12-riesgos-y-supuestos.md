@@ -2,12 +2,14 @@
 
 |                |                 |
 | -------------- | --------------- |
-| **Versión**    | 2.0             |
-| **Fecha**      | 2026-08-18      |
+| **Versión**    | 2.1             |
+| **Fecha**      | 2026-08-24      |
 | **Estado**     | Normativo       |
 | **Depende de** | D1, D5, D8, D11 |
 
 **Cambios de la v1.0:** §1.1 registra **todas** las constantes numéricas del sistema con su origen, que en la v1.0 aparecían en D5 como si fueran datos del dominio · riesgos nuevos R-15 y R-16 · §5 actualizada: de las seis inconsistencias abiertas quedan dos, y ninguna es bloqueante.
+
+**Cambios de la v2.0:** §1.1 registra la constante del tope de regeneraciones del candidato de rutina (RN-127).
 
 ---
 
@@ -68,8 +70,9 @@ Registro completo de las constantes que D5 fija. `[F]` proviene de una fuente ·
 | Caducidad de avisos                                 | 90 días                                           | RN-113        | `[S]`                                                                       |
 | Plazo de anonimización                              | 7 días                                            | RN-106        | `[S]`                                                                       |
 | Rango de ingesta proteica                           | 1,6 – 2,2 g/kg                                    | RN-120        | `[S]`                                                                       |
+| Tope de regeneraciones de un candidato de rutina    | 3                                                 | RN-127        | `[S]`                                                                       |
 
-**Lectura de esta tabla.** De 36 constantes, 4 provienen del análisis inicial y **32 son convenciones adoptadas por este proyecto**. Ninguna es un dato del dominio verificado. Las tres tablas —derivación del tipo, criterios de diagnóstico y reglas de ajuste— concentran el riesgo: si están mal, el sistema funciona y prescribe mal, que es peor que fallar.
+**Lectura de esta tabla.** De 37 constantes, 4 provienen del análisis inicial y **33 son convenciones adoptadas por este proyecto**. Ninguna es un dato del dominio verificado. Las tres tablas —derivación del tipo, criterios de diagnóstico y reglas de ajuste— concentran el riesgo: si están mal, el sistema funciona y prescribe mal, que es peor que fallar.
 
 ## 2. Riesgos
 

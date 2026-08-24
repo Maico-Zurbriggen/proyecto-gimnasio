@@ -2,12 +2,14 @@
 
 |                |            |
 | -------------- | ---------- |
-| **Versión**    | 2.0        |
-| **Fecha**      | 2026-08-18 |
+| **Versión**    | 2.1        |
+| **Fecha**      | 2026-08-24 |
 | **Estado**     | Normativo  |
 | **Depende de** | D1, D2     |
 
 **Cambios de la v1.0:** se agrega el proveedor del sistema como actor no aplicativo · filas de invitación, inventario, aviso, consentimiento y desbloqueo de sesión, que faltaban · se resuelve quién registra la aptitud · se elimina el equipamiento declarado por el alumno · referencia cruzada corregida (apuntaba a RN-58 en lugar de RN-106).
+
+**Cambios de la v2.0:** el alumno gana escritura sobre el **candidato** de rutina —no sobre la rutina propuesta— dentro de las operaciones de D5/§5.2. Ver D11/DD-33.
 
 ---
 
@@ -25,13 +27,13 @@ Se lo declara como actor porque ejecuta una operación indispensable. Modelarlo 
 
 ### 1.1 Alumno
 
-|                |                                                                                                                                                                                                                                               |
-| -------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Objetivo**   | Entrenar con un plan que se mantenga adecuado a su estado, y saber si progresa                                                                                                                                                                |
-| **Consulta**   | Su rutina vigente y su rutina propuesta, su historial de sesiones, sus indicadores, sus mediciones, el catálogo, las propuestas de adaptación que le afectan y su estado de resolución, sus avisos                                            |
-| **Modifica**   | Su perfil, objetivo, condiciones físicas, aptitud, mediciones; sus sesiones dentro del plazo de corrección; comentarios propios. **Puede solicitar** una rutina eligiendo un preset o pidiendo una generada, lo que crea una rutina propuesta |
-| **Nunca hace** | Poner en vigencia una rutina, resolver una propuesta de adaptación, modificar su rutina vigente, declarar equipamiento                                                                                                                        |
-| **Nunca ve**   | Su propia estimación de riesgo de abandono; información de otros alumnos                                                                                                                                                                      |
+|                |                                                                                                                                                                                                                                                                                                                                                        |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Objetivo**   | Entrenar con un plan que se mantenga adecuado a su estado, y saber si progresa                                                                                                                                                                                                                                                                         |
+| **Consulta**   | Su rutina vigente y su rutina propuesta, su historial de sesiones, sus indicadores, sus mediciones, el catálogo, las propuestas de adaptación que le afectan y su estado de resolución, sus avisos                                                                                                                                                     |
+| **Modifica**   | Su perfil, objetivo, condiciones físicas, aptitud, mediciones; sus sesiones dentro del plazo de corrección; comentarios propios. **Puede solicitar** una rutina eligiendo un preset o pidiendo una generada, y **moldear el candidato** antes de enviarlo a revisión, dentro de las operaciones de D5/§5.2; al confirmarlo se crea la rutina propuesta |
+| **Nunca hace** | Poner en vigencia una rutina, resolver una propuesta de adaptación, modificar su rutina vigente **ni su rutina propuesta una vez confirmada**, fijar series, repeticiones, descansos o cargas, declarar equipamiento                                                                                                                                   |
+| **Nunca ve**   | Su propia estimación de riesgo de abandono; información de otros alumnos                                                                                                                                                                                                                                                                               |
 
 **Decisión:** el alumno no ve su propia estimación de riesgo. Mostrarle una probabilidad de que abandone es contraproducente y no admite justificación defendible. Sí ve sus indicadores objetivos de adherencia y cumplimiento `[F: RF-062]` · Ver D11/DD-17.
 
@@ -62,45 +64,46 @@ Un entrenador que quiera entrenar necesita **otro** entrenador asignado: no hay 
 
 **Convención:** `P` propio · `A` alumnos con asignación vigente · `G` todo el gimnasio · `—` sin acceso · `L` leer · `E` escribir
 
-| Recurso / operación                              | Alumno      | Entrenador                  | Administrador           |
-| ------------------------------------------------ | ----------- | --------------------------- | ----------------------- |
-| **Invitación**                                   | —           | `L/E` G, sólo rol ALUMNO    | `L/E` G                 |
-| **Inventario del gimnasio**                      | `L`         | `L`                         | `L/E` G                 |
-| Consentimiento propio                            | `L/E` P     | `L/E` P                     | `L/E` P                 |
-| Perfil propio                                    | `L/E` P     | `L/E` P                     | `L/E` P                 |
-| Perfil de alumno (edad, nivel, días disponibles) | `L/E` P     | `L` A                       | `L` G                   |
-| Objetivo e historial de objetivos                | `L/E` P     | `L` A                       | —                       |
-| Condición física e historial                     | `L/E` P     | `L` A                       | —                       |
-| Aptitud                                          | `L/E` P     | `L` A                       | `L/E` G                 |
-| Medición corporal                                | `L/E` P     | `L` A                       | —                       |
-| Estado de membresía                              | `L` P       | `L` A                       | `L/E` G                 |
-| Catálogo base                                    | `L`         | `L`                         | `L`                     |
-| Catálogo del gimnasio                            | `L`         | `L` + `E` propios           | `L` + curar G           |
-| Plantilla                                        | `L` presets | `L` presets + `L/E` propias | `L` G                   |
-| Rutina propuesta y rutina vigente                | `L` P       | `L/E` A                     | —                       |
-| Versión histórica de rutina                      | `L` P       | `L` A                       | —                       |
-| **Solicitar** una rutina                         | `E` P       | `E` A                       | —                       |
-| **Poner en vigencia** una rutina                 | **—**       | `E` A                       | —                       |
-| Sesión y registros de serie                      | `L/E` P     | `L` A                       | —                       |
-| **Desbloquear** una sesión bloqueada             | **—**       | `E` A                       | —                       |
-| Indicadores individuales                         | `L` P       | `L` A                       | —                       |
-| Diagnóstico de evolución                         | `L` P       | `L` A                       | —                       |
-| Propuesta de adaptación: ver                     | `L` P       | `L` A                       | —                       |
-| Propuesta de adaptación: **resolver**            | **—**       | `E` A                       | —                       |
-| Historial de adaptaciones                        | `L` P       | `L` A                       | —                       |
-| Comentario sobre sesión o rutina                 | `L/E` P     | `L/E` A                     | —                       |
-| Pauta nutricional orientativa                    | `L` P       | `L` A                       | —                       |
-| **Aviso**                                        | `L/E` P     | `L/E` P                     | `L/E` P                 |
-| Estimación de riesgo de abandono                 | **—**       | `L` A                       | `L` G (agregado)        |
-| Segmentación de perfiles                         | —           | `L` A                       | `L` G                   |
-| Panel agregado de cartera                        | —           | `L` P                       | `L` G                   |
-| Panel analítico del gimnasio                     | —           | —                           | `L` G                   |
-| Gestión de usuarios y roles                      | —           | —                           | `E` G                   |
-| Gestión de asignaciones                          | —           | —                           | `E` G                   |
-| Registro de auditoría                            | —           | —                           | `L` G                   |
-| Solicitar recálculo de estimaciones              | —           | —                           | `E` G                   |
-| Exportar datos propios / solicitar baja          | `E` P       | `E` P                       | `E` P                   |
-| **Aprovisionar un gimnasio**                     | —           | —                           | **—** (proveedor, §1.0) |
+| Recurso / operación                              | Alumno                       | Entrenador                  | Administrador           |
+| ------------------------------------------------ | ---------------------------- | --------------------------- | ----------------------- |
+| **Invitación**                                   | —                            | `L/E` G, sólo rol ALUMNO    | `L/E` G                 |
+| **Inventario del gimnasio**                      | `L`                          | `L`                         | `L/E` G                 |
+| Consentimiento propio                            | `L/E` P                      | `L/E` P                     | `L/E` P                 |
+| Perfil propio                                    | `L/E` P                      | `L/E` P                     | `L/E` P                 |
+| Perfil de alumno (edad, nivel, días disponibles) | `L/E` P                      | `L` A                       | `L` G                   |
+| Objetivo e historial de objetivos                | `L/E` P                      | `L` A                       | —                       |
+| Condición física e historial                     | `L/E` P                      | `L` A                       | —                       |
+| Aptitud                                          | `L/E` P                      | `L` A                       | `L/E` G                 |
+| Medición corporal                                | `L/E` P                      | `L` A                       | —                       |
+| Estado de membresía                              | `L` P                        | `L` A                       | `L/E` G                 |
+| Catálogo base                                    | `L`                          | `L`                         | `L`                     |
+| Catálogo del gimnasio                            | `L`                          | `L` + `E` propios           | `L` + curar G           |
+| Plantilla                                        | `L` presets                  | `L` presets + `L/E` propias | `L` G                   |
+| Rutina propuesta y rutina vigente                | `L` P                        | `L/E` A                     | —                       |
+| **Candidato** de rutina, antes de confirmarse    | `L/E` P, acotado por D5/§5.2 | `L/E` A, sin acotar         | —                       |
+| Versión histórica de rutina                      | `L` P                        | `L` A                       | —                       |
+| **Solicitar** una rutina                         | `E` P                        | `E` A                       | —                       |
+| **Poner en vigencia** una rutina                 | **—**                        | `E` A                       | —                       |
+| Sesión y registros de serie                      | `L/E` P                      | `L` A                       | —                       |
+| **Desbloquear** una sesión bloqueada             | **—**                        | `E` A                       | —                       |
+| Indicadores individuales                         | `L` P                        | `L` A                       | —                       |
+| Diagnóstico de evolución                         | `L` P                        | `L` A                       | —                       |
+| Propuesta de adaptación: ver                     | `L` P                        | `L` A                       | —                       |
+| Propuesta de adaptación: **resolver**            | **—**                        | `E` A                       | —                       |
+| Historial de adaptaciones                        | `L` P                        | `L` A                       | —                       |
+| Comentario sobre sesión o rutina                 | `L/E` P                      | `L/E` A                     | —                       |
+| Pauta nutricional orientativa                    | `L` P                        | `L` A                       | —                       |
+| **Aviso**                                        | `L/E` P                      | `L/E` P                     | `L/E` P                 |
+| Estimación de riesgo de abandono                 | **—**                        | `L` A                       | `L` G (agregado)        |
+| Segmentación de perfiles                         | —                            | `L` A                       | `L` G                   |
+| Panel agregado de cartera                        | —                            | `L` P                       | `L` G                   |
+| Panel analítico del gimnasio                     | —                            | —                           | `L` G                   |
+| Gestión de usuarios y roles                      | —                            | —                           | `E` G                   |
+| Gestión de asignaciones                          | —                            | —                           | `E` G                   |
+| Registro de auditoría                            | —                            | —                           | `L` G                   |
+| Solicitar recálculo de estimaciones              | —                            | —                           | `E` G                   |
+| Exportar datos propios / solicitar baja          | `E` P                        | `E` P                       | `E` P                   |
+| **Aprovisionar un gimnasio**                     | —                            | —                           | **—** (proveedor, §1.0) |
 
 ## 3. Reglas de acceso
 

@@ -2,12 +2,14 @@
 
 |                |            |
 | -------------- | ---------- |
-| **Versión**    | 2.0        |
-| **Fecha**      | 2026-08-18 |
+| **Versión**    | 2.1        |
+| **Fecha**      | 2026-08-24 |
 | **Estado**     | Normativo  |
 | **Depende de** | D2, D4, D5 |
 
 **Cambios de la v1.0:** ciclo de la invitación · estado `DESCARTADA` de rutina, que faltaba y dejaba indefinido un caso frecuente · desbloqueo excepcional de sesión · aclaración de que una versión nueva no transiciona la rutina · corrección del diagrama de rutina, cuya flecha de rechazo apuntaba al estado equivocado.
+
+**Cambios de la v2.0:** se declara que el **candidato de rutina** (D5/RN-124) no es un estado de este ciclo, y por qué no se agrega uno.
 
 Las transiciones prohibidas importan tanto como las permitidas: cada una evita un defecto que de otro modo aparece en producción.
 
@@ -58,14 +60,16 @@ Las transiciones prohibidas importan tanto como las permitidas: cada una evita u
                   └──▶ vuelve a PROPUESTA al reasignarse un entrenador
 ```
 
-| Estado     | Significado                                                                           | Quién provoca la entrada                                                        |
-| ---------- | ------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
-| PROPUESTA  | Rutina completa asociada al alumno, sin efecto. Visible para el alumno, no ejecutable | Entrenador, alumno (al elegir un preset o pedir una generada), sistema (RF-087) |
-| BLOQUEADA  | Propuesta sin aprobador porque el alumno no tiene entrenador vigente                  | Sistema, al finalizar la asignación (RN-23)                                     |
-| VIGENTE    | Rutina bajo la cual el alumno puede iniciar sesiones                                  | Entrenador, mediante revisión favorable                                         |
-| RECHAZADA  | Revisión desfavorable, con motivo. El alumno puede solicitar otra                     | Entrenador                                                                      |
-| DESCARTADA | Fue sustituida por otra solicitud antes de ser revisada                               | Quien solicitó la nueva (RN-36a)                                                |
-| ARCHIVADA  | Fue vigente y otra la sustituyó. Consultable, no ejecutable                           | Sistema                                                                         |
+| Estado     | Significado                                                                           | Quién provoca la entrada                                                                                   |
+| ---------- | ------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| PROPUESTA  | Rutina completa asociada al alumno, sin efecto. Visible para el alumno, no ejecutable | Entrenador, alumno (al **confirmar** el candidato de un preset o de una rutina generada), sistema (RF-087) |
+| BLOQUEADA  | Propuesta sin aprobador porque el alumno no tiene entrenador vigente                  | Sistema, al finalizar la asignación (RN-23)                                                                |
+| VIGENTE    | Rutina bajo la cual el alumno puede iniciar sesiones                                  | Entrenador, mediante revisión favorable                                                                    |
+| RECHAZADA  | Revisión desfavorable, con motivo. El alumno puede solicitar otra                     | Entrenador                                                                                                 |
+| DESCARTADA | Fue sustituida por otra solicitud antes de ser revisada                               | Quien solicitó la nueva (RN-36a)                                                                           |
+| ARCHIVADA  | Fue vigente y otra la sustituyó. Consultable, no ejecutable                           | Sistema                                                                                                    |
+
+**El candidato de rutina no es un estado.** Lo que el solicitante ajusta antes de enviar a revisión (RN-124, D5/§5.2) no es una `RutinaAsignada`: no se persiste como rutina, no transiciona y desaparece si no se confirma. La rutina nace directamente en PROPUESTA, al confirmarse el candidato. **No se agrega un estado BORRADOR**: sería un estado sin efecto, sin aprobador y sin historial que preservar, y obligaría a decidir qué hacer con los borradores que nadie confirma. Ver D11/DD-33.
 
 **Transiciones imposibles**
 
