@@ -2,7 +2,7 @@
 
 ## Situación actual: repositorio personal
 
-`Maico-Zurbriggen/proyecto-gimnasio` pertenece a una cuenta personal. GitHub sólo ofrece dos niveles en este tipo de repositorio:
+Los tres repositorios pertenecen inicialmente a la cuenta personal `Maico-Zurbriggen`. GitHub sólo ofrece dos niveles en este tipo de repositorio:
 
 - propietario, con control completo;
 - colaboradores, con lectura y escritura.
@@ -24,7 +24,7 @@ Crear un ruleset activo dirigido a la rama por defecto con estas reglas:
 
 - requerir pull request antes de fusionar;
 - requerir 1 aprobación;
-- requerir que esa aprobación sea de un Code Owner;
+- requerir que la aprobación sea del Code Owner;
 - descartar aprobaciones cuando se agreguen commits;
 - requerir aprobación del último push por otra persona;
 - requerir resolución de todas las conversaciones;
@@ -39,6 +39,7 @@ El propietario conserva la capacidad administrativa de editar o eliminar estas r
 ## Ruleset de `develop`
 
 - requerir PR y 1 aprobación;
+- requerir que apruebe una persona distinta de quien hizo el último push;
 - descartar aprobaciones obsoletas;
 - requerir conversaciones resueltas y check `quality`;
 - bloquear force-push y eliminación;
@@ -54,7 +55,7 @@ El propietario conserva la capacidad administrativa de editar o eliminar estas r
 Probar las reglas con una cuenta integrante, no administradora:
 
 1. Intentar push directo a `main`: debe rechazarse.
-2. Abrir un PR con una sola aprobación: no debe poder fusionarse.
-3. Agregar un commit: las aprobaciones anteriores deben descartarse.
-4. Aprobar con dos revisores y CI verde: el botón de merge manual debe habilitarse.
+2. Abrir un PR sin aprobación: no debe poder fusionarse.
+3. Agregar un commit después de una aprobación: la aprobación debe descartarse.
+4. En `main`, aprobar como Code Owner con CI verde: el botón de merge manual debe habilitarse.
 5. Confirmar que no aparece la opción de auto-merge.

@@ -1,8 +1,7 @@
 .git
 .github
 .env
-**/node_modules
-**/dist
-**/coverage
-**/.venv
-**/__pycache__
+node_modules
+dist
+coverage
+*.tsbuildinfo
