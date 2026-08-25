@@ -1,6 +1,6 @@
 # ADR 0001: monorepo y motor analítico batch
 
-- Estado: aceptada
+- Estado: reemplazada por ADR 0002
 - Fecha: 2026-08-18
 
 ## Contexto

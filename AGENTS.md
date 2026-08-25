@@ -1,46 +1,42 @@
-# Instrucciones del repositorio
+# Instrucciones del frontend
 
-## Producto y alcance
+## Contexto
 
-Este monorepo implementa una plataforma web de entrenamiento asistido. Su núcleo es el bucle: rutina prescripta → sesión ejecutada → datos → métricas/señales → ajuste del entrenador.
+Este repositorio contiene la SPA React de la plataforma de entrenamiento asistido. El backend Express y el motor batch Python son repositorios independientes. Antes de implementar una historia, consultar el documento funcional correspondiente en `docs/`.
 
-- Preservar siempre la diferencia entre lo planificado y lo ejecutado. Una sesión congela la prescripción; editar una rutina nunca reescribe el historial.
-- Los roles son un conjunto (`ALUMNO`, `ENTRENADOR`, `ADMIN`), no un enum exclusivo.
-- La autorización combina rol y propiedad/asignación del recurso.
-- El alumno puede usar el sistema sin entrenador.
-- El score de abandono no se muestra al alumno.
-- Quedan fuera del MVP: nutrición prescriptiva, chat en tiempo real, pagos, check-in, video propio, wearables, 3D y aplicación nativa.
+## Responsabilidad
 
-## Arquitectura
+- Construir una SPA React móvil primero. La sesión activa debe ser plenamente usable a 360 px y con pocos toques.
+- Consumir exclusivamente la API pública del backend mediante una capa de cliente.
+- No acceder a PostgreSQL, Prisma, el motor analítico ni proveedores externos.
+- Mantener reglas de negocio y autorización en el backend. La UI puede anticipar validaciones, pero la API vuelve a validarlas.
+- Usar TanStack Query para estado del servidor. Reservar estado global para necesidades demostradas.
+- Generar tipos y cliente desde OpenAPI cuando el contrato exista; no duplicar DTO manualmente.
 
-- `apps/frontend`: SPA React, TypeScript y Vite; móvil primero para la sesión activa.
-- `apps/backend`: monolito modular NestJS; una API REST y una base PostgreSQL.
-- `motor`: jobs Python batch para análisis/ML; no es un microservicio online.
-- `packages/contracts`: contratos compartidos de API. No compartir lógica de negocio entre capas.
-- `docs`: decisiones de arquitectura y proceso.
+## Convenciones
 
-El frontend nunca accede directamente a la base ni al motor. El motor lee datos y escribe resultados precalculados versionados. Los proveedores externos se aíslan detrás de adaptadores con timeout, límite y fallback determinístico.
+- Organizar por feature cuando aparezcan funcionalidades; los componentes compartidos deben ser realmente genéricos.
+- Diseñar estados de carga, vacío, error y reintento junto con el camino feliz.
+- Cumplir accesibilidad por teclado, etiquetas y contraste. No comunicar información sólo por color.
+- Conservar localmente el borrador de la sesión activa; la estrategia de sincronización debe ser explícita y testeada.
+- Mantener el SVG muscular inline y controlado por props; no agregar canvas, WebGL ni 3D.
+- Nombrar conceptos de dominio con los términos literales de `docs/D2-glosario.md`.
 
 ## Forma de trabajo
 
-- Leer el `AGENTS.md` más cercano antes de modificar una parte del sistema.
-- Hacer cambios pequeños y verticales; evitar dependencias entre módulos que no estén justificadas.
-- No agregar una dependencia de producción sin explicar su necesidad en el PR.
-- Mantener migraciones versionadas y actualizar OpenAPI cuando cambie un contrato.
-- Nunca incluir secretos ni datos personales reales. Usar `.env.example` y datos sintéticos.
-- Los commits siguen Conventional Commits y se redactan en inglés: `type(scope): summary`.
-- Todo cambio entra por PR; no hacer push directo a `main` ni a `develop`.
+- Crear ramas desde `develop`; todo cambio entra por pull request.
+- Usar Conventional Commits en inglés: `type(scope): summary`.
+- No agregar dependencias de producción sin justificar su necesidad en el PR.
+- Actualizar el cliente generado en el mismo PR que adopte una nueva versión del contrato OpenAPI.
 
-## Validación
+## Verificación
 
-- JavaScript/TypeScript: `npm run lint`, `npm run typecheck`, `npm test`, `npm run build`.
-- Python: `python -m ruff check motor`, `python -m mypy motor/src`, `python -m pytest motor/tests`.
-- Antes de cerrar una tarea, ejecutar las verificaciones afectadas. No ocultar fallos ni bajar cobertura para hacer pasar CI.
+- Ejecutar `npm run check` antes de cerrar una tarea.
+- Agregar pruebas de interacción para flujos y Playwright sólo para recorridos críticos de extremo a extremo.
 
 ## Code Review Rules
 
-- Bloquear cambios que mezclen prescripción y ejecución o muten datos históricos.
-- Bloquear endpoints que validen RBAC pero no propiedad/asignación.
-- Bloquear llamadas directas del frontend al motor, la base o proveedores de IA.
-- Exigir tests para reglas de dominio, permisos y correcciones de bugs.
-- Señalar consultas analíticas con riesgo de fuga temporal o datos posteriores al evento evaluado.
+- Señalar lógica de permisos confiada sólo al cliente.
+- Señalar interfaces de sesión que requieran precisión de escritorio o pierdan datos ante una interrupción.
+- Señalar DTO duplicados o tipos escritos a mano que deberían provenir de OpenAPI.
+- Señalar estado remoto copiado innecesariamente a stores globales.

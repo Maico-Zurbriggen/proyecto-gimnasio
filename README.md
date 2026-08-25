@@ -1,42 +1,31 @@
-# Proyecto Gimnasio
+# Proyecto Gimnasio — Frontend
 
-Base de un monorepo para una plataforma web de entrenamiento asistido. No contiene funcionalidades de negocio todavía; incluye el esqueleto de frontend, backend, contratos, motor analítico y automatización.
+SPA web de la plataforma de entrenamiento asistido. Este repositorio contiene únicamente la interfaz React; el backend y el motor analítico viven en repositorios independientes.
 
-## Arquitectura
+## Responsabilidad
 
-```text
-apps/frontend ──REST/JSON──> apps/backend ──> PostgreSQL
-                              ^                 ^
-                              |                 |
-                        contracts         motor (batch)
-```
+- presentar los flujos de alumno, entrenador y administrador;
+- mantener la sesión activa usable desde 360 px;
+- consumir exclusivamente la API REST publicada por el backend;
+- gestionar estado remoto con TanStack Query y estados de interacción locales;
+- conservar localmente el borrador de una sesión activa cuando corresponda.
 
-- Frontend: React + Vite + TypeScript.
-- Backend: NestJS + Prisma + PostgreSQL, como monolito modular.
-- Motor: Python + pandas + scikit-learn, ejecutado por lote.
-- Contratos: paquete TypeScript compartido para esquemas de entrada/salida.
-
-Las decisiones y límites están en [docs/architecture.md](docs/architecture.md). El flujo de ramas y PR está en [docs/github-workflow.md](docs/github-workflow.md), y la matriz de acceso y protección en [docs/github-permissions.md](docs/github-permissions.md).
+El frontend no accede a PostgreSQL, Prisma, el motor de IA ni proveedores externos. OpenAPI, publicado por el backend, será la fuente de verdad para generar los tipos y el cliente HTTP.
 
 ## Requisitos
 
-- Node.js 24 o superior.
-- npm 11.6.2.
-- Python 3.13.
-- Docker Desktop para PostgreSQL y el entorno en contenedores.
+- Node.js 24 o superior;
+- npm 11.6 o superior.
 
 ## Inicio local
 
 ```bash
-npm install
-python -m venv motor/.venv
-# Activar el entorno virtual según el sistema operativo
-python -m pip install -e "./motor[dev]"
-docker compose up -d db
+npm ci
+cp .env.example .env
 npm run dev
 ```
 
-Copiar `.env.example` a `.env` antes de iniciar. El frontend queda en `http://localhost:5173` y la API en `http://localhost:3000`.
+En PowerShell, usar `Copy-Item .env.example .env`. La aplicación queda disponible en `http://localhost:5173` y espera la API en la URL configurada por `VITE_API_URL`.
 
 ## Verificación
 
@@ -44,4 +33,9 @@ Copiar `.env.example` a `.env` antes de iniciar. El frontend queda en `http://lo
 npm run check
 ```
 
-El repositorio aún no incluye `package-lock.json`: debe generarse con el primer `npm install` que tenga acceso al registro npm y subirse antes del primer PR funcional. En ese mismo PR, cambiar CI de `npm install` a `npm ci`.
+## Repositorios relacionados
+
+- Backend: `proyecto-gimnasio-back`.
+- Motor analítico: `proyecto-gimnasio-ia`.
+
+El corpus funcional compartido está indexado en [docs/README.md](docs/README.md) y las fronteras del sistema en [docs/architecture.md](docs/architecture.md).

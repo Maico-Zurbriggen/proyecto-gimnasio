@@ -22,7 +22,7 @@ feature/* -> PR -> develop -> release/* -> PR -> main
 1. Crear o asignar un issue con criterios de aceptación.
 2. Crear la rama desde `develop`.
 3. Abrir un draft PR temprano y mantenerlo acotado.
-4. Requerir CI verde y al menos una revisión de otra squad.
+4. Requerir CI verde y la revisión de una persona distinta de quien hizo el último push.
 5. Hacer squash merge a `develop` y borrar la rama.
 6. En un hito, crear `release/<version>` y desplegarla al entorno de prueba.
 7. Durante QA sólo entran correcciones de estabilización en la release.
@@ -46,7 +46,7 @@ Para `main`, agregar un environment `production` con aprobación manual. Para `r
 
 ### Reglas adicionales de `main`
 
-- exigir dos aprobaciones y revisión del `CODEOWNERS` ya definido;
+- exigir una aprobación y que sea del `CODEOWNERS` definido;
 - exigir aprobación de una persona distinta de quien realizó el último push;
 - impedir que administradores y roles con bypass omitan las reglas;
 - deshabilitar auto-merge en la configuración general del repositorio;

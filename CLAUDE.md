@@ -9,31 +9,25 @@ Ante una decisión ambigua, resolvé en la dirección que conserve el historial 
 
 ## Estado del repositorio
 
-Este archivo es **provisional**: el repositorio es un scaffold sin funcionalidades de negocio.
-`apps/backend/prisma/schema.prisma` no tiene ningún modelo y no hay migraciones; el dominio entra por migraciones revisadas.
-No hay módulos NestJS de dominio: se crean al empezar una historia vertical, nunca como carpetas vacías.
+Este repositorio contiene únicamente el frontend React de la plataforma y todavía es un scaffold sin funcionalidades de negocio.
+El backend Express y el motor batch Python viven en repositorios independientes.
 Actualizá la sección **Trampas conocidas** cada vez que algo salga mal por una razón no obvia.
 
 ## Comandos
 
-- Entorno local: `npm install` · `python -m venv motor/.venv` · `python -m pip install -e "./motor[dev]"` · `docker compose up -d db` · `npm run dev`.
-- Copiá `.env.example` a `.env` antes de levantar nada. Frontend en `:5173`, API en `:3000`.
-- Verificación completa antes de cerrar una tarea: `npm run check` (format:check + lint + typecheck + test + build, JS y Python).
-- Verificación acotada: `npm run <lint|typecheck|test|build> --workspace=@gym/<backend|frontend|contracts>`.
-- Motor: `python -m ruff check motor` · `python -m mypy motor/src` · `python -m pytest motor/tests`.
-- Migraciones: `npm exec --workspace=@gym/backend -- prisma migrate dev --name <nombre>` (todavía no hay script de npm; agregalo con la primera migración).
+- Entorno local: `npm ci` · copiar `.env.example` a `.env` · `npm run dev`.
+- Frontend en `:5173`; la API se configura con `VITE_API_URL`.
+- Verificación completa antes de cerrar una tarea: `npm run check`.
+- Verificación acotada: `npm run <lint|typecheck|test|build>`.
 - No cierres una tarea con verificaciones en rojo ni bajes cobertura para que CI pase.
 
 ## Fronteras que no se cruzan
 
 - El frontend consume **sólo** la API REST del backend: nunca Prisma, PostgreSQL, el motor ni un proveedor externo.
 - El backend es dueño de permisos, transacciones, invariantes y contrato HTTP. La UI puede anticipar validaciones; la API siempre revalida.
-- `packages/contracts` contiene DTO y esquemas Zod compartidos, nunca modelos ORM ni lógica de negocio.
+- El backend publica OpenAPI como fuente de verdad. El frontend genera tipos y cliente desde una versión explícita del contrato; no duplica DTO a mano.
 - No expongas modelos de Prisma como respuesta HTTP; Prisma es infraestructura del backend.
-- Los módulos del backend no se importan entre sí: integrá por servicio/interfaz pública o evento en proceso.
-- `motor` no sirve HTTP ni entra en el camino de una petición: lee snapshots y escribe resultados precalculados.
-- LLM y recomendadores van detrás de puertos/adaptadores, con timeout, límite por usuario y fallback determinístico.
-- PostgreSQL es la única fuente de verdad: no agregues Redis, colas ni otro datastore sin un problema medido.
+- Los detalles internos del backend y del motor no se reproducen en este repositorio.
 
 ## Invariantes del dominio
 
@@ -96,17 +90,15 @@ Violarlas produce código que compila, pasa tests superficiales y corrompe datos
 - Nombrá entidades, campos, módulos y valores de enumeración con los términos literales de D2, en español: `SesionEntrenamiento`, `RegistroSerie`, `cargaEjecutada`, `DOMINANTE_RODILLA`. No traduzcas al inglés ni inventes sinónimos.
 - Respetá los términos prohibidos de D2/§2: nunca "rutina activa" (es **vigente**), "asignar una rutina" (se _solicita_, se _revisa_, se _pone en vigencia_), "tonelaje", "dieta", ni "cumplimiento" sin calificar.
 - Commits, comentarios de código y mensajes de PR en inglés, con Conventional Commits: `type(scope): summary`.
-- Validá toda entrada con esquemas Zod de `@gym/contracts`; el frontend no duplica DTO a mano.
+- Validá entradas de interacción con Zod y usa los tipos generados desde OpenAPI para el contrato HTTP.
 - Los rangos admisibles se validan siempre del lado del servidor y el mensaje de rechazo incluye el rango (RN-55, CB-43).
-- Actualizá OpenAPI en el mismo PR que cambie un contrato.
-- Nunca modifiques una migración ya aplicada: creá una nueva y documentá los cambios incompatibles.
+- Coordiná con el backend cualquier cambio de contrato y actualizá el cliente generado en el mismo PR que lo adopte.
 - Nunca incluyas secretos ni datos personales reales; usá `.env.example` y datos sintéticos.
-- Priorizá tests unitarios para reglas puras, tests de API para autorización y tests de integración para persistencia. Toda regla de dominio, permiso y corrección de bug lleva test.
+- Priorizá pruebas de interacción y accesibilidad; toda corrección de bug lleva test de regresión.
 - La sesión activa del frontend es móvil primero: usable a 360 px, sin desplazamiento horizontal, y con borrador local que sobrevive a una interrupción (RNF-06, RNF-10).
 
 ## Trampas conocidas
 
-- No existe `package-lock.json` y CI corre `npm install`. El PR que lo agregue debe cambiar `.github/workflows/ci.yml` a `npm ci` en el mismo commit.
 - `noUncheckedIndexedAccess` está activo: todo acceso indexado devuelve `T | undefined`. No lo silencies con `!`.
 - El equipamiento es del **gimnasio**, no del alumno. La falta de equipamiento **impide**, no advierte. El modelo v1.0 tenía una entidad del alumno que ya no existe (PD-07, RN-47).
 - La falta de aptitud vigente **nunca** impide una operación: sólo advierte de forma destacada (RN-13, RN-48). El estado de membresía es puramente informativo (RN-14).
@@ -123,7 +115,7 @@ Violarlas produce código que compila, pasa tests superficiales y corrompe datos
 - Todo cambio entra por PR. No hagas push directo a `main` ni a `develop`.
 - Ramas desde `develop`: `feature/<issue>-<descripcion>`, `fix/<issue>-<descripcion>`. `hotfix/*` sale de `main` y vuelve a `develop`.
 - Hacé cambios pequeños y verticales; no agregues dependencias de producción sin justificar la necesidad en el PR.
-- Leé el `AGENTS.md` más cercano antes de tocar `apps/backend`, `apps/frontend` o `motor`.
+- Leé `AGENTS.md` y el documento funcional relacionado antes de tocar una feature.
 
 ## Dónde está el resto
 
