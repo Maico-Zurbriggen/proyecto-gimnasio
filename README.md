@@ -37,5 +37,6 @@ npm run check
 
 - Backend: `proyecto-gimnasio-back`.
 - Motor analítico: `proyecto-gimnasio-ia`.
+- Documentación canónica: [proyecto-gimnasio-documentacion](https://github.com/Maico-Zurbriggen/proyecto-gimnasio-documentacion).
 
-El corpus funcional compartido está indexado en [docs/README.md](docs/README.md) y las fronteras del sistema en [docs/architecture.md](docs/architecture.md).
+El corpus funcional y las fronteras del sistema se mantienen exclusivamente en el repositorio documental. Para trabajo asistido por IA, comenzar por su `AGENTS.md` y `manifest.json`.

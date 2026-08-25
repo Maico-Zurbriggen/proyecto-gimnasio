@@ -2,7 +2,9 @@
 
 ## Contexto
 
-Este repositorio contiene la SPA React de la plataforma de entrenamiento asistido. El backend Express y el motor batch Python son repositorios independientes. Antes de implementar una historia, consultar el documento funcional correspondiente en `docs/`.
+Este repositorio contiene la SPA React de la plataforma de entrenamiento asistido. El backend Express y el motor batch Python son repositorios independientes.
+
+La documentación canónica vive en `Maico-Zurbriggen/proyecto-gimnasio-documentacion`. Cuando los repositorios están clonados como carpetas hermanas, leer primero `../proyecto-gimnasio-documentacion/AGENTS.md` y usar su `manifest.json` para seleccionar el contexto de la tarea. Si no está disponible localmente, consultar su versión en GitHub; no reconstruir reglas por memoria ni copiar documentación a este repositorio.
 
 ## Responsabilidad
 
@@ -20,7 +22,7 @@ Este repositorio contiene la SPA React de la plataforma de entrenamiento asistid
 - Cumplir accesibilidad por teclado, etiquetas y contraste. No comunicar información sólo por color.
 - Conservar localmente el borrador de la sesión activa; la estrategia de sincronización debe ser explícita y testeada.
 - Mantener el SVG muscular inline y controlado por props; no agregar canvas, WebGL ni 3D.
-- Nombrar conceptos de dominio con los términos literales de `docs/D2-glosario.md`.
+- Nombrar conceptos de dominio con los términos literales de `product/glossary.md` del repositorio documental.
 
 ## Forma de trabajo
 
@@ -28,6 +30,7 @@ Este repositorio contiene la SPA React de la plataforma de entrenamiento asistid
 - Usar Conventional Commits en inglés: `type(scope): summary`.
 - No agregar dependencias de producción sin justificar su necesidad en el PR.
 - Actualizar el cliente generado en el mismo PR que adopte una nueva versión del contrato OpenAPI.
+- Relacionar el PR de código con el PR documental cuando cambie un contrato, una regla o un flujo.
 
 ## Verificación
 
