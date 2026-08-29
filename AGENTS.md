@@ -2,41 +2,54 @@
 
 ## Contexto
 
-Este repositorio contiene la SPA React de la plataforma de entrenamiento asistido. El backend Express y el motor batch Python son repositorios independientes. Antes de implementar una historia, consultar el documento funcional correspondiente en `docs/`.
+Este repositorio contiene la SPA React de la plataforma. Backend Express y el servicio Python de IA son repositorios independientes. El servicio IA orquesta de forma asíncrona el LLM alojado en el Polo y también contendrá jobs analíticos batch; frontend no conoce ninguno de esos límites.
+
+La documentación canónica vive en `Maico-Zurbriggen/proyecto-gimnasio-documentacion`. Con repositorios hermanos, leer primero `../proyecto-gimnasio-documentacion/AGENTS.md` y usar `manifest.json`. Si no está disponible localmente, consultar GitHub; no reconstruir reglas por memoria ni copiar documentación aquí.
 
 ## Responsabilidad
 
-- Construir una SPA React móvil primero. La sesión activa debe ser plenamente usable a 360 px y con pocos toques.
-- Consumir exclusivamente la API pública del backend mediante una capa de cliente.
-- No acceder a PostgreSQL, Prisma, el motor analítico ni proveedores externos.
-- Mantener reglas de negocio y autorización en el backend. La UI puede anticipar validaciones, pero la API vuelve a validarlas.
-- Usar TanStack Query para estado del servidor. Reservar estado global para necesidades demostradas.
-- Generar tipos y cliente desde OpenAPI cuando el contrato exista; no duplicar DTO manualmente.
+- Construir una SPA React móvil primero, plenamente usable a 360 px.
+- Consumir exclusivamente el OpenAPI público del backend mediante cliente generado.
+- No acceder a PostgreSQL, Prisma, IA, ngrok, LLM ni proveedores externos.
+- Mantener reglas de negocio y autorización en backend.
+- Usar TanStack Query para estado remoto; reservar estado global para necesidades demostradas.
+- Conservar localmente el identificador de una generación activa para recuperarla tras recargar.
+
+## Generación asíncrona
+
+- Crear la solicitud en backend y consultar su estado mediante polling; nunca mantener una petición abierta esperando al LLM.
+- Detener polling en estados terminales y diseñar carga, reintento, error e indisponibilidad.
+- Si generación no está disponible, deshabilitar esa sección y mantener visibles los presets publicados del gimnasio.
+- Toda salida es candidato; no presentarla como rutina vigente antes de la aprobación del entrenador.
+- No implementar lógica de compatibilidad o permisos sólo en cliente.
 
 ## Convenciones
 
-- Organizar por feature cuando aparezcan funcionalidades; los componentes compartidos deben ser realmente genéricos.
-- Diseñar estados de carga, vacío, error y reintento junto con el camino feliz.
-- Cumplir accesibilidad por teclado, etiquetas y contraste. No comunicar información sólo por color.
-- Conservar localmente el borrador de la sesión activa; la estrategia de sincronización debe ser explícita y testeada.
+- Organizar por feature cuando aparezcan funcionalidades.
+- Diseñar carga, vacío, error y reintento junto con el camino feliz.
+- Cumplir accesibilidad por teclado, etiquetas y contraste; no comunicar sólo por color.
+- Conservar localmente el borrador de sesión activa con estrategia de sincronización explícita.
 - Mantener el SVG muscular inline y controlado por props; no agregar canvas, WebGL ni 3D.
-- Nombrar conceptos de dominio con los términos literales de `docs/D2-glosario.md`.
+- Nombrar dominio con `product/glossary.md` del repositorio documental.
 
 ## Forma de trabajo
 
-- Crear ramas desde `develop`; todo cambio entra por pull request.
-- Usar Conventional Commits en inglés: `type(scope): summary`.
-- No agregar dependencias de producción sin justificar su necesidad en el PR.
-- Actualizar el cliente generado en el mismo PR que adopte una nueva versión del contrato OpenAPI.
+- Crear ramas desde `develop`; todo cambio entra por PR.
+- Promover `develop → test → main`; no crear commits exclusivos en `test`.
+- Usar Conventional Commits en inglés.
+- No agregar dependencias de producción sin justificar su necesidad.
+- Actualizar el cliente generado en el mismo PR que adopte un contrato backend nuevo.
+- Relacionar PR de código y documental cuando cambie contrato, regla o flujo.
 
 ## Verificación
 
 - Ejecutar `npm run check` antes de cerrar una tarea.
-- Agregar pruebas de interacción para flujos y Playwright sólo para recorridos críticos de extremo a extremo.
+- Agregar pruebas de interacción para flujos y Playwright sólo para recorridos E2E críticos.
 
 ## Code Review Rules
 
-- Señalar lógica de permisos confiada sólo al cliente.
-- Señalar interfaces de sesión que requieran precisión de escritorio o pierdan datos ante una interrupción.
-- Señalar DTO duplicados o tipos escritos a mano que deberían provenir de OpenAPI.
+- Señalar permisos confiados sólo al cliente.
+- Señalar interfaces de sesión que pierdan datos ante una interrupción.
+- Señalar DTO manuales que deberían provenir de OpenAPI.
 - Señalar estado remoto copiado innecesariamente a stores globales.
+- Señalar llamadas directas a IA, ngrok o LLM.
