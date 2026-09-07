@@ -9,7 +9,7 @@ SPA React de la plataforma de entrenamiento asistido.
 - consumir exclusivamente la API REST del backend;
 - gestionar estado remoto con TanStack Query;
 - seguir generaciones asíncronas mediante polling al backend;
-- mostrar presets del gimnasio cuando generación no esté disponible.
+- deshabilitar sólo la generación cuando no esté disponible; los presets son alcance opcional.
 
 Frontend no accede a PostgreSQL, Prisma, servicio IA, ngrok ni LLM. El OpenAPI del backend es la fuente de verdad para tipos y cliente HTTP.
 
