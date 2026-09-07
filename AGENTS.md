@@ -19,8 +19,8 @@ La documentación canónica vive en `Maico-Zurbriggen/proyecto-gimnasio-document
 
 - Crear la solicitud en backend y consultar su estado mediante polling; nunca mantener una petición abierta esperando al LLM.
 - Detener polling en estados terminales y diseñar carga, reintento, error e indisponibilidad.
-- Si generación no está disponible, deshabilitar esa sección y mantener visibles los presets publicados del gimnasio.
-- Toda salida es candidato; no presentarla como rutina vigente antes de la aprobación del entrenador.
+- Si generación no está disponible, deshabilitar esa sección sin degradar el resto. Mostrar presets sólo si se implementa su alcance opcional.
+- Una salida generativa validada aparece como rutina `PROPUESTA`; nunca presentarla como vigente antes de la aprobación del entrenador.
 - No implementar lógica de compatibilidad o permisos sólo en cliente.
 
 ## Convenciones
