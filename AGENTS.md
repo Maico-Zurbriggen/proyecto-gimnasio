@@ -23,9 +23,49 @@ La documentación canónica vive en `Maico-Zurbriggen/proyecto-gimnasio-document
 - Una salida generativa validada aparece como rutina `PROPUESTA`; nunca presentarla como vigente antes de la aprobación del entrenador.
 - No implementar lógica de compatibilidad o permisos sólo en cliente.
 
+## Estructura del código
+
+Organizar el código por feature y crear carpetas sólo cuando exista código real que las justifique:
+
+```text
+src/
+├── app/
+│   ├── router/
+│   └── providers/
+├── api/
+│   ├── generated/
+│   └── client.ts
+├── features/
+│   └── <feature>/
+│       ├── api/
+│       ├── components/
+│       ├── hooks/
+│       ├── pages/
+│       ├── schemas/
+│       └── types/
+├── shared/
+│   ├── components/
+│   ├── hooks/
+│   ├── lib/
+│   └── types/
+├── assets/
+├── App.tsx
+├── main.tsx
+└── styles.css
+```
+
+- `app/` compone router, providers y configuración global; no contiene dominio.
+- `api/generated/` contiene el cliente generado desde OpenAPI y no se modifica manualmente.
+- `api/client.ts` concentra la configuración común del transporte HTTP.
+- `features/` contiene las historias verticales; una feature no importa internals de otra.
+- `shared/` recibe únicamente código reutilizado por dos o más features, sin reglas de negocio.
+- Mantener los tests de componentes, hooks y lógica junto al archivo probado con sufijo `.test.ts` o `.test.tsx`.
+- Reservar `test/` para configuración transversal y `e2e/` para los recorridos críticos de Playwright cuando se incorporen.
+- No crear todas las carpetas del esquema por anticipado ni archivos barril `index.ts` sin una necesidad concreta.
+
 ## Convenciones
 
-- Organizar por feature cuando aparezcan funcionalidades.
+- Crear inicialmente features como `auth`, `users`, `exercise-catalog`, `routine-templates`, `routines`, `training-sessions` y `administration` a medida que se implementen.
 - Diseñar carga, vacío, error y reintento junto con el camino feliz.
 - Cumplir accesibilidad por teclado, etiquetas y contraste; no comunicar sólo por color.
 - Conservar localmente el borrador de sesión activa con estrategia de sincronización explícita.
