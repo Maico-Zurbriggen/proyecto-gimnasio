@@ -11,7 +11,7 @@ SPA React de la plataforma de entrenamiento asistido.
 - seguir generaciones asíncronas mediante polling al backend;
 - deshabilitar sólo la generación cuando no esté disponible; los presets son alcance opcional.
 
-Frontend no accede a PostgreSQL, Prisma, servicio IA, ngrok ni LLM. El OpenAPI del backend es la fuente de verdad para tipos y cliente HTTP.
+Frontend no accede a PostgreSQL, Prisma, servicio IA, Cloudflare Tunnel ni LLM. El OpenAPI del backend es la fuente de verdad para tipos y cliente HTTP.
 
 ## Requisitos
 
