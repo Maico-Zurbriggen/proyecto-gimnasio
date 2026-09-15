@@ -2,6 +2,12 @@ import type { BlockedStudentInfo } from '../types';
 
 export interface MockStudent extends BlockedStudentInfo {
   id: string;
+  /**
+   * UUID del alumno en Neon Test (seed demo del backend), con el que la ficha
+   * consulta la rutina vigente real. El resto de los datos de esta lista son
+   * de referencia y no provienen del backend.
+   */
+  userId?: string;
   name: string;
   goal: string;
   lastSession: string;
@@ -11,14 +17,15 @@ export interface MockStudent extends BlockedStudentInfo {
 }
 
 /**
- * Datos de referencia para poblar la cartera y la ficha del entrenador
- * mientras no exista el endpoint real (ver conversación: backend sin
- * rutas de dominio todavía). `juan-perez` es el único caso bloqueado,
- * usado para demostrar HU05 end-to-end.
+ * Datos de referencia para poblar la cartera y la ficha del entrenador: el
+ * backend no expone todavía listado de cartera ni estado de bloqueo por
+ * alumno. `juan-perez` es el único caso bloqueado, usado para demostrar HU05.
+ * Sólo Maia está vinculada a un usuario real (Alumno Demo, rutina VIGENTE).
  */
 export const MOCK_STUDENTS: MockStudent[] = [
   {
     id: 'maia-perez',
+    userId: '20000000-0000-4000-8000-000000000002',
     name: 'Maia Pérez',
     goal: 'Hipertrofia',
     lastSession: 'Hoy, 08:42',

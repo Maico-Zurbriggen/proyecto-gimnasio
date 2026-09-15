@@ -1,9 +1,25 @@
 import { fireEvent, render, screen } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { App } from '../src/App';
 
 describe('App', () => {
+  beforeEach(() => {
+    // Sin backend en los tests: el resumen del alumno recibe "sin rutina".
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: false,
+        status: 404,
+        json: async () => ({ error: 'active_routine_not_found' }),
+      }),
+    );
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
   it('redirige a la vista de alumno por defecto y muestra el resumen', () => {
     render(<App />);
 

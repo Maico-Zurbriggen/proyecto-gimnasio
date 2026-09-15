@@ -4,7 +4,10 @@ import type { AdaptationProposalReview } from '../types';
 export interface OutdatedDataWarningProps {
   proposal: Pick<
     AdaptationProposalReview,
-    'sinDatosActualizados' | 'datoFaltante'
+    | 'sinDatosActualizados'
+    | 'datoFaltante'
+    | 'faltasConsecutivas'
+    | 'alcanzoTopeDeFaltas'
   >;
 }
 
@@ -19,8 +22,13 @@ export function OutdatedDataWarning({ proposal }: OutdatedDataWarningProps) {
     return null;
   }
 
+  const { faltasConsecutivas } = proposal;
+
   return (
-    <Banner variant="warning" title="Propuesta generada sin datos actualizados">
+    <Banner
+      variant={proposal.alcanzoTopeDeFaltas ? 'danger' : 'warning'}
+      title="Propuesta generada sin datos actualizados"
+    >
       <p>
         No se registró una medición corporal posterior al inicio del ciclo del
         alumno. La propuesta se generó igualmente, pero está basada en datos
@@ -29,6 +37,16 @@ export function OutdatedDataWarning({ proposal }: OutdatedDataWarningProps) {
           ? ` Dato faltante: ${proposal.datoFaltante}.`
           : ''}
       </p>
+      <p>
+        El alumno lleva {faltasConsecutivas}{' '}
+        {faltasConsecutivas === 1 ? 'falta consecutiva' : 'faltas consecutivas'}
+        , incluida esta propuesta.
+      </p>
+      {proposal.alcanzoTopeDeFaltas ? (
+        <p className="font-semibold">
+          Alcanzó el tope de faltas que habilita el bloqueo del alumno.
+        </p>
+      ) : null}
     </Banner>
   );
 }

@@ -1,44 +1,45 @@
 import { Banner } from '../../../shared/components/Banner';
 import { useRenewalNotice } from '../hooks/useRenewalNotice';
-import type { DiasRestantesRenovacion } from '../types';
+import type { AvisoRenovacion, EstadoAvisoRenovacion } from '../types';
 
 export interface RenewalBannerProps {
   studentId: string;
-  diasRestantesRenovacion: DiasRestantesRenovacion;
+  /** `avisoRenovacion` de `GET /routines/active`. */
+  aviso: Pick<AvisoRenovacion, 'estado' | 'diasRestantes'>;
   /** Inyectable para pruebas; por defecto es la fecha actual. */
   today?: Date;
   /** Punto de integración con HU02 (formulario de carga de medidas). */
   onCargarMedicion?: () => void;
 }
 
-const TITULOS: Record<'PENDIENTE' | 'VENCE_HOY' | 'VENCIDO', string> = {
-  PENDIENTE: 'Tu rutina está por vencer',
-  VENCE_HOY: 'Tu rutina vence hoy',
-  VENCIDO: 'Tu rutina venció',
+const TITULOS: Record<EstadoAvisoRenovacion, string> = {
+  pendiente: 'Tu rutina está por vencer',
+  'cerrado hoy': 'Tu rutina vence hoy',
+  vencido: 'Tu rutina venció',
 };
 
 /** Aviso/banner de renovación de ciclo, descartable salvo cuando ya venció (HU01-T4/T5). */
 export function RenewalBanner({
   studentId,
-  diasRestantesRenovacion,
+  aviso,
   today,
   onCargarMedicion,
 }: RenewalBannerProps) {
-  const { estado, visible, dismissible, dismiss } = useRenewalNotice({
+  const { visible, dismissible, dismiss } = useRenewalNotice({
     studentId,
-    diasRestantesRenovacion,
+    aviso,
     today,
   });
 
-  if (!visible || estado === 'OCULTO') {
+  if (!visible) {
     return null;
   }
 
-  const variant = estado === 'VENCIDO' ? 'danger' : 'warning';
+  const { estado, diasRestantes } = aviso;
 
   return (
     <Banner
-      variant={variant}
+      variant={estado === 'vencido' ? 'danger' : 'warning'}
       title={TITULOS[estado]}
       onDismiss={dismissible ? dismiss : undefined}
       actions={
@@ -53,21 +54,20 @@ export function RenewalBanner({
         ) : undefined
       }
     >
-      {estado === 'PENDIENTE' ? (
+      {estado === 'pendiente' ? (
         <p>
-          Faltan {diasRestantesRenovacion}{' '}
-          {diasRestantesRenovacion === 1 ? 'día' : 'días'} para que se cumpla tu
-          ciclo. Cargá tu altura y peso actualizados para que tu entrenador
-          pueda ajustar tu rutina a tiempo.
+          Faltan {diasRestantes} {diasRestantes === 1 ? 'día' : 'días'} para que
+          se cumpla tu ciclo. Cargá tu altura y peso actualizados para que tu
+          entrenador pueda ajustar tu rutina a tiempo.
         </p>
       ) : null}
-      {estado === 'VENCE_HOY' ? (
+      {estado === 'cerrado hoy' ? (
         <p>
           Hoy se cumple tu ciclo de entrenamiento. Cargá tu altura y peso
           actualizados para que se pueda generar la propuesta de ajuste.
         </p>
       ) : null}
-      {estado === 'VENCIDO' ? (
+      {estado === 'vencido' ? (
         <p>
           Tu ciclo ya venció. Este aviso se mantiene visible hasta que se genere
           tu nueva rutina.

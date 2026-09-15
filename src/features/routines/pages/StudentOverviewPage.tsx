@@ -1,16 +1,13 @@
 import { Activity, ArrowUpRight, Dumbbell, Flame } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
+import { ApiError } from '../../../api/client';
+import { Banner } from '../../../shared/components/Banner';
 import { BentoCard } from '../../../shared/ui/BentoCard';
 import { PageHeader } from '../../../shared/ui/PageHeader';
 import { StatCard } from '../../../shared/ui/StatCard';
 import { RenewalBanner } from '../components/RenewalBanner';
-import type { DiasRestantesRenovacion } from '../types';
-
-export interface StudentOverviewPageProps {
-  studentId: string;
-  diasRestantesRenovacion: DiasRestantesRenovacion;
-}
+import { useActiveRoutine } from '../hooks/useActiveRoutine';
 
 const NEXT_EXERCISES = [
   ['01', 'Remo con barra', '4 × 8', '62,5 kg'],
@@ -19,13 +16,80 @@ const NEXT_EXERCISES = [
 ] as const;
 
 /**
- * Resumen del alumno. Solo el aviso de renovación (HU01) tiene lógica real;
- * el resto de los módulos son de referencia visual.
+ * Aviso de renovación alimentado por `GET /routines/active` (HU01). Declara
+ * explícitamente cuando no hay rutina vigente o no se pudo consultar, en lugar
+ * de ocultar el aviso como si el ciclo estuviera lejos de vencer (RF-051).
  */
-export function StudentOverviewPage({
-  studentId,
-  diasRestantesRenovacion,
-}: StudentOverviewPageProps) {
+function RenewalNoticeSection() {
+  const { data, error, isPending, refetch, isFetching } = useActiveRoutine();
+
+  if (isPending) {
+    return (
+      <p role="status" className="text-xs text-[#77756d]">
+        Consultando tu rutina vigente…
+      </p>
+    );
+  }
+
+  if (error) {
+    if (
+      error instanceof ApiError &&
+      (error.status === 404 || error.status === 409)
+    ) {
+      return (
+        <Banner variant="info" title="Todavía no tenés una rutina vigente">
+          <p>
+            Cuando tu entrenador apruebe tu rutina vas a ver acá cuántos días
+            faltan para renovar el ciclo.
+          </p>
+        </Banner>
+      );
+    }
+
+    const sinSesion =
+      error instanceof ApiError &&
+      (error.status === 401 || error.status === 403);
+
+    return (
+      <Banner
+        variant="danger"
+        title="No pudimos consultar tu rutina"
+        actions={
+          <button
+            type="button"
+            onClick={() => void refetch()}
+            disabled={isFetching}
+            className="rounded-full bg-graphite px-3.5 py-1.5 text-xs font-bold text-white transition hover:brightness-110 disabled:opacity-60"
+          >
+            Reintentar
+          </button>
+        }
+      >
+        <p>
+          {sinSesion
+            ? 'No hay un alumno identificado para esta consulta.'
+            : 'No sabemos cuántos días faltan para renovar tu ciclo.'}
+        </p>
+      </Banner>
+    );
+  }
+
+  return (
+    <RenewalBanner
+      studentId={data.studentId}
+      aviso={data.avisoRenovacion}
+      onCargarMedicion={() =>
+        window.alert('Carga de medidas: fuera de alcance (HU02).')
+      }
+    />
+  );
+}
+
+/**
+ * Resumen del alumno. Solo el aviso de renovación (HU01) está conectado al
+ * backend; el resto de los módulos son de referencia visual.
+ */
+export function StudentOverviewPage() {
   return (
     <div>
       <PageHeader
@@ -34,13 +98,7 @@ export function StudentOverviewPage({
         description="Tu progreso no es una sensación: es la próxima decisión bien informada."
       />
       <main className="flex flex-col gap-4 px-4 pb-10 sm:px-7 lg:px-9">
-        <RenewalBanner
-          studentId={studentId}
-          diasRestantesRenovacion={diasRestantesRenovacion}
-          onCargarMedicion={() =>
-            window.alert('Carga de medidas: fuera de alcance (HU02).')
-          }
-        />
+        <RenewalNoticeSection />
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-12">
           <BentoCard

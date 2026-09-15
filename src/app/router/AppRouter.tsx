@@ -23,15 +23,7 @@ export function AppRouter() {
         <Route path="/" element={<Navigate to="/alumno" replace />} />
 
         {/* Alumno */}
-        <Route
-          path="/alumno"
-          element={
-            <StudentOverviewPage
-              studentId="maia-perez"
-              diasRestantesRenovacion={5}
-            />
-          }
-        />
+        <Route path="/alumno" element={<StudentOverviewPage />} />
         <Route
           path="/alumno/rutina"
           element={
