@@ -1,44 +1,84 @@
-:root {
-  color: #17201a;
-  background: #f3f5ef;
-  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
+/* Sistema visual PULSO: base marfil, grafito estructural y Verde Pulso como señal selectiva. */
+@import 'tailwindcss';
+
+@theme {
+  --font-display: 'Space Grotesk', ui-sans-serif, sans-serif;
+  --font-sans: 'DM Sans', ui-sans-serif, sans-serif;
+  --color-ink: #20201d;
+  --color-graphite: #242420;
+  --color-graphite-soft: #292823;
+  --color-ivory: #f4f3ee;
+  --color-ivory-card: #fbfaf5;
+  --color-lime: #c6ff36;
+  --color-lime-soft: #e9f8c6;
+  --color-coral: #efd5c9;
+  --color-coral-strong: #e36a5b;
+  --color-coral-text: #a45948;
 }
 
-* {
-  box-sizing: border-box;
+html {
+  background: var(--color-ivory);
 }
 
 body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
+  font-family: var(--font-sans);
+  color: var(--color-ink);
+  background: var(--color-ivory);
+  background-image: radial-gradient(
+    circle at 95% 5%,
+    rgb(198 255 54 / 14%),
+    transparent 23rem
+  );
 }
 
-.shell {
-  display: grid;
-  min-height: 100vh;
-  place-content: center;
-  padding: 2rem;
-  text-align: center;
+* {
+  box-sizing: border-box;
 }
 
-.shell h1,
-.shell p {
-  margin: 0;
+@layer components {
+  .font-display {
+    font-family: var(--font-display);
+  }
+
+  .eyebrow {
+    font-family: var(--font-display);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    font-size: 0.64rem;
+    font-weight: 700;
+  }
+
+  .bento-card {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgb(41 40 35 / 10%);
+    background: rgb(255 254 250 / 78%);
+    box-shadow: 0 16px 45px -34px rgb(18 18 16 / 35%);
+    border-radius: 1.65rem;
+    padding: 1.5rem;
+  }
+
+  .technical-notch::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 2.4rem;
+    width: 2.1rem;
+    height: 3px;
+    background: var(--color-lime);
+  }
 }
 
-.shell h1 {
-  margin-block: 0.5rem 0.75rem;
-  font-size: clamp(2rem, 8vw, 4.5rem);
-  line-height: 1;
-}
-
-.eyebrow {
-  color: #367244;
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
 }
