@@ -5,17 +5,27 @@ import { OutdatedDataWarning } from './OutdatedDataWarning';
 
 describe('OutdatedDataWarning', () => {
   it('no muestra nada cuando la propuesta tiene datos actualizados', () => {
-    render(<OutdatedDataWarning proposal={{ sinDatosActualizados: false }} />);
+    render(
+      <OutdatedDataWarning
+        proposal={{
+          sinDatosActualizados: false,
+          faltasConsecutivas: 0,
+          alcanzoTopeDeFaltas: false,
+        }}
+      />,
+    );
 
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
   });
 
-  it('muestra la advertencia cuando falta una medición posterior al ciclo', () => {
+  it('muestra la advertencia con el dato faltante y las faltas consecutivas', () => {
     render(
       <OutdatedDataWarning
         proposal={{
           sinDatosActualizados: true,
-          datoFaltante: 'peso y altura posteriores al inicio del ciclo',
+          datoFaltante: 'medicion corporal posterior al inicio del ciclo',
+          faltasConsecutivas: 1,
+          alcanzoTopeDeFaltas: false,
         }}
       />,
     );
@@ -24,7 +34,24 @@ describe('OutdatedDataWarning', () => {
       screen.getByText('Propuesta generada sin datos actualizados'),
     ).toBeVisible();
     expect(
-      screen.getByText(/peso y altura posteriores al inicio del ciclo/),
+      screen.getByText(/medicion corporal posterior al inicio del ciclo/),
     ).toBeVisible();
+    expect(screen.getByText(/1 falta consecutiva/)).toBeVisible();
+    expect(screen.queryByText(/Alcanzó el tope/)).not.toBeInTheDocument();
+  });
+
+  it('avisa cuando el alumno alcanzó el tope de faltas', () => {
+    render(
+      <OutdatedDataWarning
+        proposal={{
+          sinDatosActualizados: true,
+          faltasConsecutivas: 3,
+          alcanzoTopeDeFaltas: true,
+        }}
+      />,
+    );
+
+    expect(screen.getByText(/3 faltas consecutivas/)).toBeVisible();
+    expect(screen.getByText(/Alcanzó el tope de faltas/)).toBeVisible();
   });
 });

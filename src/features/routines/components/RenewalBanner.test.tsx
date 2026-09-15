@@ -1,11 +1,25 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
+import type { AvisoRenovacion } from '../types';
 import { RenewalBanner } from './RenewalBanner';
 
 const STUDENT_ID = 'alumno-1';
 const DAY_1 = new Date(2026, 0, 1);
 const DAY_2 = new Date(2026, 0, 2);
+
+/** Mismo criterio que `determineNoticeState` del backend. */
+function aviso(
+  diasRestantes: number,
+): Pick<AvisoRenovacion, 'estado' | 'diasRestantes'> {
+  const estado =
+    diasRestantes > 0
+      ? 'pendiente'
+      : diasRestantes === 0
+        ? 'cerrado hoy'
+        : 'vencido';
+  return { estado, diasRestantes };
+}
 
 describe('RenewalBanner', () => {
   beforeEach(() => {
@@ -18,11 +32,7 @@ describe('RenewalBanner', () => {
 
   it('no muestra nada cuando faltan 8 días o más', () => {
     render(
-      <RenewalBanner
-        studentId={STUDENT_ID}
-        diasRestantesRenovacion={8}
-        today={DAY_1}
-      />,
+      <RenewalBanner studentId={STUDENT_ID} aviso={aviso(8)} today={DAY_1} />,
     );
 
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
@@ -30,11 +40,7 @@ describe('RenewalBanner', () => {
 
   it('muestra el aviso pendiente cuando faltan 7 días, y es descartable', () => {
     render(
-      <RenewalBanner
-        studentId={STUDENT_ID}
-        diasRestantesRenovacion={7}
-        today={DAY_1}
-      />,
+      <RenewalBanner studentId={STUDENT_ID} aviso={aviso(7)} today={DAY_1} />,
     );
 
     expect(screen.getByText('Tu rutina está por vencer')).toBeVisible();
@@ -45,11 +51,7 @@ describe('RenewalBanner', () => {
 
   it('al descartar, desaparece por el resto del día y reaparece al día siguiente', () => {
     const { rerender } = render(
-      <RenewalBanner
-        studentId={STUDENT_ID}
-        diasRestantesRenovacion={7}
-        today={DAY_1}
-      />,
+      <RenewalBanner studentId={STUDENT_ID} aviso={aviso(7)} today={DAY_1} />,
     );
 
     fireEvent.click(screen.getByRole('button', { name: 'Descartar' }));
@@ -57,32 +59,20 @@ describe('RenewalBanner', () => {
 
     // Mismo día: sigue oculto aunque el componente se vuelva a renderizar.
     rerender(
-      <RenewalBanner
-        studentId={STUDENT_ID}
-        diasRestantesRenovacion={6}
-        today={DAY_1}
-      />,
+      <RenewalBanner studentId={STUDENT_ID} aviso={aviso(6)} today={DAY_1} />,
     );
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
 
     // Día siguiente: el ciclo sigue sin renovarse, el aviso vuelve a aparecer.
     rerender(
-      <RenewalBanner
-        studentId={STUDENT_ID}
-        diasRestantesRenovacion={6}
-        today={DAY_2}
-      />,
+      <RenewalBanner studentId={STUDENT_ID} aviso={aviso(6)} today={DAY_2} />,
     );
     expect(screen.getByRole('alert')).toBeVisible();
   });
 
-  it('indica "vence hoy" con un texto distinto del de pendiente el día del vencimiento', () => {
+  it('con estado "cerrado hoy" indica que vence hoy, con un texto distinto del de pendiente', () => {
     render(
-      <RenewalBanner
-        studentId={STUDENT_ID}
-        diasRestantesRenovacion={0}
-        today={DAY_1}
-      />,
+      <RenewalBanner studentId={STUDENT_ID} aviso={aviso(0)} today={DAY_1} />,
     );
 
     expect(screen.getByText('Tu rutina vence hoy')).toBeVisible();
@@ -93,11 +83,7 @@ describe('RenewalBanner', () => {
 
   it('el aviso vencido no puede descartarse', () => {
     render(
-      <RenewalBanner
-        studentId={STUDENT_ID}
-        diasRestantesRenovacion={-1}
-        today={DAY_1}
-      />,
+      <RenewalBanner studentId={STUDENT_ID} aviso={aviso(-1)} today={DAY_1} />,
     );
 
     expect(screen.getByText('Tu rutina venció')).toBeVisible();

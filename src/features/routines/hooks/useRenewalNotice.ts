@@ -1,11 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { toDateKey } from '../../../shared/lib/date';
-import {
-  calcularEstadoAvisoRenovacion,
-  esDescartable,
-} from '../lib/renewalNotice';
-import type { DiasRestantesRenovacion } from '../types';
+import { debeMostrarAviso, esDescartable } from '../lib/renewalNotice';
+import type { AvisoRenovacion } from '../types';
 
 function dismissKey(studentId: string, today: Date): string {
   return `renovacion-aviso-descartado:${studentId}:${toDateKey(today)}`;
@@ -22,26 +19,24 @@ function readDismissed(key: string): boolean {
 
 export interface UseRenewalNoticeOptions {
   studentId: string;
-  diasRestantesRenovacion: DiasRestantesRenovacion;
+  aviso: Pick<AvisoRenovacion, 'estado' | 'diasRestantes'>;
   /** Inyectable para pruebas; por defecto es la fecha actual. */
   today?: Date;
 }
 
 /**
- * Estado del aviso de renovación (HU01-T4/T5). El descarte se guarda por
- * alumno y por día calendario: al cambiar el día, la clave de storage
- * cambia y el aviso vuelve a aparecer automáticamente si el ciclo sigue
- * sin renovarse (escenario 2.1).
+ * Visibilidad y descarte del aviso de renovación (HU01-T4/T5). El estado lo
+ * decide el backend; acá sólo se resuelve si se muestra. El descarte se guarda
+ * por alumno y por día calendario: al cambiar el día, la clave de storage
+ * cambia y el aviso vuelve a aparecer si el ciclo sigue sin renovarse
+ * (escenario 2.1).
  */
 export function useRenewalNotice({
   studentId,
-  diasRestantesRenovacion,
+  aviso,
   today = new Date(),
 }: UseRenewalNoticeOptions) {
-  const estado = useMemo(
-    () => calcularEstadoAvisoRenovacion(diasRestantesRenovacion),
-    [diasRestantesRenovacion],
-  );
+  const dismissible = esDescartable(aviso.estado);
 
   const todayTime = today.getTime();
   const key = useMemo(
@@ -57,7 +52,7 @@ export function useRenewalNotice({
   }, [key]);
 
   const dismiss = useCallback(() => {
-    if (!esDescartable(estado)) {
+    if (!dismissible) {
       return;
     }
     try {
@@ -66,9 +61,10 @@ export function useRenewalNotice({
       // Si no se puede persistir, el aviso igual se oculta para esta sesión.
     }
     setDismissed(true);
-  }, [estado, key]);
+  }, [dismissible, key]);
 
-  const visible = estado !== 'OCULTO' && !(dismissed && esDescartable(estado));
+  const visible =
+    debeMostrarAviso(aviso.diasRestantes) && !(dismissed && dismissible);
 
-  return { estado, visible, dismissible: esDescartable(estado), dismiss };
+  return { visible, dismissible, dismiss };
 }

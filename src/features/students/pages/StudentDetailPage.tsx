@@ -1,17 +1,17 @@
-import { ArrowUpRight } from 'lucide-react';
 import { Link, useParams } from 'react-router-dom';
 
 import { BentoCard } from '../../../shared/ui/BentoCard';
 import { PageHeader } from '../../../shared/ui/PageHeader';
 import { SectionTabs } from '../../../shared/ui/SectionTabs';
+import { ActiveRoutineCard } from '../components/ActiveRoutineCard';
 import { UnlockPanel } from '../components/UnlockPanel';
 import { findMockStudent } from '../data/mockStudents';
 
 /**
- * Ficha del alumno en la vista del entrenador (HU05-T2/T3/T4). Los módulos
- * de progreso/rutina/comentarios son de referencia visual; la
- * operación atómica real de desbloqueo (HU05-T1) es de otra tarea — acá se
- * confirma la intención y se dejó constancia por alerta.
+ * Ficha del alumno en la vista del entrenador (HU05-T2/T3/T4). La rutina
+ * vigente viene del backend; progreso y datos del alumno son de referencia
+ * visual. El backend no expone todavía la operación de desbloqueo (HU05-T1):
+ * acá se confirma la intención y se deja constancia por alerta.
  */
 export function StudentDetailPage() {
   const { studentId } = useParams<{ studentId: string }>();
@@ -95,18 +95,11 @@ export function StudentDetailPage() {
             </BentoCard>
           )}
 
-          <BentoCard className="xl:col-span-4">
-            <p className="eyebrow text-[#77756d]">Rutina vigente</p>
-            <h3 className="font-display mt-3 text-xl font-semibold tracking-[-0.05em]">
-              {student.goal}
-            </h3>
-            <Link
-              to={`/entrenador/alumnos/${student.id}/rutina`}
-              className="mt-6 inline-flex items-center gap-2 text-xs font-bold text-[#586d26]"
-            >
-              Ver rutina completa <ArrowUpRight className="size-3.5" />
-            </Link>
-          </BentoCard>
+          <ActiveRoutineCard
+            studentUserId={student.userId}
+            routineHref={`/entrenador/alumnos/${student.id}/rutina`}
+            className="xl:col-span-4"
+          />
         </div>
       </main>
     </div>

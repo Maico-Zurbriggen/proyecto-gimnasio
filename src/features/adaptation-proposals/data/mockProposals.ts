@@ -4,13 +4,18 @@ export interface MockProposal extends AdaptationProposalReview {
   studentName: string;
 }
 
-/** Referencia mientras no exista el endpoint real de HU04-T1. */
+/**
+ * Referencia mientras el backend no exponga la ruta de revisión de HU04-T1.
+ * Respeta el formato y los textos de `AdvertenciaDatosDesactualizadosDto`.
+ */
 export const MOCK_PROPOSALS: MockProposal[] = [
   {
     id: 'propuesta-juan-perez',
     studentName: 'Juan Pérez',
     sinDatosActualizados: true,
-    datoFaltante: 'peso y altura posteriores al inicio del ciclo',
+    datoFaltante: 'medicion corporal posterior al inicio del ciclo',
+    faltasConsecutivas: 3,
+    alcanzoTopeDeFaltas: true,
   },
 ];
 

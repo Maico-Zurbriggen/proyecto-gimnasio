@@ -1,28 +1,18 @@
-import type { DiasRestantesRenovacion, EstadoAvisoRenovacion } from '../types';
+import type { EstadoAvisoRenovacion } from '../types';
 
-const UMBRAL_AVISO_DIAS = 7;
+/** Días de antelación del aviso; mismo valor que `DIAS_ANTELACION_AVISO` del backend (HU01-T6). */
+export const DIAS_ANTELACION_AVISO = 7;
 
 /**
- * Deriva el estado del aviso de renovación a partir de los días restantes
- * (HU01, escenarios 1 a 4). Función pura: no conoce fechas de ciclo ni
- * duración, solo el campo ya derivado que expone el endpoint.
+ * Si corresponde mostrar el aviso (HU01, escenarios 1 a 4). El backend no lo
+ * expone porque es regla de frontend (HU01-T4): se muestra con 7 días o menos,
+ * incluido el día del vencimiento y todos los posteriores.
  */
-export function calcularEstadoAvisoRenovacion(
-  diasRestantesRenovacion: DiasRestantesRenovacion,
-): EstadoAvisoRenovacion {
-  if (diasRestantesRenovacion > UMBRAL_AVISO_DIAS) {
-    return 'OCULTO';
-  }
-  if (diasRestantesRenovacion === 0) {
-    return 'VENCE_HOY';
-  }
-  if (diasRestantesRenovacion < 0) {
-    return 'VENCIDO';
-  }
-  return 'PENDIENTE';
+export function debeMostrarAviso(diasRestantes: number): boolean {
+  return diasRestantes <= DIAS_ANTELACION_AVISO;
 }
 
-/** El aviso vencido no puede descartarse (HU01, escenario 4). */
+/** Un aviso vencido no se descarta (HU01, escenario 4); `pendiente` y `cerrado hoy` sí. */
 export function esDescartable(estado: EstadoAvisoRenovacion): boolean {
-  return estado === 'PENDIENTE' || estado === 'VENCE_HOY';
+  return estado !== 'vencido';
 }
