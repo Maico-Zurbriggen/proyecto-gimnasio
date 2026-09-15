@@ -10,7 +10,7 @@ La documentación canónica vive en `Maico-Zurbriggen/proyecto-gimnasio-document
 
 - Construir una SPA React móvil primero, plenamente usable a 360 px.
 - Consumir exclusivamente el OpenAPI público del backend mediante cliente generado.
-- No acceder a PostgreSQL, Prisma, IA, ngrok, LLM ni proveedores externos.
+- No acceder a PostgreSQL, Prisma, IA, Cloudflare Tunnel, LLM ni proveedores externos.
 - Mantener reglas de negocio y autorización en backend.
 - Usar TanStack Query para estado remoto; reservar estado global para necesidades demostradas.
 - Conservar localmente el identificador de una generación activa para recuperarla tras recargar.
@@ -92,4 +92,4 @@ src/
 - Señalar interfaces de sesión que pierdan datos ante una interrupción.
 - Señalar DTO manuales que deberían provenir de OpenAPI.
 - Señalar estado remoto copiado innecesariamente a stores globales.
-- Señalar llamadas directas a IA, ngrok o LLM.
+- Señalar llamadas directas a IA, Cloudflare Tunnel o LLM.
