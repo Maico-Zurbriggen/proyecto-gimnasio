@@ -24,6 +24,8 @@ export const activeRoutineSchema = z.object({
   origin: z.string(),
   startDate: z.string(),
   renewalDate: z.string(),
+  /** Días que dura el ciclo del tipo de rutina (HU01-T1). */
+  duracionCicloDias: z.number().int(),
   diasRestantesRenovacion: z.number().int(),
   avisoRenovacion: avisoRenovacionSchema,
   currentVersionNumber: z.number().int().optional(),

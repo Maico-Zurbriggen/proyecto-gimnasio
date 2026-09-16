@@ -3,16 +3,18 @@ const DEFAULT_API_URL = 'http://localhost:3000';
 /** Roles que reconoce el backend (`UserRole` en `shared/types/auth.ts`). */
 export type ApiRole = 'ALUMNO' | 'ENTRENADOR' | 'ADMINISTRADOR';
 
-/** Error HTTP del backend, con el código `error` que devuelve en el cuerpo. */
+/** Error HTTP del backend, con el código `error` y el cuerpo que devolvió. */
 export class ApiError extends Error {
   readonly status: number;
   readonly code: string;
+  readonly body: unknown;
 
-  constructor(status: number, code: string) {
+  constructor(status: number, code: string, body: unknown = null) {
     super(`API ${status}: ${code}`);
     this.name = 'ApiError';
     this.status = status;
     this.code = code;
+    this.body = body;
   }
 }
 
@@ -72,26 +74,49 @@ export interface ApiRequestOptions {
   signal?: AbortSignal;
 }
 
+async function apiRequest(
+  method: 'GET' | 'POST',
+  path: string,
+  { as, signal }: ApiRequestOptions,
+  body?: unknown,
+): Promise<unknown> {
+  const hasBody = body !== undefined;
+  const response = await fetch(`${apiBaseUrl()}${path}`, {
+    method,
+    credentials: 'include',
+    headers: {
+      Accept: 'application/json',
+      ...(hasBody ? { 'Content-Type': 'application/json' } : {}),
+      ...devIdentityHeaders(as),
+    },
+    body: hasBody ? JSON.stringify(body) : undefined,
+    signal,
+  });
+
+  const data: unknown = await response.json().catch(() => null);
+
+  if (!response.ok) {
+    throw new ApiError(response.status, errorCode(data), data);
+  }
+
+  return data;
+}
+
 /**
  * Transporte común hacia el backend. Devuelve el JSON sin tipar: cada contrato
  * lo valida con su schema hasta que exista el cliente generado desde OpenAPI.
  */
-export async function apiGet(
+export function apiGet(
   path: string,
-  { as, signal }: ApiRequestOptions,
+  options: ApiRequestOptions,
 ): Promise<unknown> {
-  const response = await fetch(`${apiBaseUrl()}${path}`, {
-    method: 'GET',
-    credentials: 'include',
-    headers: { Accept: 'application/json', ...devIdentityHeaders(as) },
-    signal,
-  });
+  return apiRequest('GET', path, options);
+}
 
-  const body: unknown = await response.json().catch(() => null);
-
-  if (!response.ok) {
-    throw new ApiError(response.status, errorCode(body));
-  }
-
-  return body;
+export function apiPost(
+  path: string,
+  body: unknown,
+  options: ApiRequestOptions,
+): Promise<unknown> {
+  return apiRequest('POST', path, options, body);
 }

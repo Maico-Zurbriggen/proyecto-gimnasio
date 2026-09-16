@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 
 import { ApiError } from '../../../api/client';
 import type { ActiveRoutine } from '../../../api/routines';
+import { humanizeEnum } from '../../../shared/lib/format';
 import { BentoCard } from '../../../shared/ui/BentoCard';
 import { useStudentActiveRoutine } from '../hooks/useStudentActiveRoutine';
 
@@ -12,12 +13,6 @@ export interface ActiveRoutineCardProps {
   /** Ruta de la rutina completa dentro de la ficha. */
   routineHref: string;
   className?: string;
-}
-
-/** `HIPERTROFIA` → `Hipertrofia`, `RESISTENCIA_MUSCULAR` → `Resistencia muscular`. */
-function formatRoutineType(routineType: string): string {
-  const text = routineType.toLowerCase().replaceAll('_', ' ');
-  return text.charAt(0).toUpperCase() + text.slice(1);
 }
 
 function formatRenewal({ avisoRenovacion }: ActiveRoutine): string {
@@ -66,34 +61,47 @@ export function ActiveRoutineCard({
     const sinRutina =
       error instanceof ApiError &&
       (error.status === 404 || error.status === 409);
+    // RF-066: el backend sólo deja ver alumnos con asignación vigente.
+    const sinAsignacion = error instanceof ApiError && error.status === 403;
 
-    content = sinRutina ? (
-      <h3 className="font-display mt-3 text-xl font-semibold tracking-[-0.05em]">
-        Sin rutina vigente
-      </h3>
-    ) : (
-      <div className="mt-3 flex flex-col items-start gap-3">
-        <p className="text-xs text-[#7a2a20]">
-          No pudimos consultar la rutina vigente.
+    if (sinRutina) {
+      content = (
+        <h3 className="font-display mt-3 text-xl font-semibold tracking-[-0.05em]">
+          Sin rutina vigente
+        </h3>
+      );
+    } else if (sinAsignacion) {
+      content = (
+        <p className="mt-3 text-xs text-[#7a2a20]">
+          Este alumno no está asignado a tu cartera.
         </p>
-        <button
-          type="button"
-          onClick={() => void refetch()}
-          disabled={isFetching}
-          className="rounded-full bg-graphite px-3.5 py-1.5 text-xs font-bold text-white transition hover:brightness-110 disabled:opacity-60"
-        >
-          Reintentar
-        </button>
-      </div>
-    );
+      );
+    } else {
+      content = (
+        <div className="mt-3 flex flex-col items-start gap-3">
+          <p className="text-xs text-[#7a2a20]">
+            No pudimos consultar la rutina vigente.
+          </p>
+          <button
+            type="button"
+            onClick={() => void refetch()}
+            disabled={isFetching}
+            className="rounded-full bg-graphite px-3.5 py-1.5 text-xs font-bold text-white transition hover:brightness-110 disabled:opacity-60"
+          >
+            Reintentar
+          </button>
+        </div>
+      );
+    }
   } else {
     content = (
       <>
         <h3 className="font-display mt-3 text-xl font-semibold tracking-[-0.05em]">
-          {formatRoutineType(data.routineType)}
+          {humanizeEnum(data.routineType)}
         </h3>
         <p className="mt-1 text-xs text-[#77756d]">
-          {data.targetWeeklyFrequency} días por semana
+          {data.targetWeeklyFrequency} días por semana · ciclo de{' '}
+          {data.duracionCicloDias} días
           {data.currentVersionNumber
             ? ` · versión ${data.currentVersionNumber}`
             : ''}

@@ -1,16 +1,36 @@
-import { Activity, CircleAlert, UsersRound } from 'lucide-react';
+import { CircleAlert, ClipboardCheck, UsersRound } from 'lucide-react';
 
 import { BentoCard } from '../../../shared/ui/BentoCard';
 import { PageHeader } from '../../../shared/ui/PageHeader';
 import { StatCard } from '../../../shared/ui/StatCard';
-import { StudentRow } from '../components/StudentRow';
-import { MOCK_STUDENTS } from '../data/mockStudents';
+import { StudentList } from '../components/StudentList';
+import { useTrainerStudents } from '../hooks/useTrainerStudents';
 
-/**
- * Cartera del entrenador. La fila de Juan Pérez (bloqueado) lleva a la
- * ficha real de HU05; el resto de los módulos son de referencia visual.
- */
+function attentionHeadline(blocked: number, proposals: number): string {
+  if (blocked > 0) {
+    return blocked === 1
+      ? 'Un alumno bloqueado necesita que confirmes su desbloqueo.'
+      : `${blocked} alumnos bloqueados necesitan que confirmes su desbloqueo.`;
+  }
+  if (proposals > 0) {
+    return proposals === 1
+      ? 'Una propuesta de adaptación espera tu revisión.'
+      : `${proposals} propuestas de adaptación esperan tu revisión.`;
+  }
+  return 'Sin alertas urgentes en tu cartera.';
+}
+
+/** Cartera del entrenador con los alumnos a cargo, ordenados por urgencia. */
 export function TrainerPortfolioPage() {
+  const { data: students, isPending } = useTrainerStudents();
+  const list = students ?? [];
+  const blocked = list.filter((student) => student.bloqueado).length;
+  const withRoutine = list.filter((student) => student.rutinaVigente).length;
+  const proposals = list.reduce(
+    (total, student) => total + student.propuestasPendientes,
+    0,
+  );
+
   return (
     <div>
       <PageHeader
@@ -25,25 +45,27 @@ export function TrainerPortfolioPage() {
               <div>
                 <p className="eyebrow text-lime">Atención esta semana</p>
                 <h2 className="font-display mt-3 max-w-[24rem] text-2xl font-semibold leading-tight tracking-[-0.05em]">
-                  Un alumno bloqueado necesita que confirmes su desbloqueo.
+                  {isPending
+                    ? 'Revisando tu cartera…'
+                    : attentionHeadline(blocked, proposals)}
                 </h2>
               </div>
               <CircleAlert className="size-5 shrink-0 text-lime" />
             </div>
           </BentoCard>
           <StatCard
-            label="Alumnos activos"
-            value="24"
-            detail="21 con rutina vigente"
+            label="Alumnos a cargo"
+            value={String(list.length)}
+            detail={`${withRoutine} con rutina vigente`}
             icon={UsersRound}
             tone="lime"
             className="xl:col-span-3"
           />
           <StatCard
-            label="Adherencia media"
-            value="76%"
-            detail="últimas cuatro semanas"
-            icon={Activity}
+            label="Propuestas pendientes"
+            value={String(proposals)}
+            detail="esperan tu revisión"
+            icon={ClipboardCheck}
             className="xl:col-span-3"
           />
         </div>
@@ -53,10 +75,8 @@ export function TrainerPortfolioPage() {
           <h2 className="font-display mt-2 text-2xl font-semibold tracking-[-0.06em]">
             Próximas intervenciones
           </h2>
-          <div className="mt-6 space-y-2">
-            {MOCK_STUDENTS.map((student) => (
-              <StudentRow key={student.id} student={student} />
-            ))}
+          <div className="mt-6">
+            <StudentList />
           </div>
         </BentoCard>
       </main>

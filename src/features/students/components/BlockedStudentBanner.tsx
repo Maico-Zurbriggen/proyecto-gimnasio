@@ -1,15 +1,9 @@
 import { Banner } from '../../../shared/components/Banner';
+import { formatDate } from '../../../shared/lib/format';
 import type { BlockedStudentInfo } from '../types';
 
 export interface BlockedStudentBannerProps {
   student: BlockedStudentInfo;
-}
-
-function formatFecha(fechaIso?: string): string {
-  if (!fechaIso) {
-    return 'sin mediciones registradas';
-  }
-  return new Date(fechaIso).toLocaleDateString('es-AR');
 }
 
 /**
@@ -29,7 +23,11 @@ export function BlockedStudentBanner({ student }: BlockedStudentBannerProps) {
           'faltas consecutivas a la renovación de rutina.'}
       </p>
       <p>
-        Última medición registrada: {formatFecha(student.fechaUltimaMedicion)}.
+        Última medición registrada:{' '}
+        {student.fechaUltimaMedicion
+          ? formatDate(student.fechaUltimaMedicion)
+          : 'sin mediciones registradas'}
+        .
       </p>
     </Banner>
   );
