@@ -11,7 +11,7 @@ SPA React de la plataforma de entrenamiento asistido.
 - seguir generaciones asíncronas mediante polling al backend;
 - deshabilitar sólo la generación cuando no esté disponible; los presets son alcance opcional.
 
-Frontend no accede a PostgreSQL, Prisma, servicio IA, ngrok ni LLM. El OpenAPI del backend es la fuente de verdad para tipos y cliente HTTP.
+Frontend no accede a PostgreSQL, Prisma, servicio IA, Cloudflare Tunnel ni LLM. El OpenAPI del backend es la fuente de verdad para tipos y cliente HTTP.
 
 ## Requisitos
 
@@ -27,6 +27,32 @@ npm run dev
 ```
 
 En PowerShell, usar `Copy-Item .env.example .env`. La aplicación queda en `http://localhost:5173` y espera el backend configurado por `VITE_API_URL`.
+
+## Estructura del código
+
+El frontend se organiza por feature:
+
+```text
+src/
+├── app/                 # Router y providers globales
+├── api/
+│   ├── generated/       # Cliente generado desde OpenAPI
+│   └── client.ts        # Configuración HTTP
+├── features/            # Flujos verticales del producto
+│   └── <feature>/
+│       ├── api/
+│       ├── components/
+│       ├── hooks/
+│       ├── pages/
+│       ├── schemas/
+│       └── types/
+├── shared/              # Código usado por varias features
+├── assets/
+├── App.tsx
+└── main.tsx
+```
+
+Las carpetas se crean cuando aparece la primera implementación que las necesita. Los tests unitarios y de interacción se mantienen junto al código probado; `e2e/` queda reservado para recorridos críticos de Playwright. Las reglas completas están en `AGENTS.md`.
 
 ## Verificación
 
