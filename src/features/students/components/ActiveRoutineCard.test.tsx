@@ -44,6 +44,7 @@ describe('ActiveRoutineCard', () => {
         origin: 'PLANTILLA_ENTRENADOR',
         startDate: '2026-05-01T00:00:00.000Z',
         renewalDate: '2026-06-30T00:00:00.000Z',
+        duracionCicloDias: 60,
         diasRestantesRenovacion: -10,
         avisoRenovacion: {
           estado: 'vencido',
@@ -58,7 +59,9 @@ describe('ActiveRoutineCard', () => {
     renderCard(STUDENT_ID);
 
     expect(await screen.findByText('Resistencia muscular')).toBeVisible();
-    expect(screen.getByText('3 días por semana · versión 2')).toBeVisible();
+    expect(screen.getByText(/días por semana/).textContent).toBe(
+      '3 días por semana · ciclo de 60 días · versión 2',
+    );
     expect(screen.getByText(/Ciclo vencido hace 10 días/)).toBeVisible();
     expect(fetchMock.mock.calls[0]?.[0]).toMatch(
       new RegExp(`/students/${STUDENT_ID}/routines/active$`),

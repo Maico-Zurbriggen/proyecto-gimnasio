@@ -17,6 +17,7 @@ function activeRoutine(diasRestantesRenovacion: number) {
     origin: 'PLANTILLA_ENTRENADOR',
     startDate: '2026-07-20T00:00:00.000Z',
     renewalDate: '2026-09-18T00:00:00.000Z',
+    duracionCicloDias: 60,
     diasRestantesRenovacion,
     avisoRenovacion: {
       estado:

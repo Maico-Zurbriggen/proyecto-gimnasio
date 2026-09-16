@@ -2,8 +2,7 @@ import { Search, SlidersHorizontal } from 'lucide-react';
 
 import { BentoCard } from '../../../shared/ui/BentoCard';
 import { PageHeader } from '../../../shared/ui/PageHeader';
-import { StudentRow } from '../components/StudentRow';
-import { MOCK_STUDENTS } from '../data/mockStudents';
+import { StudentList } from '../components/StudentList';
 
 /** Listado completo de la cartera. La búsqueda/filtro son de referencia visual. */
 export function TrainerStudentsListPage() {
@@ -29,11 +28,7 @@ export function TrainerStudentsListPage() {
           </button>
         </div>
         <BentoCard>
-          <div className="space-y-2">
-            {MOCK_STUDENTS.map((student) => (
-              <StudentRow key={student.id} student={student} />
-            ))}
-          </div>
+          <StudentList />
         </BentoCard>
       </main>
     </div>

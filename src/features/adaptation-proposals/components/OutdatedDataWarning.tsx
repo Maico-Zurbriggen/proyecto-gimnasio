@@ -1,14 +1,8 @@
 import { Banner } from '../../../shared/components/Banner';
-import type { AdaptationProposalReview } from '../types';
+import type { AdvertenciaDatos } from '../types';
 
 export interface OutdatedDataWarningProps {
-  proposal: Pick<
-    AdaptationProposalReview,
-    | 'sinDatosActualizados'
-    | 'datoFaltante'
-    | 'faltasConsecutivas'
-    | 'alcanzoTopeDeFaltas'
-  >;
+  proposal: AdvertenciaDatos;
 }
 
 /**
