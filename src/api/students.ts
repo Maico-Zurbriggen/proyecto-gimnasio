@@ -49,10 +49,6 @@ export async function fetchTrainerStudents(
   });
   const students = z.array(trainerStudentSchema).parse(body);
   const resolutions = getLocalProposalResolutions();
-  const hasResolutions = Object.keys(resolutions).length > 0;
-  if (!hasResolutions) {
-    return students;
-  }
 
   return students.map((s) => {
     // Si algún alumno tenía propuestas pendientes y se resolvió alguna

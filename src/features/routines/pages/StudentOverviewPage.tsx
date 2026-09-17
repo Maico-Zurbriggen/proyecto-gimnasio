@@ -121,9 +121,12 @@ export function StudentOverviewPage() {
                 <span className="text-xs text-white/60">
                   6 ejercicios · 55–65 min
                 </span>
-                <span className="rounded-full bg-lime px-4 py-2 text-xs font-bold text-graphite">
-                  Comenzar sesión
-                </span>
+                <Link
+                  to="/alumno/rutina"
+                  className="rounded-full bg-lime px-4 py-2 text-xs font-bold text-graphite transition hover:brightness-105"
+                >
+                  Ver rutina
+                </Link>
               </div>
             </div>
           </BentoCard>

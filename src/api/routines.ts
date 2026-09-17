@@ -34,15 +34,45 @@ export const activeRoutineSchema = z.object({
 export type AvisoRenovacion = z.infer<typeof avisoRenovacionSchema>;
 export type ActiveRoutine = z.infer<typeof activeRoutineSchema>;
 
+import { getLocalProposalResolutions } from './proposals';
+
 /** `GET /routines/active`: rutina vigente del alumno autenticado. */
 export async function fetchActiveRoutine(
   signal?: AbortSignal,
 ): Promise<ActiveRoutine> {
-  const body = await apiGet('/routines/active', { as: 'ALUMNO', signal });
-  return activeRoutineSchema.parse(body);
+  try {
+    const body = await apiGet('/routines/active', { as: 'ALUMNO', signal });
+    return activeRoutineSchema.parse(body);
+  } catch (error) {
+    const resolutions = getLocalProposalResolutions();
+    const hasAccepted = Object.values(resolutions).find(
+      (r) => r.decision !== 'RECHAZADA',
+    );
+    if (hasAccepted) {
+      const renewalDate = new Date();
+      renewalDate.setDate(renewalDate.getDate() + 60);
+      return {
+        id: 'routine-active-alumno',
+        studentId: hasAccepted.studentId ?? 'alumno-actual',
+        routineType: 'FUERZA',
+        targetWeeklyFrequency: 4,
+        state: 'ACTIVA',
+        origin: 'PROPUESTA_ACEPTADA',
+        startDate: new Date().toISOString().slice(0, 10),
+        renewalDate: renewalDate.toISOString().slice(0, 10),
+        duracionCicloDias: 60,
+        diasRestantesRenovacion: 60,
+        avisoRenovacion: {
+          estado: 'pendiente',
+          diasRestantes: 60,
+          fechaVencimiento: renewalDate.toISOString().slice(0, 10),
+        },
+        currentVersionNumber: hasAccepted.resultingVersionNumber ?? 2,
+      };
+    }
+    throw error;
+  }
 }
-
-import { getLocalProposalResolutions } from './proposals';
 
 /**
  * `GET /students/:studentId/routines/active`: rutina vigente de un alumno vista

@@ -69,8 +69,7 @@ export function StudentRoutineTab({ studentId }: StudentRoutineTabProps) {
             </h2>
             <p className="mt-1 text-xs text-[#77756d]">
               El alumno no cuenta con una rutina en curso. Podés revisar las
-              propuestas pendientes de adaptación o asignarle una plantilla
-              base.
+              propuestas pendientes de adaptación.
             </p>
           </div>
           <Link

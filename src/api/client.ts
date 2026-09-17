@@ -80,25 +80,36 @@ function errorCode(body: unknown): string {
 }
 
 export interface ApiRequestOptions {
-  /** Rol con el que se hace la consulta. */
-  as: ApiRole;
+  /** Rol con el que se hace la consulta (opcional para endpoints públicos). */
+  as?: ApiRole;
   signal?: AbortSignal;
 }
 
 async function apiRequest(
   method: 'GET' | 'POST',
   path: string,
-  { as, signal }: ApiRequestOptions,
+  options?: ApiRequestOptions,
   body?: unknown,
 ): Promise<unknown> {
+  const { as, signal } = options ?? {};
   const hasBody = body !== undefined;
+  const token =
+    typeof localStorage !== 'undefined'
+      ? localStorage.getItem('auth_token')
+      : null;
+  const authHeaders: Record<string, string> = {};
+  if (token) {
+    authHeaders['Authorization'] = `Bearer ${token}`;
+  }
+
   const response = await fetch(`${apiBaseUrl()}${path}`, {
     method,
     credentials: 'include',
     headers: {
       Accept: 'application/json',
       ...(hasBody ? { 'Content-Type': 'application/json' } : {}),
-      ...devIdentityHeaders(as),
+      ...(as ? devIdentityHeaders(as) : {}),
+      ...authHeaders,
     },
     body: hasBody ? JSON.stringify(body) : undefined,
     signal,
@@ -119,7 +130,7 @@ async function apiRequest(
  */
 export function apiGet(
   path: string,
-  options: ApiRequestOptions,
+  options?: ApiRequestOptions,
 ): Promise<unknown> {
   return apiRequest('GET', path, options);
 }
@@ -127,7 +138,7 @@ export function apiGet(
 export function apiPost(
   path: string,
   body: unknown,
-  options: ApiRequestOptions,
+  options?: ApiRequestOptions,
 ): Promise<unknown> {
   return apiRequest('POST', path, options, body);
 }

@@ -4,9 +4,11 @@ import { AdminAnalyticsPage } from '../../features/administration/pages/AdminAna
 import { ProposalReviewPage } from '../../features/adaptation-proposals/pages/ProposalReviewPage';
 import { TrainerRoutinesPage } from '../../features/adaptation-proposals/pages/TrainerRoutinesPage';
 import { StudentOverviewPage } from '../../features/routines/pages/StudentOverviewPage';
+import { StudentRoutinePage } from '../../features/routines/pages/StudentRoutinePage';
 import { StudentDetailPage } from '../../features/students/pages/StudentDetailPage';
 import { TrainerPortfolioPage } from '../../features/students/pages/TrainerPortfolioPage';
 import { TrainerStudentsListPage } from '../../features/students/pages/TrainerStudentsListPage';
+import { CompleteAccountPage } from '../../features/invitations/pages/CompleteAccountPage';
 import { PlaceholderPage } from '../../shared/ui/PlaceholderPage';
 import { AppShell } from '../layout/AppShell';
 
@@ -25,33 +27,31 @@ function FallbackRedirect() {
  * Rutas de la app. Las páginas listadas en `PlaceholderPage` son de
  * referencia visual y no ejecutan lógica real en este
  * sprint; solo el resumen del alumno (HU01), la revisión de propuesta
- * (HU04) y la ficha del alumno (HU05) están conectadas de verdad.
+ * (HU04), la ficha del alumno (HU05) y completar cuenta desde invitación (HU06) están conectadas.
  */
 export function AppRouter() {
   return (
     <Routes>
+      {/* HU06 - Completar cuenta desde invitación */}
+      <Route path="/invitacion/:token" element={<CompleteAccountPage />} />
+      <Route
+        path="/completar-cuenta/:token"
+        element={<CompleteAccountPage />}
+      />
+
       <Route element={<AppShell />}>
         <Route path="/" element={<Navigate to="/alumno" replace />} />
 
         {/* Alumno */}
         <Route path="/alumno" element={<StudentOverviewPage />} />
-        <Route
-          path="/alumno/rutina"
-          element={
-            <PlaceholderPage
-              kicker="Mi rutina"
-              title="Fuerza base · 4 días"
-              description="Estructura semanal, días de rutina y cambios recientes."
-            />
-          }
-        />
+        <Route path="/alumno/rutina" element={<StudentRoutinePage />} />
         <Route
           path="/alumno/sesion"
           element={
             <PlaceholderPage
-              kicker="Sesión en curso"
-              title="Espalda & Bíceps"
-              description="Registro de series, cargas y repeticiones de la sesión activa."
+              kicker="Sesión"
+              title="Tu sesión del día."
+              description="Ejecución de ejercicios, descansos y registro de series."
             />
           }
         />

@@ -52,8 +52,9 @@ export function StudentDetailPage() {
   const status = useStudentStatus(studentId);
   const unlock = useUnlockStudent(studentId);
 
-  const isRutina = location.pathname.endsWith('/rutina');
-  const isMediciones = location.pathname.endsWith('/mediciones');
+  const normalizedPath = location.pathname.replace(/\/+$/, '');
+  const isRutina = normalizedPath.endsWith('/rutina');
+  const isMediciones = normalizedPath.endsWith('/mediciones');
   const isResumen = !isRutina && !isMediciones;
 
   const backLink = (

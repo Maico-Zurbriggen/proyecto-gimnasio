@@ -66,9 +66,14 @@ export function ActiveRoutineCard({
 
     if (sinRutina) {
       content = (
-        <h3 className="font-display mt-3 text-xl font-semibold tracking-[-0.05em]">
-          Sin rutina vigente
-        </h3>
+        <div>
+          <h3 className="font-display mt-3 text-xl font-semibold tracking-[-0.05em]">
+            Sin rutina vigente
+          </h3>
+          <p className="mt-1 text-xs text-[#77756d]">
+            Este alumno no tiene una prescripción asignada.
+          </p>
+        </div>
       );
     } else if (sinAsignacion) {
       content = (
