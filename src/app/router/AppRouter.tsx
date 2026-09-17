@@ -1,4 +1,4 @@
-import { Navigate, Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 
 import { AdminAnalyticsPage } from '../../features/administration/pages/AdminAnalyticsPage';
 import { ProposalReviewPage } from '../../features/adaptation-proposals/pages/ProposalReviewPage';
@@ -9,6 +9,17 @@ import { TrainerPortfolioPage } from '../../features/students/pages/TrainerPortf
 import { TrainerStudentsListPage } from '../../features/students/pages/TrainerStudentsListPage';
 import { PlaceholderPage } from '../../shared/ui/PlaceholderPage';
 import { AppShell } from '../layout/AppShell';
+
+function FallbackRedirect() {
+  const { pathname } = useLocation();
+  if (pathname.startsWith('/admin')) {
+    return <Navigate to="/admin" replace />;
+  }
+  if (pathname.startsWith('/entrenador')) {
+    return <Navigate to="/entrenador" replace />;
+  }
+  return <Navigate to="/alumno" replace />;
+}
 
 /**
  * Rutas de la app. Las páginas listadas en `PlaceholderPage` son de
@@ -93,6 +104,14 @@ export function AppRouter() {
         />
         <Route
           path="/entrenador/alumnos/:studentId"
+          element={<StudentDetailPage />}
+        />
+        <Route
+          path="/entrenador/alumnos/:studentId/rutina"
+          element={<StudentDetailPage />}
+        />
+        <Route
+          path="/entrenador/alumnos/:studentId/mediciones"
           element={<StudentDetailPage />}
         />
         <Route path="/entrenador/rutinas" element={<TrainerRoutinesPage />} />
@@ -188,7 +207,7 @@ export function AppRouter() {
           }
         />
 
-        <Route path="*" element={<Navigate to="/alumno" replace />} />
+        <Route path="*" element={<FallbackRedirect />} />
       </Route>
     </Routes>
   );

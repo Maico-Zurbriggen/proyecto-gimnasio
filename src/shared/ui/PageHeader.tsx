@@ -7,7 +7,7 @@ export interface PageHeaderProps {
   actions?: ReactNode;
 }
 
-/** Encabezado de sección compartido por las páginas de cada rol (estilo PULSO). */
+/** Encabezado de sección compartido por las páginas de cada rol (estilo Vivaz Adaptive ). */
 export function PageHeader({
   kicker,
   title,
