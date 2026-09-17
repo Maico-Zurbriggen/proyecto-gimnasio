@@ -6,7 +6,7 @@ export interface SectionTab {
   end?: boolean;
 }
 
-/** Fila de pestañas de sub-navegación dentro de una página (estilo PULSO). */
+/** Fila de pestañas de sub-navegación dentro de una página (estilo Vivaz Adaptive ). */
 export function SectionTabs({ tabs }: { tabs: SectionTab[] }) {
   return (
     <nav

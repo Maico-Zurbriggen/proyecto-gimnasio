@@ -50,7 +50,7 @@ function routineSummary({ rutinaVigente }: TrainerStudent): string {
   return `${tipo} · renueva en ${dias} ${dias === 1 ? 'día' : 'días'}`;
 }
 
-/** Fila de alumno reutilizada en cartera y listado (estilo PULSO). */
+/** Fila de alumno reutilizada en cartera y listado (estilo Vivaz Adaptive ). */
 export function StudentRow({ student }: { student: TrainerStudent }) {
   const signal = signalOf(student);
 

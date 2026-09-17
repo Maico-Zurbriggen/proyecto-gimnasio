@@ -11,7 +11,7 @@ export interface StatCardProps {
   className?: string;
 }
 
-/** Tarjeta de métrica simple (label + valor + detalle) del sistema PULSO. */
+/** Tarjeta de métrica simple (label + valor + detalle) del sistema Vivaz Adaptive . */
 export function StatCard({
   label,
   value,
