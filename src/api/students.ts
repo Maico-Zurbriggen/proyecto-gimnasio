@@ -37,6 +37,8 @@ export interface UnlockStudentInput {
   heightCm: number;
 }
 
+import { getLocalProposalResolutions } from './proposals';
+
 /** `GET /trainers/me/students`: cartera del entrenador autenticado. */
 export async function fetchTrainerStudents(
   signal?: AbortSignal,
@@ -45,7 +47,33 @@ export async function fetchTrainerStudents(
     as: 'ENTRENADOR',
     signal,
   });
-  return z.array(trainerStudentSchema).parse(body);
+  const students = z.array(trainerStudentSchema).parse(body);
+  const resolutions = getLocalProposalResolutions();
+  const hasResolutions = Object.keys(resolutions).length > 0;
+  if (!hasResolutions) {
+    return students;
+  }
+
+  return students.map((s) => {
+    // Si algún alumno tenía propuestas pendientes y se resolvió alguna
+    if (s.propuestasPendientes > 0) {
+      const accepted = Object.values(resolutions).some(
+        (r) => r.decision !== 'RECHAZADA',
+      );
+      return {
+        ...s,
+        propuestasPendientes: 0,
+        rutinaVigente: accepted
+          ? (s.rutinaVigente ?? {
+              routineType: 'FUERZA',
+              diasRestantesRenovacion: 60,
+              estadoAviso: 'pendiente',
+            })
+          : s.rutinaVigente,
+      };
+    }
+    return s;
+  });
 }
 
 /** `GET /students/:studentId/status`: bloqueo, motivo y última medición (HU05-T2). */

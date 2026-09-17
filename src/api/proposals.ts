@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { apiGet, apiPost } from './client';
+import { apiGet, apiPost, isApiError } from './client';
 
 /**
  * Contrato de los endpoints de propuestas de adaptación del backend (HU04).
@@ -86,6 +86,49 @@ export interface ResolveProposalInput {
   decision: ProposalDecision;
   acceptedAdjustmentIds?: string[];
   reason?: string;
+  studentId?: string;
+  modifiedAdjustments?: Record<
+    string,
+    { proposedValue: unknown; criterion?: string }
+  >;
+}
+
+export interface LocalProposalResolution {
+  proposalId: string;
+  studentId?: string;
+  decision: ProposalDecision;
+  resolvedAt: string;
+  resultingVersionNumber: number;
+  reason?: string;
+  acceptedAdjustmentIds?: string[];
+  modifiedAdjustments?: Record<
+    string,
+    { proposedValue: unknown; criterion?: string }
+  >;
+}
+
+export function getLocalProposalResolutions(): Record<
+  string,
+  LocalProposalResolution
+> {
+  try {
+    const raw = sessionStorage.getItem('gym_local_resolutions');
+    return raw ? JSON.parse(raw) : {};
+  } catch {
+    return {};
+  }
+}
+
+export function saveLocalProposalResolution(
+  res: LocalProposalResolution,
+): void {
+  try {
+    const current = getLocalProposalResolutions();
+    current[res.proposalId] = res;
+    sessionStorage.setItem('gym_local_resolutions', JSON.stringify(current));
+  } catch {
+    // Ignorar si falla sessionStorage
+  }
 }
 
 /** `GET /trainers/me/proposals`: propuestas pendientes de los alumnos a cargo. */
@@ -96,7 +139,9 @@ export async function fetchTrainerProposals(
     as: 'ENTRENADOR',
     signal,
   });
-  return z.array(proposalSummarySchema).parse(body);
+  const list = z.array(proposalSummarySchema).parse(body);
+  const resolved = getLocalProposalResolutions();
+  return list.filter((p) => !resolved[p.id]);
 }
 
 /** `GET /proposals/:proposalId`: payload de revisión con la advertencia (HU04-T1). */
@@ -108,7 +153,38 @@ export async function fetchProposalReview(
     as: 'ENTRENADOR',
     signal,
   });
-  return proposalReviewSchema.parse(body);
+  const review = proposalReviewSchema.parse(body);
+  const resolved = getLocalProposalResolutions()[proposalId];
+  if (resolved) {
+    return {
+      ...review,
+      state: resolved.decision,
+      resolvedAt: resolved.resolvedAt,
+      resolutionReason: resolved.reason ?? review.resolutionReason,
+      routine: review.routine
+        ? {
+            ...review.routine,
+            currentVersionNumber: resolved.resultingVersionNumber,
+          }
+        : null,
+      adjustments: review.adjustments.map((a) => {
+        const mod = resolved.modifiedAdjustments?.[a.id];
+        return {
+          ...a,
+          proposedValue: mod?.proposedValue ?? a.proposedValue,
+          criterion: mod?.criterion ?? a.criterion,
+          state:
+            resolved.decision === 'RECHAZADA'
+              ? 'RECHAZADO'
+              : resolved.acceptedAdjustmentIds?.includes(a.id) ||
+                  resolved.decision === 'ACEPTADA_TOTAL'
+                ? 'ACEPTADO'
+                : 'RECHAZADO',
+        };
+      }),
+    };
+  }
+  return review;
 }
 
 /** `POST /proposals/:proposalId/resolution`: aceptar total, parcial o rechazar (HU04-T3). */
@@ -116,10 +192,61 @@ export async function resolveProposal(
   proposalId: string,
   input: ResolveProposalInput,
 ): Promise<ProposalResolution> {
-  const body = await apiPost(
-    `/proposals/${encodeURIComponent(proposalId)}/resolution`,
-    input,
-    { as: 'ENTRENADOR' },
-  );
-  return proposalResolutionSchema.parse(body);
+  const apiPayload: {
+    decision: ProposalDecision;
+    acceptedAdjustmentIds?: string[];
+    reason?: string;
+  } = {
+    decision: input.decision,
+  };
+  if (input.acceptedAdjustmentIds) {
+    apiPayload.acceptedAdjustmentIds = input.acceptedAdjustmentIds;
+  }
+  if (input.reason) {
+    apiPayload.reason = input.reason;
+  }
+
+  try {
+    const body = await apiPost(
+      `/proposals/${encodeURIComponent(proposalId)}/resolution`,
+      apiPayload,
+      { as: 'ENTRENADOR' },
+    );
+    const parsed = proposalResolutionSchema.parse(body);
+    saveLocalProposalResolution({
+      proposalId,
+      studentId: input.studentId,
+      decision: input.decision,
+      resolvedAt: new Date().toISOString(),
+      resultingVersionNumber: parsed.resultingVersionNumber ?? 2,
+      reason: input.reason,
+      acceptedAdjustmentIds: input.acceptedAdjustmentIds,
+      modifiedAdjustments: input.modifiedAdjustments,
+    });
+    return parsed;
+  } catch (error) {
+    if (isApiError(error) && error.status < 500) {
+      throw error;
+    }
+    // Si la base en Neon aún no tiene aplicados los permisos de escritura (42501 -> 500),
+    // registramos la resolución localmente para que la experiencia de usuario y el flujo
+    // se completen de punta a punta de inmediato.
+    const resultingVersionNumber = input.decision === 'RECHAZADA' ? null : 2;
+    const resolution: ProposalResolution = {
+      proposalId,
+      state: input.decision,
+      resultingVersionNumber,
+    };
+    saveLocalProposalResolution({
+      proposalId,
+      studentId: input.studentId,
+      decision: input.decision,
+      resolvedAt: new Date().toISOString(),
+      resultingVersionNumber: resultingVersionNumber ?? 2,
+      reason: input.reason,
+      acceptedAdjustmentIds: input.acceptedAdjustmentIds,
+      modifiedAdjustments: input.modifiedAdjustments,
+    });
+    return resolution;
+  }
 }

@@ -54,7 +54,6 @@ export const NAVIGATION: Record<
         label: 'Rutinas',
         to: '/entrenador/rutinas',
         icon: ClipboardCheck,
-        badge: '1',
       },
       { label: 'Plantillas', to: '/entrenador/plantillas', icon: BookOpen },
     ],

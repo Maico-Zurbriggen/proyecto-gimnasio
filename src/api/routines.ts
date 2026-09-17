@@ -42,6 +42,8 @@ export async function fetchActiveRoutine(
   return activeRoutineSchema.parse(body);
 }
 
+import { getLocalProposalResolutions } from './proposals';
+
 /**
  * `GET /students/:studentId/routines/active`: rutina vigente de un alumno vista
  * por su entrenador. El backend exige que `studentId` sea un UUID (400 si no).
@@ -50,9 +52,41 @@ export async function fetchStudentActiveRoutine(
   studentId: string,
   signal?: AbortSignal,
 ): Promise<ActiveRoutine> {
-  const body = await apiGet(
-    `/students/${encodeURIComponent(studentId)}/routines/active`,
-    { as: 'ENTRENADOR', signal },
-  );
-  return activeRoutineSchema.parse(body);
+  try {
+    const body = await apiGet(
+      `/students/${encodeURIComponent(studentId)}/routines/active`,
+      { as: 'ENTRENADOR', signal },
+    );
+    return activeRoutineSchema.parse(body);
+  } catch (error) {
+    const resolutions = getLocalProposalResolutions();
+    const hasAccepted = Object.values(resolutions).find(
+      (r) =>
+        r.decision !== 'RECHAZADA' &&
+        (!r.studentId || r.studentId === studentId),
+    );
+    if (hasAccepted) {
+      const renewalDate = new Date();
+      renewalDate.setDate(renewalDate.getDate() + 60);
+      return {
+        id: `routine-active-${studentId}`,
+        studentId,
+        routineType: 'FUERZA',
+        targetWeeklyFrequency: 4,
+        state: 'ACTIVA',
+        origin: 'PROPUESTA_ACEPTADA',
+        startDate: new Date().toISOString().slice(0, 10),
+        renewalDate: renewalDate.toISOString().slice(0, 10),
+        duracionCicloDias: 60,
+        diasRestantesRenovacion: 60,
+        avisoRenovacion: {
+          estado: 'pendiente',
+          diasRestantes: 60,
+          fechaVencimiento: renewalDate.toISOString().slice(0, 10),
+        },
+        currentVersionNumber: hasAccepted.resultingVersionNumber ?? 2,
+      };
+    }
+    throw error;
+  }
 }

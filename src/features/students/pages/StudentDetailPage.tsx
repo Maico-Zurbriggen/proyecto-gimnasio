@@ -1,4 +1,4 @@
-import { Link, useParams } from 'react-router-dom';
+import { Link, useLocation, useParams } from 'react-router-dom';
 
 import { ApiError } from '../../../api/client';
 import { Banner } from '../../../shared/components/Banner';
@@ -7,6 +7,8 @@ import { BentoCard } from '../../../shared/ui/BentoCard';
 import { PageHeader } from '../../../shared/ui/PageHeader';
 import { SectionTabs } from '../../../shared/ui/SectionTabs';
 import { ActiveRoutineCard } from '../components/ActiveRoutineCard';
+import { StudentMedicionesTab } from '../components/StudentMedicionesTab';
+import { StudentRoutineTab } from '../components/StudentRoutineTab';
 import { UnlockPanel } from '../components/UnlockPanel';
 import { useStudentStatus } from '../hooks/useStudentStatus';
 import { useUnlockStudent } from '../hooks/useUnlockStudent';
@@ -46,8 +48,13 @@ function unlockErrorMessage(error: unknown): string {
  */
 export function StudentDetailPage() {
   const { studentId = '' } = useParams<{ studentId: string }>();
+  const location = useLocation();
   const status = useStudentStatus(studentId);
   const unlock = useUnlockStudent(studentId);
+
+  const isRutina = location.pathname.endsWith('/rutina');
+  const isMediciones = location.pathname.endsWith('/mediciones');
+  const isResumen = !isRutina && !isMediciones;
 
   const backLink = (
     <Link to="/entrenador/alumnos" className={BACK_LINK_CLASS}>
@@ -138,37 +145,63 @@ export function StudentDetailPage() {
           </div>
         ) : null}
 
-        <div className="grid grid-cols-1 gap-4 xl:grid-cols-12">
-          {student.bloqueado ? (
-            <div className="xl:col-span-8">
-              <UnlockPanel
-                student={student}
-                submitting={unlock.isPending}
-                errorMessage={
-                  unlock.error ? unlockErrorMessage(unlock.error) : null
-                }
-                onUnlock={(measurement) => unlock.mutate(measurement)}
-              />
-            </div>
-          ) : (
-            <BentoCard className="xl:col-span-8">
-              <p className="eyebrow text-[#77756d]">Seguimiento</p>
-              <h2 className="font-display mt-2 text-2xl font-semibold tracking-[-0.06em]">
-                Alumno sin bloqueo
-              </h2>
-              <p className="mt-4 text-xs text-[#77756d]">
-                Faltas consecutivas: {student.faltasConsecutivas} · Altura:{' '}
-                {student.alturaCm} cm · {lastMeasurement}.
-              </p>
-            </BentoCard>
-          )}
+        {isResumen && (
+          <div className="grid grid-cols-1 gap-4 xl:grid-cols-12">
+            {student.bloqueado ? (
+              <div className="xl:col-span-8">
+                <UnlockPanel
+                  student={student}
+                  submitting={unlock.isPending}
+                  errorMessage={
+                    unlock.error ? unlockErrorMessage(unlock.error) : null
+                  }
+                  onUnlock={(measurement) => unlock.mutate(measurement)}
+                />
+              </div>
+            ) : (
+              <BentoCard className="xl:col-span-8">
+                <p className="eyebrow text-[#77756d]">Seguimiento</p>
+                <h2 className="font-display mt-2 text-2xl font-semibold tracking-[-0.06em]">
+                  Alumno sin bloqueo
+                </h2>
+                <p className="mt-4 text-xs text-[#77756d]">
+                  Faltas consecutivas: {student.faltasConsecutivas} · Altura:{' '}
+                  {student.alturaCm} cm · {lastMeasurement}.
+                </p>
+                <div className="mt-6 flex flex-wrap gap-2">
+                  <Link
+                    to={`/entrenador/alumnos/${student.studentId}/rutina`}
+                    className="rounded-full bg-lime px-4 py-2 text-xs font-bold text-graphite transition hover:brightness-105"
+                  >
+                    Ver rutina prescrita
+                  </Link>
+                  <Link
+                    to={`/entrenador/alumnos/${student.studentId}/mediciones`}
+                    className="rounded-full border border-[#292823]/10 bg-white px-4 py-2 text-xs font-bold text-graphite transition hover:bg-[#faf9f4]"
+                  >
+                    Registrar medición
+                  </Link>
+                </div>
+              </BentoCard>
+            )}
 
-          <ActiveRoutineCard
-            studentUserId={student.studentId}
-            routineHref={`/entrenador/alumnos/${student.studentId}/rutina`}
-            className="xl:col-span-4"
+            <ActiveRoutineCard
+              studentUserId={student.studentId}
+              routineHref={`/entrenador/alumnos/${student.studentId}/rutina`}
+              className="xl:col-span-4"
+            />
+          </div>
+        )}
+
+        {isRutina && <StudentRoutineTab studentId={student.studentId} />}
+
+        {isMediciones && (
+          <StudentMedicionesTab
+            student={student}
+            onUnlock={(measurement) => unlock.mutate(measurement)}
+            unlockSubmitting={unlock.isPending}
           />
-        </div>
+        )}
       </main>
     </div>
   );

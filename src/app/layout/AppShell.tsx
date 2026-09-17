@@ -2,6 +2,7 @@ import { Bell, MoreHorizontal } from 'lucide-react';
 import { useState } from 'react';
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
 
+import { useTrainerProposals } from '../../features/adaptation-proposals/hooks/useTrainerProposals';
 import { NAVIGATION, ROLES, resolveRole } from './nav';
 
 const ROLE_META: Record<
@@ -75,9 +76,11 @@ function RoleSwitcher({ active }: { active: ReturnType<typeof resolveRole> }) {
 function Sidebar({
   role,
   mobileOpen,
+  pendingCount = 0,
 }: {
   role: ReturnType<typeof resolveRole>;
   mobileOpen: boolean;
+  pendingCount?: number;
 }) {
   const meta = ROLE_META[role];
   return (
@@ -97,29 +100,38 @@ function Sidebar({
             Principal
           </p>
           <ul className="mt-2 space-y-1">
-            {NAVIGATION[role].primary.map((item) => (
-              <li key={item.to}>
-                <NavLink
-                  to={item.to}
-                  end={item.to === `/${role}` || item.to === '/alumno'}
-                  className={({ isActive }) =>
-                    `flex h-10 items-center gap-3 rounded-xl px-3 text-[13px] font-medium transition ${
-                      isActive
-                        ? 'bg-white/12 text-white'
-                        : 'text-white/70 hover:bg-white/6'
-                    }`
-                  }
-                >
-                  <item.icon className="size-4" />
-                  <span>{item.label}</span>
-                  {item.badge ? (
-                    <span className="ml-auto rounded-full bg-lime px-1.5 py-0.5 text-[10px] font-bold text-graphite">
-                      {item.badge}
-                    </span>
-                  ) : null}
-                </NavLink>
-              </li>
-            ))}
+            {NAVIGATION[role].primary.map((item) => {
+              const badge =
+                item.to === '/entrenador/rutinas'
+                  ? pendingCount > 0
+                    ? String(pendingCount)
+                    : undefined
+                  : item.badge;
+
+              return (
+                <li key={item.to}>
+                  <NavLink
+                    to={item.to}
+                    end={item.to === `/${role}` || item.to === '/alumno'}
+                    className={({ isActive }) =>
+                      `flex h-10 items-center gap-3 rounded-xl px-3 text-[13px] font-medium transition ${
+                        isActive
+                          ? 'bg-white/12 text-white'
+                          : 'text-white/70 hover:bg-white/6'
+                      }`
+                    }
+                  >
+                    <item.icon className="size-4" />
+                    <span>{item.label}</span>
+                    {badge ? (
+                      <span className="ml-auto rounded-full bg-lime px-1.5 py-0.5 text-[10px] font-bold text-graphite">
+                        {badge}
+                      </span>
+                    ) : null}
+                  </NavLink>
+                </li>
+              );
+            })}
           </ul>
         </div>
 
@@ -176,9 +188,19 @@ export function AppShell() {
   const role = resolveRole(pathname);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
+  const proposalsQuery = useTrainerProposals({
+    enabled: role === 'entrenador',
+  });
+  const pendingCount =
+    role === 'entrenador' ? (proposalsQuery.data?.length ?? 0) : 0;
+
   return (
     <div className="min-h-svh bg-transparent lg:flex">
-      <Sidebar role={role} mobileOpen={mobileNavOpen} />
+      <Sidebar
+        role={role}
+        mobileOpen={mobileNavOpen}
+        pendingCount={pendingCount}
+      />
       {mobileNavOpen ? (
         <button
           type="button"
@@ -211,14 +233,24 @@ export function AppShell() {
           </div>
           <div className="flex items-center gap-2 sm:gap-3">
             <RoleSwitcher active={role} />
-            <button
-              type="button"
-              aria-label="Notificaciones"
+            <Link
+              to={
+                role === 'entrenador' && pendingCount > 0
+                  ? '/entrenador/rutinas/revisar'
+                  : '#'
+              }
+              aria-label={
+                pendingCount > 0
+                  ? `${pendingCount} notificaciones pendientes`
+                  : 'Sin notificaciones'
+              }
               className="relative flex size-9 items-center justify-center rounded-full border border-black/8 bg-white/75 text-[#46443e] transition hover:-translate-y-0.5 hover:bg-white"
             >
               <Bell className="size-4" />
-              <span className="absolute right-1.5 top-1.5 size-1.5 rounded-full bg-coral-strong" />
-            </button>
+              {pendingCount > 0 ? (
+                <span className="absolute right-1.5 top-1.5 size-1.5 rounded-full bg-coral-strong animate-pulse" />
+              ) : null}
+            </Link>
           </div>
         </header>
 

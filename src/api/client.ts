@@ -15,7 +15,18 @@ export class ApiError extends Error {
     this.status = status;
     this.code = code;
     this.body = body;
+    Object.setPrototypeOf(this, ApiError.prototype);
   }
+}
+
+export function isApiError(error: unknown): error is ApiError {
+  return (
+    error instanceof ApiError ||
+    (typeof error === 'object' &&
+      error !== null &&
+      'status' in error &&
+      'code' in error)
+  );
 }
 
 function apiBaseUrl(): string {

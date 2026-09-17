@@ -9,9 +9,10 @@ export const trainerProposalsQueryKey = [
 ] as const;
 
 /** Propuestas pendientes de los alumnos a cargo del entrenador. */
-export function useTrainerProposals() {
+export function useTrainerProposals(options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: trainerProposalsQueryKey,
     queryFn: ({ signal }) => fetchTrainerProposals(signal),
+    enabled: options?.enabled,
   });
 }
