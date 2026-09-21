@@ -3,7 +3,12 @@ import { useState } from 'react';
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
 
 import { useSession } from '../../features/auth/hooks/useSession';
-import { NAVIGATION, ROLES, resolveRole } from './nav';
+import {
+  availableAppRoles,
+  resolveAppRole,
+  type UserRole,
+} from '../../features/auth/roles';
+import { NAVIGATION } from './nav';
 
 /** Acción de cerrar sesión (HU07-T8). */
 function LogoutButton() {
@@ -29,30 +34,30 @@ function LogoutButton() {
 }
 
 const ROLE_META: Record<
-  ReturnType<typeof resolveRole>,
+  ReturnType<typeof resolveAppRole>,
   { title: string; name: string; initials: string; caption: string }
 > = {
   alumno: {
     title: 'Entrenamiento',
-    name: 'Maia Pérez',
-    initials: 'MP',
-    caption: 'Plan personal',
+    name: 'Alumno',
+    initials: 'AL',
+    caption: 'Sesión activa',
   },
   entrenador: {
     title: 'Coach workspace',
-    name: 'Diego Romero',
-    initials: 'DR',
-    caption: 'Entrenador',
+    name: 'Entrenador',
+    initials: 'EN',
+    caption: 'Sesión activa',
   },
   admin: {
     title: 'Gestión del gimnasio',
-    name: 'Norte Fitness',
-    initials: 'NF',
-    caption: 'Administración',
+    name: 'Administrador',
+    initials: 'AD',
+    caption: 'Sesión activa',
   },
 };
 
-function Wordmark({ role }: { role: ReturnType<typeof resolveRole> }) {
+function Wordmark({ role }: { role: ReturnType<typeof resolveAppRole> }) {
   const home =
     role === 'admin'
       ? '/admin'
@@ -76,15 +81,26 @@ function Wordmark({ role }: { role: ReturnType<typeof resolveRole> }) {
   );
 }
 
-function RoleSwitcher({ active }: { active: ReturnType<typeof resolveRole> }) {
+function RoleSwitcher({
+  active,
+  roles,
+}: {
+  active: ReturnType<typeof resolveAppRole>;
+  roles: readonly UserRole[];
+}) {
+  const availableRoles = availableAppRoles(roles);
+  if (availableRoles.length < 2) {
+    return null;
+  }
+
   return (
-    <div className="hidden items-center gap-1 rounded-full border border-black/8 bg-white/75 p-1 lg:flex">
-      {ROLES.map((item) => (
+    <div className="flex items-center gap-1 rounded-full border border-black/8 bg-white/75 p-1">
+      {availableRoles.map((item) => (
         <Link
-          key={item.role}
-          to={item.role === 'alumno' ? '/alumno' : `/${item.role}`}
+          key={item.appRole}
+          to={item.home}
           className={`rounded-full px-3 py-1.5 text-[11px] font-bold transition ${
-            active === item.role
+            active === item.appRole
               ? 'bg-graphite text-white'
               : 'text-[#6c6a62] hover:bg-black/5'
           }`}
@@ -100,7 +116,7 @@ function Sidebar({
   role,
   mobileOpen,
 }: {
-  role: ReturnType<typeof resolveRole>;
+  role: ReturnType<typeof resolveAppRole>;
   mobileOpen: boolean;
 }) {
   const meta = ROLE_META[role];
@@ -197,7 +213,8 @@ function Sidebar({
  */
 export function AppShell() {
   const { pathname } = useLocation();
-  const role = resolveRole(pathname);
+  const { user } = useSession();
+  const role = resolveAppRole(pathname);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   return (
@@ -234,7 +251,7 @@ export function AppShell() {
             </span>
           </div>
           <div className="flex items-center gap-2 sm:gap-3">
-            <RoleSwitcher active={role} />
+            <RoleSwitcher active={role} roles={user?.roles ?? []} />
             <button
               type="button"
               aria-label="Notificaciones"

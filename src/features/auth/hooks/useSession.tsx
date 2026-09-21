@@ -16,7 +16,7 @@ export interface SessionContextValue {
   user: AuthenticatedUser | null;
   /** `true` mientras se resuelve la sesión inicial. */
   loading: boolean;
-  login: (input: LoginInput) => Promise<void>;
+  login: (input: LoginInput) => Promise<AuthenticatedUser>;
   logout: () => Promise<void>;
 }
 
@@ -45,6 +45,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     async (input: LoginInput) => {
       const result = await loginRequest(input);
       queryClient.setQueryData(sessionQueryKey, result.user);
+      return result.user;
     },
     [queryClient],
   );

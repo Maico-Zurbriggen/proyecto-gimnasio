@@ -3,20 +3,10 @@ import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 
 import { ApiError } from '../../../api/client';
 import { useSession } from '../hooks/useSession';
+import { canAccessPath, homeForRoles } from '../roles';
 
 interface LocationState {
   from?: string;
-}
-
-/** Destino inicial según el rol con el que entró la persona. */
-function inicioSegunRol(roles: readonly string[]): string {
-  if (roles.includes('ENTRENADOR')) {
-    return '/entrenador';
-  }
-  if (roles.includes('ADMINISTRADOR')) {
-    return '/admin';
-  }
-  return '/alumno';
 }
 
 /**
@@ -38,7 +28,7 @@ export function LoginPage() {
 
   // Con sesión abierta no hay nada que hacer acá.
   if (user) {
-    return <Navigate to={inicioSegunRol(user.roles)} replace />;
+    return <Navigate to={homeForRoles(user.roles)} replace />;
   }
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -47,9 +37,13 @@ export function LoginPage() {
     setEnviando(true);
 
     try {
-      await login({ email, password });
-      const destino = (location.state as LocationState | null)?.from;
-      navigate(destino ?? '/', { replace: true });
+      const authenticatedUser = await login({ email, password });
+      const requestedPath = (location.state as LocationState | null)?.from;
+      const destination =
+        requestedPath && canAccessPath(requestedPath, authenticatedUser.roles)
+          ? requestedPath
+          : homeForRoles(authenticatedUser.roles);
+      navigate(destination, { replace: true });
     } catch (caught) {
       setError(
         caught instanceof ApiError && caught.status === 401

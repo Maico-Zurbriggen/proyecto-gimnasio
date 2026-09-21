@@ -1,8 +1,5 @@
 const DEFAULT_API_URL = 'http://localhost:3000';
 
-/** Roles que reconoce el backend (`UserRole` en `shared/types/auth.ts`). */
-export type ApiRole = 'ALUMNO' | 'ENTRENADOR' | 'ADMINISTRADOR';
-
 /** Error HTTP del backend, con el código `error` y el cuerpo que devolvió. */
 export class ApiError extends Error {
   readonly status: number;
@@ -22,40 +19,6 @@ function apiBaseUrl(): string {
   return (import.meta.env.VITE_API_URL || DEFAULT_API_URL).replace(/\/+$/, '');
 }
 
-function devUserIdFor(role: ApiRole): string | undefined {
-  const env = import.meta.env;
-  switch (role) {
-    case 'ALUMNO':
-      return env.VITE_DEV_STUDENT_ID;
-    case 'ENTRENADOR':
-      return env.VITE_DEV_TRAINER_ID;
-    case 'ADMINISTRADOR':
-      return env.VITE_DEV_ADMIN_ID;
-  }
-}
-
-/**
- * El backend todavía no tiene login: `auth.middleware` resuelve el usuario
- * desde `x-user-id`, `x-user-roles` y `x-gym-id`. Se manda una identidad por
- * rol porque `requireStudentOwnership` rechaza con 403 a un ALUMNO que consulta
- * a otro alumno. Sin variables `VITE_DEV_*` no se envía ningún header.
- */
-function devIdentityHeaders(role: ApiRole): Record<string, string> {
-  const userId = devUserIdFor(role);
-  if (!userId) {
-    return {};
-  }
-
-  const headers: Record<string, string> = {
-    'x-user-id': userId,
-    'x-user-roles': role,
-  };
-  if (import.meta.env.VITE_DEV_GYM_ID) {
-    headers['x-gym-id'] = import.meta.env.VITE_DEV_GYM_ID;
-  }
-  return headers;
-}
-
 function errorCode(body: unknown): string {
   if (
     typeof body === 'object' &&
@@ -69,15 +32,13 @@ function errorCode(body: unknown): string {
 }
 
 export interface ApiRequestOptions {
-  /** Rol con el que se hace la consulta. */
-  as: ApiRole;
   signal?: AbortSignal;
 }
 
 async function apiRequest(
   method: 'GET' | 'POST',
   path: string,
-  { as, signal }: ApiRequestOptions,
+  { signal }: ApiRequestOptions = {},
   body?: unknown,
 ): Promise<unknown> {
   const hasBody = body !== undefined;
@@ -87,7 +48,6 @@ async function apiRequest(
     headers: {
       Accept: 'application/json',
       ...(hasBody ? { 'Content-Type': 'application/json' } : {}),
-      ...devIdentityHeaders(as),
     },
     body: hasBody ? JSON.stringify(body) : undefined,
     signal,
@@ -108,7 +68,7 @@ async function apiRequest(
  */
 export function apiGet(
   path: string,
-  options: ApiRequestOptions,
+  options: ApiRequestOptions = {},
 ): Promise<unknown> {
   return apiRequest('GET', path, options);
 }
@@ -116,7 +76,7 @@ export function apiGet(
 export function apiPost(
   path: string,
   body: unknown,
-  options: ApiRequestOptions,
+  options: ApiRequestOptions = {},
 ): Promise<unknown> {
   return apiRequest('POST', path, options, body);
 }

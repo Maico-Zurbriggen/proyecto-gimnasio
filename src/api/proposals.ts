@@ -92,10 +92,7 @@ export interface ResolveProposalInput {
 export async function fetchTrainerProposals(
   signal?: AbortSignal,
 ): Promise<ProposalSummary[]> {
-  const body = await apiGet('/trainers/me/proposals', {
-    as: 'ENTRENADOR',
-    signal,
-  });
+  const body = await apiGet('/trainers/me/proposals', { signal });
   return z.array(proposalSummarySchema).parse(body);
 }
 
@@ -105,7 +102,6 @@ export async function fetchProposalReview(
   signal?: AbortSignal,
 ): Promise<ProposalReview> {
   const body = await apiGet(`/proposals/${encodeURIComponent(proposalId)}`, {
-    as: 'ENTRENADOR',
     signal,
   });
   return proposalReviewSchema.parse(body);
@@ -119,7 +115,6 @@ export async function resolveProposal(
   const body = await apiPost(
     `/proposals/${encodeURIComponent(proposalId)}/resolution`,
     input,
-    { as: 'ENTRENADOR' },
   );
   return proposalResolutionSchema.parse(body);
 }
