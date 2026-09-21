@@ -19,6 +19,12 @@ const juanStatus = {
 describe('App', () => {
   beforeEach(() => {
     mockApi({
+      // HU07: la app exige sesión; sin ella el router redirige al login.
+      'GET /auth/me': {
+        body: {
+          user: { id: JUAN, gymId: 'gym-1', roles: ['ALUMNO', 'ENTRENADOR'] },
+        },
+      },
       'GET /routines/active': {
         status: 404,
         body: { error: 'active_routine_not_found' },
@@ -45,20 +51,22 @@ describe('App', () => {
     vi.unstubAllGlobals();
   });
 
-  it('redirige a la vista de alumno por defecto y muestra el resumen', () => {
+  it('redirige a la vista de alumno por defecto y muestra el resumen', async () => {
     render(<App />);
 
+    // La app resuelve la sesión antes de decidir la ruta (HU07-T7), de modo que
+    // el contenido aparece tras esa consulta.
     expect(
-      screen.getByRole('heading', { name: 'Buen día, Maia.' }),
+      await screen.findByRole('heading', { name: 'Buen día, Maia.' }),
     ).toBeVisible();
   });
 
   it('permite ir a la cartera del entrenador y abrir la ficha de un alumno bloqueado', async () => {
     render(<App />);
 
-    fireEvent.click(screen.getByRole('link', { name: 'Entrenador' }));
+    fireEvent.click(await screen.findByRole('link', { name: 'Entrenador' }));
     expect(
-      screen.getByRole('heading', { name: 'Tus alumnos, por señal.' }),
+      await screen.findByRole('heading', { name: 'Tus alumnos, por señal.' }),
     ).toBeVisible();
 
     fireEvent.click(await screen.findByText('Juan Pérez'));
