@@ -53,7 +53,6 @@ export async function recordMeasurement(
   const body = await apiPost(
     `/students/${encodeURIComponent(studentId)}/measurements`,
     input,
-    { as: 'ALUMNO' },
   );
   return measurementSchema.parse(body);
 }

@@ -1,6 +1,6 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import * as authApi from '../../../api/auth';
@@ -17,7 +17,12 @@ function renderLogin() {
     <QueryClientProvider client={client}>
       <MemoryRouter initialEntries={['/ingresar']}>
         <SessionProvider>
-          <LoginPage />
+          <Routes>
+            <Route path="/ingresar" element={<LoginPage />} />
+            <Route path="/alumno" element={<p>Área del alumno</p>} />
+            <Route path="/entrenador" element={<p>Área del entrenador</p>} />
+            <Route path="/admin" element={<p>Área administrativa</p>} />
+          </Routes>
         </SessionProvider>
       </MemoryRouter>
     </QueryClientProvider>,
@@ -79,6 +84,22 @@ describe('LoginPage (HU07 - T6)', () => {
     // No distingue correo inexistente de contraseña incorrecta: el backend
     // tampoco lo hace, y la interfaz no debe inventar esa diferencia.
     expect(error.textContent).toContain('correo o la contraseña');
+  });
+
+  it('redirige al área concedida por los roles del login', async () => {
+    vi.spyOn(authApi, 'fetchSession').mockRejectedValue(
+      new ApiError(401, 'unauthorized'),
+    );
+    vi.spyOn(authApi, 'login').mockResolvedValue({
+      user: { id: 'u2', gymId: 'g1', roles: ['ALUMNO', 'ENTRENADOR'] },
+      expiresAt: '2026-10-20T12:00:00.000Z',
+    });
+
+    renderLogin();
+    completar('entrenador@gym.test', 'unaClave123');
+    entrar();
+
+    expect(await screen.findByText('Área del entrenador')).toBeTruthy();
   });
 
   it('distingue un fallo del servidor de unas credenciales incorrectas', async () => {

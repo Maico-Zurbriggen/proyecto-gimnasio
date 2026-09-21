@@ -14,7 +14,9 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 
-export type Role = 'alumno' | 'entrenador' | 'admin';
+import type { AppRole } from '../../features/auth/roles';
+
+export type Role = AppRole;
 
 export interface NavItem {
   label: string;
@@ -22,12 +24,6 @@ export interface NavItem {
   icon: LucideIcon;
   badge?: string;
 }
-
-export const ROLES: { role: Role; label: string }[] = [
-  { role: 'alumno', label: 'Alumno' },
-  { role: 'entrenador', label: 'Entrenador' },
-  { role: 'admin', label: 'Admin' },
-];
 
 export const NAVIGATION: Record<
   Role,
@@ -80,9 +76,3 @@ export const NAVIGATION: Record<
     ],
   },
 };
-
-export function resolveRole(pathname: string): Role {
-  if (pathname.startsWith('/entrenador')) return 'entrenador';
-  if (pathname.startsWith('/admin')) return 'admin';
-  return 'alumno';
-}

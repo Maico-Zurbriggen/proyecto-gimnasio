@@ -51,20 +51,17 @@ describe('App', () => {
     vi.unstubAllGlobals();
   });
 
-  it('redirige a la vista de alumno por defecto y muestra el resumen', async () => {
+  it('redirige a la vista prioritaria permitida por los roles de la sesión', async () => {
     render(<App />);
 
-    // La app resuelve la sesión antes de decidir la ruta (HU07-T7), de modo que
-    // el contenido aparece tras esa consulta.
     expect(
-      await screen.findByRole('heading', { name: 'Buen día, Maia.' }),
+      await screen.findByRole('heading', { name: 'Tus alumnos, por señal.' }),
     ).toBeVisible();
   });
 
   it('permite ir a la cartera del entrenador y abrir la ficha de un alumno bloqueado', async () => {
     render(<App />);
 
-    fireEvent.click(await screen.findByRole('link', { name: 'Entrenador' }));
     expect(
       await screen.findByRole('heading', { name: 'Tus alumnos, por señal.' }),
     ).toBeVisible();

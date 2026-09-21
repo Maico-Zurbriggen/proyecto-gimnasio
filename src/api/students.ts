@@ -41,10 +41,7 @@ export interface UnlockStudentInput {
 export async function fetchTrainerStudents(
   signal?: AbortSignal,
 ): Promise<TrainerStudent[]> {
-  const body = await apiGet('/trainers/me/students', {
-    as: 'ENTRENADOR',
-    signal,
-  });
+  const body = await apiGet('/trainers/me/students', { signal });
   return z.array(trainerStudentSchema).parse(body);
 }
 
@@ -55,7 +52,7 @@ export async function fetchStudentStatus(
 ): Promise<StudentStatus> {
   const body = await apiGet(
     `/students/${encodeURIComponent(studentId)}/status`,
-    { as: 'ENTRENADOR', signal },
+    { signal },
   );
   return studentStatusSchema.parse(body);
 }
@@ -71,7 +68,6 @@ export async function unlockStudent(
   const body = await apiPost(
     `/students/${encodeURIComponent(studentId)}/unlock`,
     input,
-    { as: 'ENTRENADOR' },
   );
   return studentStatusSchema.parse(body);
 }
