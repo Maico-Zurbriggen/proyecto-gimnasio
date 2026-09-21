@@ -1,8 +1,32 @@
-import { Bell, MoreHorizontal } from 'lucide-react';
+import { Bell, LogOut } from 'lucide-react';
 import { useState } from 'react';
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
 
+import { useSession } from '../../features/auth/hooks/useSession';
 import { NAVIGATION, ROLES, resolveRole } from './nav';
+
+/** Acción de cerrar sesión (HU07-T8). */
+function LogoutButton() {
+  const { logout } = useSession();
+  const [saliendo, setSaliendo] = useState(false);
+
+  return (
+    <button
+      type="button"
+      aria-label="Cerrar sesión"
+      disabled={saliendo}
+      onClick={() => {
+        setSaliendo(true);
+        void logout().finally(() => {
+          setSaliendo(false);
+        });
+      }}
+      className="ml-auto flex size-7 shrink-0 items-center justify-center rounded-full text-white/45 transition hover:bg-white/10 hover:text-white disabled:opacity-50"
+    >
+      <LogOut className="size-4" />
+    </button>
+  );
+}
 
 const ROLE_META: Record<
   ReturnType<typeof resolveRole>,
@@ -160,7 +184,7 @@ function Sidebar({
             </p>
             <p className="mt-0.5 text-[10px] text-white/45">{meta.caption}</p>
           </div>
-          <MoreHorizontal className="ml-auto size-4 text-white/45" />
+          <LogoutButton />
         </div>
       </div>
     </aside>

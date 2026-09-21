@@ -1,4 +1,5 @@
 import { Activity, ArrowUpRight, Dumbbell, Flame } from 'lucide-react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import { ApiError } from '../../../api/client';
@@ -7,6 +8,7 @@ import { BentoCard } from '../../../shared/ui/BentoCard';
 import { PageHeader } from '../../../shared/ui/PageHeader';
 import { StatCard } from '../../../shared/ui/StatCard';
 import { RenewalBanner } from '../components/RenewalBanner';
+import { RenewalMeasurementForm } from '../components/RenewalMeasurementForm';
 import { useActiveRoutine } from '../hooks/useActiveRoutine';
 
 const NEXT_EXERCISES = [
@@ -22,6 +24,8 @@ const NEXT_EXERCISES = [
  */
 function RenewalNoticeSection() {
   const { data, error, isPending, refetch, isFetching } = useActiveRoutine();
+  const [cargando, setCargando] = useState(false);
+  const [registrada, setRegistrada] = useState(false);
 
   if (isPending) {
     return (
@@ -75,13 +79,41 @@ function RenewalNoticeSection() {
   }
 
   return (
-    <RenewalBanner
-      studentId={data.studentId}
-      aviso={data.avisoRenovacion}
-      onCargarMedicion={() =>
-        window.alert('Carga de medidas: fuera de alcance (HU02).')
-      }
-    />
+    <div className="flex flex-col gap-3">
+      <RenewalBanner
+        studentId={data.studentId}
+        aviso={data.avisoRenovacion}
+        onCargarMedicion={() => {
+          setRegistrada(false);
+          setCargando(true);
+        }}
+      />
+
+      {cargando ? (
+        <div className="rounded-2xl border border-[#292823]/10 bg-white p-5">
+          <p className="eyebrow mb-3 text-[#77756d]">Cargar medidas</p>
+          <RenewalMeasurementForm
+            studentId={data.studentId}
+            onRegistrada={() => {
+              setCargando(false);
+              setRegistrada(true);
+            }}
+            onCancelar={() => {
+              setCargando(false);
+            }}
+          />
+        </div>
+      ) : null}
+
+      {registrada ? (
+        <Banner variant="info" title="Medidas registradas">
+          <p>
+            Tu entrenador va a ver tus datos actualizados en la próxima
+            propuesta de ajuste.
+          </p>
+        </Banner>
+      ) : null}
+    </div>
   );
 }
 
