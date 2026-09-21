@@ -38,7 +38,7 @@ export type ActiveRoutine = z.infer<typeof activeRoutineSchema>;
 export async function fetchActiveRoutine(
   signal?: AbortSignal,
 ): Promise<ActiveRoutine> {
-  const body = await apiGet('/routines/active', { as: 'ALUMNO', signal });
+  const body = await apiGet('/routines/active', { signal });
   return activeRoutineSchema.parse(body);
 }
 
@@ -52,7 +52,7 @@ export async function fetchStudentActiveRoutine(
 ): Promise<ActiveRoutine> {
   const body = await apiGet(
     `/students/${encodeURIComponent(studentId)}/routines/active`,
-    { as: 'ENTRENADOR', signal },
+    { signal },
   );
   return activeRoutineSchema.parse(body);
 }

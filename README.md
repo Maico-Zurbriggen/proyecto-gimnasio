@@ -28,6 +28,8 @@ npm run dev
 
 En PowerShell, usar `Copy-Item .env.example .env`. La aplicación queda en `http://localhost:5173` y espera el backend configurado por `VITE_API_URL`.
 
+La aplicación autentica mediante la cookie `httpOnly` emitida por el backend. No se configuran UUID ni roles en variables del frontend: iniciar sesión determina las áreas disponibles, y sólo los usuarios multirrol pueden alternar entre más de una.
+
 ## Estructura del código
 
 El frontend se organiza por feature:
