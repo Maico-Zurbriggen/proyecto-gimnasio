@@ -16,7 +16,7 @@ export interface BentoCardProps extends HTMLAttributes<HTMLDivElement> {
   tone?: BentoTone;
 }
 
-/** Tarjeta base del sistema visual PULSO. */
+/** Tarjeta base del sistema visual Vivaz Adaptive . */
 export function BentoCard({
   tone = 'ivory',
   className,

@@ -1,8 +1,32 @@
-import { Bell, MoreHorizontal } from 'lucide-react';
+import { Bell, LogOut } from 'lucide-react';
 import { useState } from 'react';
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
 
+import { useSession } from '../../features/auth/hooks/useSession';
 import { NAVIGATION, ROLES, resolveRole } from './nav';
+
+/** Acción de cerrar sesión (HU07-T8). */
+function LogoutButton() {
+  const { logout } = useSession();
+  const [saliendo, setSaliendo] = useState(false);
+
+  return (
+    <button
+      type="button"
+      aria-label="Cerrar sesión"
+      disabled={saliendo}
+      onClick={() => {
+        setSaliendo(true);
+        void logout().finally(() => {
+          setSaliendo(false);
+        });
+      }}
+      className="ml-auto flex size-7 shrink-0 items-center justify-center rounded-full text-white/45 transition hover:bg-white/10 hover:text-white disabled:opacity-50"
+    >
+      <LogOut className="size-4" />
+    </button>
+  );
+}
 
 const ROLE_META: Record<
   ReturnType<typeof resolveRole>,
@@ -28,15 +52,21 @@ const ROLE_META: Record<
   },
 };
 
-function Wordmark() {
+function Wordmark({ role }: { role: ReturnType<typeof resolveRole> }) {
+  const home =
+    role === 'admin'
+      ? '/admin'
+      : role === 'entrenador'
+        ? '/entrenador'
+        : '/alumno';
   return (
-    <Link to="/alumno" className="flex items-center gap-3 px-1 py-2">
+    <Link to={home} className="flex items-center gap-3 px-1 py-2">
       <span className="flex size-9 shrink-0 items-center justify-center rounded-[11px] bg-lime font-display text-sm font-black text-graphite">
         P
       </span>
       <div className="min-w-0">
         <p className="font-display text-[1.05rem] leading-none font-black tracking-[-0.08em] text-white">
-          PULSO
+          Vivaz Adaptive
         </p>
         <p className="mt-1 text-[9px] font-semibold tracking-[0.2em] text-white/45 uppercase">
           load 01
@@ -80,7 +110,7 @@ function Sidebar({
         mobileOpen ? 'translate-x-0' : '-translate-x-full'
       }`}
     >
-      <Wordmark />
+      <Wordmark role={role} />
       <p className="mb-5 mt-1 px-1 text-[9px] font-semibold tracking-[0.22em] text-white/45 uppercase">
         {meta.title}
       </p>
@@ -154,7 +184,7 @@ function Sidebar({
             </p>
             <p className="mt-0.5 text-[10px] text-white/45">{meta.caption}</p>
           </div>
-          <MoreHorizontal className="ml-auto size-4 text-white/45" />
+          <LogoutButton />
         </div>
       </div>
     </aside>
@@ -162,7 +192,7 @@ function Sidebar({
 }
 
 /**
- * Shell de navegación de la app (sidebar + header), estilo visual PULSO.
+ * Shell de navegación de la app (sidebar + header), estilo visual Vivaz Adaptive .
  * Único de nombre "shell" a nivel app: no contiene reglas de dominio.
  */
 export function AppShell() {
@@ -219,9 +249,9 @@ export function AppShell() {
         <Outlet />
 
         <footer className="px-4 pb-8 text-[10px] leading-5 text-[#949188] sm:px-7 lg:px-9">
-          Proyecto Gimnasio · sistema visual PULSO. Solo el aviso de renovación,
-          la advertencia de datos desactualizados y el flujo de desbloqueo
-          ejecutan lógica real en este sprint.
+          Proyecto Gimnasio · sistema visual Vivaz Adaptive . Solo el aviso de
+          renovación, la advertencia de datos desactualizados y el flujo de
+          desbloqueo ejecutan lógica real en este sprint.
         </footer>
       </div>
     </div>
