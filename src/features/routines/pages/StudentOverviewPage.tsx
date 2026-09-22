@@ -7,6 +7,7 @@ import { Banner } from '../../../shared/components/Banner';
 import { BentoCard } from '../../../shared/ui/BentoCard';
 import { PageHeader } from '../../../shared/ui/PageHeader';
 import { StatCard } from '../../../shared/ui/StatCard';
+import { RoutineGenerationPanel } from '../../routine-generations/components/RoutineGenerationPanel';
 import { RenewalBanner } from '../components/RenewalBanner';
 import { RenewalMeasurementForm } from '../components/RenewalMeasurementForm';
 import { useActiveRoutine } from '../hooks/useActiveRoutine';
@@ -121,7 +122,11 @@ function RenewalNoticeSection() {
  * Resumen del alumno. Solo el aviso de renovación (HU01) está conectado al
  * backend; el resto de los módulos son de referencia visual.
  */
-export function StudentOverviewPage() {
+export interface StudentOverviewPageProps {
+  studentId: string;
+}
+
+export function StudentOverviewPage({ studentId }: StudentOverviewPageProps) {
   return (
     <div>
       <PageHeader
@@ -131,6 +136,8 @@ export function StudentOverviewPage() {
       />
       <main className="flex flex-col gap-4 px-4 pb-10 sm:px-7 lg:px-9">
         <RenewalNoticeSection />
+
+        <RoutineGenerationPanel studentId={studentId} />
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-12">
           <BentoCard
