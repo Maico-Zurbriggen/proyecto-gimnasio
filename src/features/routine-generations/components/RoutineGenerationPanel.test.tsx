@@ -11,8 +11,8 @@ const STORAGE_KEY = `gym:routine-generation:${STUDENT_ID}`;
 
 function renderPanel() {
   return renderRoute(
-    '/entrenador/alumnos/:studentId',
-    `/entrenador/alumnos/${STUDENT_ID}`,
+    '/alumno',
+    '/alumno',
     <RoutineGenerationPanel studentId={STUDENT_ID} />,
   );
 }

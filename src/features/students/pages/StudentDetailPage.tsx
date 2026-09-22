@@ -6,7 +6,6 @@ import { formatDate } from '../../../shared/lib/format';
 import { BentoCard } from '../../../shared/ui/BentoCard';
 import { PageHeader } from '../../../shared/ui/PageHeader';
 import { SectionTabs } from '../../../shared/ui/SectionTabs';
-import { RoutineGenerationPanel } from '../../routine-generations/components/RoutineGenerationPanel';
 import { ActiveRoutineCard } from '../components/ActiveRoutineCard';
 import { UnlockPanel } from '../components/UnlockPanel';
 import { useStudentStatus } from '../hooks/useStudentStatus';
@@ -170,13 +169,6 @@ export function StudentDetailPage() {
             className="xl:col-span-4"
           />
         </div>
-
-        {!student.bloqueado ? (
-          <RoutineGenerationPanel
-            key={student.studentId}
-            studentId={student.studentId}
-          />
-        ) : null}
       </main>
     </div>
   );

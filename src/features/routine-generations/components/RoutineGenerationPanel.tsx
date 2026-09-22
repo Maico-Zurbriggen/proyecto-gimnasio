@@ -31,16 +31,16 @@ function requestErrorMessage(error: unknown): string {
     case 'empty_prefiltered_catalog':
       return 'No hay ejercicios compatibles con el inventario del gimnasio.';
     case 'student_not_found':
-      return 'El alumno ya no está disponible.';
+      return 'Tu perfil de alumno ya no está disponible.';
     case 'forbidden_not_assigned':
     case 'forbidden_role':
-      return 'No tenés permiso para generar la rutina de este alumno.';
+      return 'No tenés permiso para generar esta rutina.';
     case 'ai_service_unavailable':
       return 'La generación está temporalmente no disponible. El resto de la ficha sigue funcionando.';
     case 'missing_generation_input':
       return 'Escribí al menos una indicación para la nueva rutina.';
     case 'proposed_routine_already_exists':
-      return 'El alumno ya tiene una rutina propuesta pendiente de revisión.';
+      return 'Ya tenés una rutina propuesta pendiente de revisión.';
     case 'invalid_generated_routine':
       return 'La salida no superó las validaciones de seguridad del backend.';
     case 'routine_generation_not_completed':
@@ -135,8 +135,8 @@ export function RoutineGenerationPanel({
         Nueva rutina
       </h2>
       <p className="mt-2 max-w-2xl text-xs leading-5 text-[#77756d]">
-        Agregá indicaciones para complementar el perfil, las condiciones y el
-        equipamiento que el backend ya valida para este alumno.
+        Agregá indicaciones para complementar tu perfil, tus condiciones y el
+        equipamiento que el backend valida antes de crear la propuesta.
       </p>
 
       {!tracking?.requestId ? (
