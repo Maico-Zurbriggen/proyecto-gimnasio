@@ -13,6 +13,7 @@ function mockSession(
     loading: false,
     login: vi.fn(),
     logout: vi.fn(),
+    adoptSession: vi.fn(),
   });
 }
 
