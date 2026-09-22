@@ -23,6 +23,11 @@ function HomeForSession() {
   );
 }
 
+function StudentOverviewRoute() {
+  const { user } = useSession();
+  return <StudentOverviewPage studentId={user?.id} />;
+}
+
 /**
  * Rutas de la app. Las páginas listadas en `PlaceholderPage` son de
  * referencia visual y no ejecutan lógica real en este
@@ -43,7 +48,7 @@ export function AppRouter() {
 
           {/* Alumno */}
           <Route element={<RequireRole role="ALUMNO" />}>
-            <Route path="/alumno" element={<StudentOverviewPage />} />
+            <Route path="/alumno" element={<StudentOverviewRoute />} />
             <Route
               path="/alumno/rutina"
               element={

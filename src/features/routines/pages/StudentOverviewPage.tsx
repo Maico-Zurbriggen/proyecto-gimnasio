@@ -9,6 +9,7 @@ import { PageHeader } from '../../../shared/ui/PageHeader';
 import { StatCard } from '../../../shared/ui/StatCard';
 import { RenewalBanner } from '../components/RenewalBanner';
 import { RenewalMeasurementForm } from '../components/RenewalMeasurementForm';
+import { RoutineUpdateSection } from '../components/RoutineUpdateSection';
 import { useActiveRoutine } from '../hooks/useActiveRoutine';
 
 const NEXT_EXERCISES = [
@@ -118,10 +119,12 @@ function RenewalNoticeSection() {
 }
 
 /**
- * Resumen del alumno. Solo el aviso de renovación (HU01) está conectado al
- * backend; el resto de los módulos son de referencia visual.
+ * Resumen del alumno. El aviso de renovación (HU01) y la actualización de
+ * rutina (RF-025) están conectados al backend; el resto de los módulos son
+ * de referencia visual. Sin `studentId` (sin sesión resuelta) la sección de
+ * actualización no se muestra.
  */
-export function StudentOverviewPage() {
+export function StudentOverviewPage({ studentId }: { studentId?: string }) {
   return (
     <div>
       <PageHeader
@@ -131,6 +134,8 @@ export function StudentOverviewPage() {
       />
       <main className="flex flex-col gap-4 px-4 pb-10 sm:px-7 lg:px-9">
         <RenewalNoticeSection />
+
+        {studentId ? <RoutineUpdateSection studentId={studentId} /> : null}
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-12">
           <BentoCard
