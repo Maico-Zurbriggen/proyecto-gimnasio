@@ -6,6 +6,7 @@ import { formatDate } from '../../../shared/lib/format';
 import { BentoCard } from '../../../shared/ui/BentoCard';
 import { PageHeader } from '../../../shared/ui/PageHeader';
 import { SectionTabs } from '../../../shared/ui/SectionTabs';
+import { RoutinePrescriptionPanel } from '../../prescriptions/components/RoutinePrescriptionPanel';
 import { RoutineGenerationPanel } from '../../routine-generations/components/RoutineGenerationPanel';
 import { ActiveRoutineCard } from '../components/ActiveRoutineCard';
 import { UnlockPanel } from '../components/UnlockPanel';
@@ -172,10 +173,16 @@ export function StudentDetailPage() {
         </div>
 
         {!student.bloqueado ? (
-          <RoutineGenerationPanel
-            key={student.studentId}
-            studentId={student.studentId}
-          />
+          <>
+            <RoutinePrescriptionPanel
+              key={`prescripcion-${student.studentId}`}
+              studentId={student.studentId}
+            />
+            <RoutineGenerationPanel
+              key={student.studentId}
+              studentId={student.studentId}
+            />
+          </>
         ) : null}
       </main>
     </div>

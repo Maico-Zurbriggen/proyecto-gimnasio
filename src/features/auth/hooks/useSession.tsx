@@ -18,6 +18,12 @@ export interface SessionContextValue {
   loading: boolean;
   login: (input: LoginInput) => Promise<AuthenticatedUser>;
   logout: () => Promise<void>;
+  /**
+   * Adopta una sesión que abrió otro flujo del backend, como completar la cuenta
+   * desde una invitación (HU06). La cookie ya está puesta; esto sólo pone al día
+   * la identidad cacheada para no tener que volver a pedir `GET /auth/me`.
+   */
+  adoptSession: (user: AuthenticatedUser) => void;
 }
 
 const SessionContext = createContext<SessionContextValue | null>(null);
@@ -50,6 +56,13 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     [queryClient],
   );
 
+  const adoptSession = useCallback(
+    (user: AuthenticatedUser) => {
+      queryClient.setQueryData(sessionQueryKey, user);
+    },
+    [queryClient],
+  );
+
   const logout = useCallback(async () => {
     try {
       await logoutRequest();
@@ -63,7 +76,13 @@ export function SessionProvider({ children }: { children: ReactNode }) {
 
   return (
     <SessionContext.Provider
-      value={{ user: data ?? null, loading: isLoading, login, logout }}
+      value={{
+        user: data ?? null,
+        loading: isLoading,
+        login,
+        logout,
+        adoptSession,
+      }}
     >
       {children}
     </SessionContext.Provider>

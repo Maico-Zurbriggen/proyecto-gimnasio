@@ -7,6 +7,8 @@ import { useSession } from '../../features/auth/hooks/useSession';
 import { LoginPage } from '../../features/auth/pages/LoginPage';
 import { NoAssignedRolePage } from '../../features/auth/pages/NoAssignedRolePage';
 import { homeForRoles } from '../../features/auth/roles';
+import { CompleteAccountPage } from '../../features/invitations/pages/CompleteAccountPage';
+import { StudentRoutinePage } from '../../features/prescriptions/pages/StudentRoutinePage';
 import { ProposalReviewPage } from '../../features/adaptation-proposals/pages/ProposalReviewPage';
 import { TrainerRoutinesPage } from '../../features/adaptation-proposals/pages/TrainerRoutinesPage';
 import { StudentOverviewPage } from '../../features/routines/pages/StudentOverviewPage';
@@ -27,13 +29,16 @@ function HomeForSession() {
  * Rutas de la app. Las páginas listadas en `PlaceholderPage` son de
  * referencia visual y no ejecutan lógica real en este
  * sprint; solo el resumen del alumno (HU01), la revisión de propuesta
- * (HU04) y la ficha del alumno (HU05) están conectadas de verdad.
+ * (HU04), la ficha del alumno (HU05) y el completado de cuenta desde la
+ * invitación (HU06) están conectadas de verdad.
  */
 export function AppRouter() {
   return (
     <Routes>
-      {/* HU07-T6: el login es la única ruta pública. */}
+      {/* HU07-T6 y HU06-T5: el login y el completado de cuenta son las rutas
+          públicas. La invitación es la credencial de quien todavía no tiene cuenta. */}
       <Route path="/ingresar" element={<LoginPage />} />
+      <Route path="/invitacion/:token" element={<CompleteAccountPage />} />
 
       {/* HU07-T7: el resto exige sesión; sin ella se redirige al login. */}
       <Route element={<RequireSession />}>
@@ -44,16 +49,7 @@ export function AppRouter() {
           {/* Alumno */}
           <Route element={<RequireRole role="ALUMNO" />}>
             <Route path="/alumno" element={<StudentOverviewPage />} />
-            <Route
-              path="/alumno/rutina"
-              element={
-                <PlaceholderPage
-                  kicker="Mi rutina"
-                  title="Fuerza base · 4 días"
-                  description="Estructura semanal, días de rutina y cambios recientes."
-                />
-              }
-            />
+            <Route path="/alumno/rutina" element={<StudentRoutinePage />} />
             <Route
               path="/alumno/sesion"
               element={
