@@ -45,7 +45,7 @@ function renderPage() {
   return render(
     <QueryClientProvider client={queryClient}>
       <MemoryRouter>
-        <StudentOverviewPage />
+        <StudentOverviewPage studentId={STUDENT_ID} />
       </MemoryRouter>
     </QueryClientProvider>,
   );
