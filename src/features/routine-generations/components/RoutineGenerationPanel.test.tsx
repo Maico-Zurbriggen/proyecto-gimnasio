@@ -6,6 +6,7 @@ import { RoutineGenerationPanel } from './RoutineGenerationPanel';
 
 const STUDENT_ID = '20000000-0000-4000-8000-000000000005';
 const REQUEST_ID = '50000000-0000-4000-8000-000000000001';
+const ROUTINE_ID = '60000000-0000-4000-8000-000000000001';
 const STORAGE_KEY = `gym:routine-generation:${STUDENT_ID}`;
 
 function renderPanel() {
@@ -37,6 +38,11 @@ describe('RoutineGenerationPanel', () => {
           error: null,
         },
       },
+      [`POST /students/${STUDENT_ID}/routine-generations/${REQUEST_ID}/finalize`]:
+        {
+          status: 201,
+          body: { routineId: ROUTINE_ID, status: 'PROPUESTA' },
+        },
     });
 
     renderPanel();
@@ -48,6 +54,11 @@ describe('RoutineGenerationPanel', () => {
     );
 
     expect(await screen.findByText('Generación completada')).toBeVisible();
+    expect(
+      await screen.findByText(
+        'La rutina propuesta quedó creada y está lista para revisión.',
+      ),
+    ).toBeVisible();
 
     const post = fetchMock.mock.calls.find(
       ([, init]) => init?.method === 'POST',

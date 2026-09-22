@@ -3,6 +3,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { mockApi } from '../../test/apiMocks';
 import {
   fetchRoutineGeneration,
+  finalizeRoutineGeneration,
   requestRoutineGeneration,
 } from './routineGenerations';
 
@@ -55,5 +56,20 @@ describe('routine generations API', () => {
       status: 'COMPLETADA',
       estructuraCandidata: { dias: [] },
     });
+  });
+
+  it('finaliza la generación mediante el backend y obtiene la rutina PROPUESTA', async () => {
+    const routineId = '60000000-0000-4000-8000-000000000001';
+    mockApi({
+      [`POST /students/${STUDENT_ID}/routine-generations/${REQUEST_ID}/finalize`]:
+        {
+          status: 201,
+          body: { routineId, status: 'PROPUESTA' },
+        },
+    });
+
+    await expect(
+      finalizeRoutineGeneration(STUDENT_ID, REQUEST_ID),
+    ).resolves.toEqual({ routineId, status: 'PROPUESTA' });
   });
 });

@@ -1,10 +1,11 @@
-import { useState, type FormEvent } from 'react';
+import { useEffect, useState, type FormEvent } from 'react';
 
 import { ApiError } from '../../../api/client';
 import type { RoutineGenerationStatus } from '../../../api/routineGenerations';
 import { Banner } from '../../../shared/components/Banner';
 import { BentoCard } from '../../../shared/ui/BentoCard';
 import { useRequestRoutineGeneration } from '../hooks/useRequestRoutineGeneration';
+import { useFinalizeRoutineGeneration } from '../hooks/useFinalizeRoutineGeneration';
 import { useRoutineGeneration } from '../hooks/useRoutineGeneration';
 import {
   clearGenerationTracking,
@@ -38,6 +39,12 @@ function requestErrorMessage(error: unknown): string {
       return 'La generación está temporalmente no disponible. El resto de la ficha sigue funcionando.';
     case 'missing_generation_input':
       return 'Escribí al menos una indicación para la nueva rutina.';
+    case 'proposed_routine_already_exists':
+      return 'El alumno ya tiene una rutina propuesta pendiente de revisión.';
+    case 'invalid_generated_routine':
+      return 'La salida no superó las validaciones de seguridad del backend.';
+    case 'routine_generation_not_completed':
+      return 'La generación todavía no terminó. Reintentá en unos segundos.';
     default:
       return 'No pudimos solicitar la rutina. Probá de nuevo.';
   }
@@ -67,6 +74,20 @@ export function RoutineGenerationPanel({
   );
   const request = useRequestRoutineGeneration(studentId);
   const generation = useRoutineGeneration(studentId, tracking?.requestId);
+  const finalize = useFinalizeRoutineGeneration(studentId, tracking?.requestId);
+  const snapshot = generation.data;
+
+  useEffect(() => {
+    if (
+      snapshot?.status === 'COMPLETADA' &&
+      !snapshot.routineId &&
+      !finalize.isPending &&
+      !finalize.isSuccess &&
+      !finalize.isError
+    ) {
+      finalize.mutate();
+    }
+  }, [finalize, snapshot]);
 
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -101,9 +122,9 @@ export function RoutineGenerationPanel({
     setTracking(null);
     setInstructions('');
     request.reset();
+    finalize.reset();
   };
 
-  const snapshot = generation.data;
   const isActive =
     snapshot?.status === 'PENDIENTE' || snapshot?.status === 'PROCESANDO';
 
@@ -190,13 +211,14 @@ export function RoutineGenerationPanel({
             <Banner
               variant={
                 snapshot.status === 'NO_DISPONIBLE' ||
-                snapshot.status === 'CANCELADA'
+                snapshot.status === 'CANCELADA' ||
+                finalize.isError
                   ? 'danger'
                   : 'info'
               }
               title={statusLabel(snapshot.status)}
               actions={
-                !isActive ? (
+                !isActive && !snapshot.routineId ? (
                   <button
                     type="button"
                     onClick={startAnother}
@@ -212,11 +234,16 @@ export function RoutineGenerationPanel({
                   ? 'La solicitud está en espera. Podés salir de esta pantalla y retomarla después.'
                   : snapshot.status === 'PROCESANDO'
                     ? 'El servicio está preparando la estructura. Esta pantalla se actualiza automáticamente.'
-                    : snapshot.status === 'COMPLETADA'
-                      ? 'El resultado ya está disponible para que el backend complete su validación y revisión.'
-                      : snapshot.status === 'CANCELADA'
-                        ? 'La solicitud fue cancelada y no produjo una rutina.'
-                        : `No se pudo completar la generación${snapshot.error ? ` (${snapshot.error})` : ''}.`}
+                    : snapshot.status === 'COMPLETADA' && finalize.isPending
+                      ? 'El backend está validando el resultado y creando la rutina propuesta.'
+                      : snapshot.status === 'COMPLETADA' &&
+                          (snapshot.routineId || finalize.isSuccess)
+                        ? 'La rutina propuesta quedó creada y está lista para revisión.'
+                        : snapshot.status === 'COMPLETADA' && finalize.error
+                          ? requestErrorMessage(finalize.error)
+                          : snapshot.status === 'CANCELADA'
+                            ? 'La solicitud fue cancelada y no produjo una rutina.'
+                            : `No se pudo completar la generación${snapshot.error ? ` (${snapshot.error})` : ''}.`}
               </p>
               {snapshot.violaciones?.length ? (
                 <ul className="mt-2 list-disc pl-5">

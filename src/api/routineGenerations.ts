@@ -37,6 +37,12 @@ const routineGenerationSnapshotSchema = routineGenerationAcceptedSchema.extend({
   estructuraCandidata: z.unknown().nullable(),
   violaciones: z.array(z.string()).nullable(),
   error: z.string().nullable(),
+  routineId: z.string().uuid().nullable().default(null),
+});
+
+const finalizedGeneratedRoutineSchema = z.object({
+  routineId: z.string().uuid(),
+  status: z.literal('PROPUESTA'),
 });
 
 export type RoutineGenerationStatus = z.infer<
@@ -47,6 +53,9 @@ export type RoutineGenerationAccepted = z.infer<
 >;
 export type RoutineGenerationSnapshot = z.infer<
   typeof routineGenerationSnapshotSchema
+>;
+export type FinalizedGeneratedRoutine = z.infer<
+  typeof finalizedGeneratedRoutineSchema
 >;
 
 export interface RequestRoutineGenerationInput {
@@ -86,4 +95,16 @@ export async function fetchRoutineGeneration(
     { signal },
   );
   return routineGenerationSnapshotSchema.parse(body);
+}
+
+/** Valida la salida terminada y crea idempotentemente la rutina PROPUESTA. */
+export async function finalizeRoutineGeneration(
+  studentId: string,
+  requestId: string,
+): Promise<FinalizedGeneratedRoutine> {
+  const body = await apiPost(
+    `/students/${encodeURIComponent(studentId)}/routine-generations/${encodeURIComponent(requestId)}/finalize`,
+    {},
+  );
+  return finalizedGeneratedRoutineSchema.parse(body);
 }
