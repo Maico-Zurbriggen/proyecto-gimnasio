@@ -26,7 +26,8 @@ export const trainerStudentSchema = studentStatusSchema.extend({
       estadoAviso: z.enum(['pendiente', 'cerrado hoy', 'vencido']),
     })
     .nullable(),
-  propuestasPendientes: z.number().int(),
+  rutinasPendientesRevision: z.number().int().nonnegative(),
+  propuestasAdaptacionPendientes: z.number().int().nonnegative(),
 });
 
 export type StudentStatus = z.infer<typeof studentStatusSchema>;

@@ -35,7 +35,8 @@ describe('App', () => {
             ...juanStatus,
             objetivo: 'HIPERTROFIA',
             rutinaVigente: null,
-            propuestasPendientes: 0,
+            rutinasPendientesRevision: 0,
+            propuestasAdaptacionPendientes: 0,
           },
         ],
       },
@@ -57,6 +58,7 @@ describe('App', () => {
     expect(
       await screen.findByRole('heading', { name: 'Tus alumnos, por señal.' }),
     ).toBeVisible();
+    expect(screen.getByRole('link', { name: 'Rutinas' })).toBeVisible();
   });
 
   it('permite ir a la cartera del entrenador y abrir la ficha de un alumno bloqueado', async () => {

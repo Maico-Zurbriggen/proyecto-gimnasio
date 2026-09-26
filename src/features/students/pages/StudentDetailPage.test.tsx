@@ -122,4 +122,16 @@ describe('StudentDetailPage (HU05)', () => {
       await screen.findByText('Este alumno no está asignado a tu cartera.'),
     ).toBeVisible();
   });
+
+  it('muestra una advertencia destacada cuando no hay mediciones', async () => {
+    mockApi({
+      [`GET /students/${JUAN}/status`]: {
+        body: { ...blockedStatus, fechaUltimaMedicion: null },
+      },
+    });
+
+    renderPage();
+
+    expect(await screen.findByText('Sin mediciones registradas')).toBeVisible();
+  });
 });
