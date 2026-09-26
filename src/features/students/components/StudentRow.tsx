@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 
 import type { TrainerStudent } from '../../../api/students';
 import { humanizeEnum } from '../../../shared/lib/format';
+import { pendingReviewsForStudent } from '../lib/pendingReviews';
 
 type Signal = 'En ritmo' | 'Revisar' | 'Bloqueado';
 
@@ -17,7 +18,7 @@ function signalOf(student: TrainerStudent): Signal {
     return 'Bloqueado';
   }
   if (
-    student.propuestasPendientes > 0 ||
+    pendingReviewsForStudent(student) > 0 ||
     !student.rutinaVigente ||
     student.rutinaVigente.estadoAviso === 'vencido'
   ) {
@@ -53,6 +54,7 @@ function routineSummary({ rutinaVigente }: TrainerStudent): string {
 /** Fila de alumno reutilizada en cartera y listado (estilo Vivaz Adaptive ). */
 export function StudentRow({ student }: { student: TrainerStudent }) {
   const signal = signalOf(student);
+  const pendingReviews = pendingReviewsForStudent(student);
 
   return (
     <Link
@@ -68,10 +70,17 @@ export function StudentRow({ student }: { student: TrainerStudent }) {
           {routineSummary(student)}
         </p>
       </div>
-      {student.propuestasPendientes > 0 ? (
+      {student.fechaUltimaMedicion === null ? (
+        <span className="text-[10px] font-bold text-coral-text">
+          Sin mediciones
+        </span>
+      ) : null}
+      {pendingReviews > 0 ? (
         <span className="text-[10px] font-bold text-[#77756d]">
-          {student.propuestasPendientes}{' '}
-          {student.propuestasPendientes === 1 ? 'propuesta' : 'propuestas'}
+          {pendingReviews}{' '}
+          {pendingReviews === 1
+            ? 'revisión pendiente'
+            : 'revisiones pendientes'}
         </span>
       ) : null}
       <span

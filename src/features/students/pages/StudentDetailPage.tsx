@@ -139,6 +139,17 @@ export function StudentDetailPage() {
           </div>
         ) : null}
 
+        {student.fechaUltimaMedicion === null ? (
+          <div className="mb-4">
+            <Banner variant="warning" title="Sin mediciones registradas">
+              <p>
+                Este alumno todavía no registró una medición corporal. Tenelo en
+                cuenta antes de revisar o ajustar su rutina.
+              </p>
+            </Banner>
+          </div>
+        ) : null}
+
         <div className="grid grid-cols-1 gap-4 xl:grid-cols-12">
           {student.bloqueado ? (
             <div className="xl:col-span-8">

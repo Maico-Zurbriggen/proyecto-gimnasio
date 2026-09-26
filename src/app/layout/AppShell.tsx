@@ -8,6 +8,8 @@ import {
   resolveAppRole,
   type UserRole,
 } from '../../features/auth/roles';
+import { useTrainerStudents } from '../../features/students/hooks/useTrainerStudents';
+import { totalPendingReviews } from '../../features/students/lib/pendingReviews';
 import { NAVIGATION } from './nav';
 
 /** Acción de cerrar sesión (HU07-T8). */
@@ -115,9 +117,11 @@ function RoleSwitcher({
 function Sidebar({
   role,
   mobileOpen,
+  routineReviewCount,
 }: {
   role: ReturnType<typeof resolveAppRole>;
   mobileOpen: boolean;
+  routineReviewCount: number;
 }) {
   const meta = ROLE_META[role];
   return (
@@ -152,9 +156,10 @@ function Sidebar({
                 >
                   <item.icon className="size-4" />
                   <span>{item.label}</span>
-                  {item.badge ? (
+                  {item.to === '/entrenador/rutinas' &&
+                  routineReviewCount > 0 ? (
                     <span className="ml-auto rounded-full bg-lime px-1.5 py-0.5 text-[10px] font-bold text-graphite">
-                      {item.badge}
+                      {routineReviewCount}
                     </span>
                   ) : null}
                 </NavLink>
@@ -215,11 +220,19 @@ export function AppShell() {
   const { pathname } = useLocation();
   const { user } = useSession();
   const role = resolveAppRole(pathname);
+  const trainerStudents = useTrainerStudents({
+    enabled: role === 'entrenador',
+  });
+  const routineReviewCount = totalPendingReviews(trainerStudents.data ?? []);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   return (
     <div className="min-h-svh bg-transparent lg:flex">
-      <Sidebar role={role} mobileOpen={mobileNavOpen} />
+      <Sidebar
+        role={role}
+        mobileOpen={mobileNavOpen}
+        routineReviewCount={routineReviewCount}
+      />
       {mobileNavOpen ? (
         <button
           type="button"

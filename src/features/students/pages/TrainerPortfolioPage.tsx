@@ -5,17 +5,18 @@ import { PageHeader } from '../../../shared/ui/PageHeader';
 import { StatCard } from '../../../shared/ui/StatCard';
 import { StudentList } from '../components/StudentList';
 import { useTrainerStudents } from '../hooks/useTrainerStudents';
+import { totalPendingReviews } from '../lib/pendingReviews';
 
-function attentionHeadline(blocked: number, proposals: number): string {
+function attentionHeadline(blocked: number, pendingReviews: number): string {
   if (blocked > 0) {
     return blocked === 1
       ? 'Un alumno bloqueado necesita que confirmes su desbloqueo.'
       : `${blocked} alumnos bloqueados necesitan que confirmes su desbloqueo.`;
   }
-  if (proposals > 0) {
-    return proposals === 1
-      ? 'Una propuesta de adaptación espera tu revisión.'
-      : `${proposals} propuestas de adaptación esperan tu revisión.`;
+  if (pendingReviews > 0) {
+    return pendingReviews === 1
+      ? 'Una revisión pendiente necesita tu atención.'
+      : `${pendingReviews} revisiones pendientes necesitan tu atención.`;
   }
   return 'Sin alertas urgentes en tu cartera.';
 }
@@ -26,10 +27,7 @@ export function TrainerPortfolioPage() {
   const list = students ?? [];
   const blocked = list.filter((student) => student.bloqueado).length;
   const withRoutine = list.filter((student) => student.rutinaVigente).length;
-  const proposals = list.reduce(
-    (total, student) => total + student.propuestasPendientes,
-    0,
-  );
+  const pendingReviews = totalPendingReviews(list);
 
   return (
     <div>
@@ -47,7 +45,7 @@ export function TrainerPortfolioPage() {
                 <h2 className="font-display mt-3 max-w-[24rem] text-2xl font-semibold leading-tight tracking-[-0.05em]">
                   {isPending
                     ? 'Revisando tu cartera…'
-                    : attentionHeadline(blocked, proposals)}
+                    : attentionHeadline(blocked, pendingReviews)}
                 </h2>
               </div>
               <CircleAlert className="size-5 shrink-0 text-lime" />
@@ -62,8 +60,8 @@ export function TrainerPortfolioPage() {
             className="xl:col-span-3"
           />
           <StatCard
-            label="Propuestas pendientes"
-            value={String(proposals)}
+            label="Revisiones pendientes"
+            value={String(pendingReviews)}
             detail="esperan tu revisión"
             icon={ClipboardCheck}
             className="xl:col-span-3"

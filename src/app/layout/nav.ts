@@ -22,7 +22,6 @@ export interface NavItem {
   label: string;
   to: string;
   icon: LucideIcon;
-  badge?: string;
 }
 
 export const NAVIGATION: Record<
@@ -50,7 +49,6 @@ export const NAVIGATION: Record<
         label: 'Rutinas',
         to: '/entrenador/rutinas',
         icon: ClipboardCheck,
-        badge: '1',
       },
       { label: 'Plantillas', to: '/entrenador/plantillas', icon: BookOpen },
     ],
