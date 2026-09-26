@@ -7,6 +7,7 @@ import { humanizeEnum } from '../../../shared/lib/format';
 import { BentoCard } from '../../../shared/ui/BentoCard';
 import { PageHeader } from '../../../shared/ui/PageHeader';
 import { SectionTabs } from '../../../shared/ui/SectionTabs';
+import { useTrainerStudents } from '../../students/hooks/useTrainerStudents';
 import { useTrainerProposals } from '../hooks/useTrainerProposals';
 
 function LoadError({ onRetry, busy }: { onRetry: () => void; busy: boolean }) {
@@ -27,15 +28,63 @@ function LoadError({ onRetry, busy }: { onRetry: () => void; busy: boolean }) {
   );
 }
 
-/** Propuestas pendientes desde `GET /trainers/me/proposals` (HU04). */
-function PendingProposals() {
+/** Rutinas propuestas que todavía requieren la revisión del entrenador. */
+function PendingRoutineReviews() {
+  const { data, error, isPending, isFetching, refetch } = useTrainerStudents();
+  const pending = (data ?? []).filter(
+    (student) => student.rutinasPendientesRevision > 0,
+  );
+
+  return (
+    <BentoCard>
+      <p className="eyebrow text-[#77756d]">Rutinas nuevas por aprobar</p>
+      {isPending ? (
+        <p role="status" className="mt-5 text-xs text-[#8c897f]">
+          Cargando rutinas propuestas…
+        </p>
+      ) : error ? (
+        <LoadError onRetry={() => void refetch()} busy={isFetching} />
+      ) : pending.length === 0 ? (
+        <p className="mt-5 text-xs text-[#8c897f]">
+          No hay rutinas nuevas esperando tu revisión.
+        </p>
+      ) : (
+        <div className="mt-5 space-y-2">
+          {pending.map((student) => (
+            <Link
+              key={student.studentId}
+              to={`/entrenador/alumnos/${student.studentId}`}
+              className="flex items-center justify-between gap-3 rounded-2xl border border-[#292823]/8 p-4 transition hover:bg-[#faf9f4]"
+            >
+              <div>
+                <p className="text-xs font-bold">{student.displayName}</p>
+                <p className="mt-1 text-[10px] text-[#77756d]">
+                  {student.rutinasPendientesRevision === 1
+                    ? 'Una rutina propuesta espera aprobación'
+                    : `${String(student.rutinasPendientesRevision)} rutinas propuestas esperan aprobación`}
+                </p>
+                {student.fechaUltimaMedicion === null ? (
+                  <p className="mt-1 text-[10px] font-bold text-coral-text">
+                    Sin mediciones registradas
+                  </p>
+                ) : null}
+              </div>
+              <ArrowUpRight className="size-4 shrink-0 text-[#77756d]" />
+            </Link>
+          ))}
+        </div>
+      )}
+    </BentoCard>
+  );
+}
+
+/** Propuestas de adaptación pendientes desde `GET /trainers/me/proposals` (HU04). */
+function PendingAdaptationProposals() {
   const { data, error, isPending, isFetching, refetch } = useTrainerProposals();
 
   return (
     <BentoCard>
-      <p className="eyebrow text-[#77756d]">
-        Propuestas pendientes de revisión
-      </p>
+      <p className="eyebrow text-[#77756d]">Propuestas de adaptación</p>
       {isPending ? (
         <p role="status" className="mt-5 text-xs text-[#8c897f]">
           Cargando propuestas…
@@ -44,7 +93,7 @@ function PendingProposals() {
         <LoadError onRetry={() => void refetch()} busy={isFetching} />
       ) : data.length === 0 ? (
         <p className="mt-5 text-xs text-[#8c897f]">
-          No hay propuestas esperando tu revisión.
+          No hay propuestas de adaptación esperando tu revisión.
         </p>
       ) : (
         <div className="mt-5 space-y-2">
@@ -151,7 +200,14 @@ export function TrainerRoutinesPage() {
             { label: 'Por revisar', to: '/entrenador/rutinas/revisar' },
           ]}
         />
-        {showPending ? <PendingProposals /> : <AssignedRoutines />}
+        {showPending ? (
+          <div className="flex flex-col gap-4">
+            <PendingRoutineReviews />
+            <PendingAdaptationProposals />
+          </div>
+        ) : (
+          <AssignedRoutines />
+        )}
       </main>
     </div>
   );
