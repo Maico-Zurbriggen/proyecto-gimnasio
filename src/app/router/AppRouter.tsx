@@ -13,6 +13,7 @@ import { ProposalReviewPage } from '../../features/adaptation-proposals/pages/Pr
 import { TrainerRoutinesPage } from '../../features/adaptation-proposals/pages/TrainerRoutinesPage';
 import { StudentOverviewPage } from '../../features/routines/pages/StudentOverviewPage';
 import { StudentDetailPage } from '../../features/students/pages/StudentDetailPage';
+import { MeasurementBlockGate } from '../../features/students/components/MeasurementBlockGate';
 import { TrainerPortfolioPage } from '../../features/students/pages/TrainerPortfolioPage';
 import { TrainerStudentsListPage } from '../../features/students/pages/TrainerStudentsListPage';
 import { PlaceholderPage } from '../../shared/ui/PlaceholderPage';
@@ -53,58 +54,60 @@ export function AppRouter() {
 
           {/* Alumno */}
           <Route element={<RequireRole role="ALUMNO" />}>
-            <Route path="/alumno" element={<StudentOverviewRoute />} />
-            <Route path="/alumno/rutina" element={<StudentRoutinePage />} />
-            <Route
-              path="/alumno/sesion"
-              element={
-                <PlaceholderPage
-                  kicker="Sesión en curso"
-                  title="Espalda & Bíceps"
-                  description="Registro de series, cargas y repeticiones de la sesión activa."
-                />
-              }
-            />
-            <Route
-              path="/alumno/progreso"
-              element={
-                <PlaceholderPage
-                  kicker="Progreso"
-                  title="La tendencia juega a tu favor."
-                  description="Evolución de fuerza, mapa muscular, mediciones y adherencia."
-                />
-              }
-            />
-            <Route
-              path="/alumno/historial"
-              element={
-                <PlaceholderPage
-                  kicker="Historial"
-                  title="Tu entrenamiento, con contexto."
-                  description="Sesiones realizadas, récords y rutinas archivadas."
-                />
-              }
-            />
-            <Route
-              path="/alumno/catalogo"
-              element={
-                <PlaceholderPage
-                  kicker="Catálogo de ejercicios"
-                  title="Elegí con información."
-                  description="Explorá movimientos por grupo muscular, equipamiento y nivel."
-                />
-              }
-            />
-            <Route
-              path="/alumno/perfil"
-              element={
-                <PlaceholderPage
-                  kicker="Mi perfil"
-                  title="Tus datos de entrenamiento."
-                  description="Objetivos, restricciones y mediciones declaradas."
-                />
-              }
-            />
+            <Route element={<MeasurementBlockGate />}>
+              <Route path="/alumno" element={<StudentOverviewRoute />} />
+              <Route path="/alumno/rutina" element={<StudentRoutinePage />} />
+              <Route
+                path="/alumno/sesion"
+                element={
+                  <PlaceholderPage
+                    kicker="Sesión en curso"
+                    title="Espalda & Bíceps"
+                    description="Registro de series, cargas y repeticiones de la sesión activa."
+                  />
+                }
+              />
+              <Route
+                path="/alumno/progreso"
+                element={
+                  <PlaceholderPage
+                    kicker="Progreso"
+                    title="La tendencia juega a tu favor."
+                    description="Evolución de fuerza, mapa muscular, mediciones y adherencia."
+                  />
+                }
+              />
+              <Route
+                path="/alumno/historial"
+                element={
+                  <PlaceholderPage
+                    kicker="Historial"
+                    title="Tu entrenamiento, con contexto."
+                    description="Sesiones realizadas, récords y rutinas archivadas."
+                  />
+                }
+              />
+              <Route
+                path="/alumno/catalogo"
+                element={
+                  <PlaceholderPage
+                    kicker="Catálogo de ejercicios"
+                    title="Elegí con información."
+                    description="Explorá movimientos por grupo muscular, equipamiento y nivel."
+                  />
+                }
+              />
+              <Route
+                path="/alumno/perfil"
+                element={
+                  <PlaceholderPage
+                    kicker="Mi perfil"
+                    title="Tus datos de entrenamiento."
+                    description="Objetivos, restricciones y mediciones declaradas."
+                  />
+                }
+              />
+            </Route>
           </Route>
 
           {/* Entrenador */}

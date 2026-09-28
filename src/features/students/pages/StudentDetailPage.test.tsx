@@ -11,9 +11,12 @@ const blockedStatus: StudentStatus = {
   studentId: JUAN,
   displayName: 'Juan Pérez',
   bloqueado: true,
+  measurementBlockState: 'PENDIENTE_APROBACION',
   motivoBloqueo: 'Bloqueo por alcanzar la 3ª falta consecutiva.',
   fechaUltimaMedicion: '2026-02-27',
   faltasConsecutivas: 3,
+  blockedAt: '2026-09-01T10:00:00.000Z',
+  submittedAt: '2026-09-02T10:00:00.000Z',
   alturaCm: 181,
 };
 
@@ -41,11 +44,11 @@ describe('StudentDetailPage (HU05)', () => {
       screen.getByText(/Última medición registrada: 27\/2\/2026/),
     ).toBeVisible();
     expect(
-      screen.getByRole('button', { name: 'Desbloquear alumno' }),
-    ).toBeDisabled();
+      screen.getByRole('button', { name: 'Aprobar desbloqueo' }),
+    ).toBeEnabled();
   });
 
-  it('Esc. 3 y 4: con peso y altura válidos desbloquea contra el backend', async () => {
+  it('aprueba la regularización ya cargada sin reenviar las métricas', async () => {
     let status = blockedStatus;
     const fetchMock = mockApi({
       [`GET /students/${JUAN}/status`]: () => ({ body: status }),
@@ -53,9 +56,12 @@ describe('StudentDetailPage (HU05)', () => {
         status = {
           ...blockedStatus,
           bloqueado: false,
+          measurementBlockState: 'NORMAL',
           motivoBloqueo: null,
           faltasConsecutivas: 0,
           fechaUltimaMedicion: '2026-09-15',
+          blockedAt: null,
+          submittedAt: null,
         };
         return { body: status };
       },
@@ -63,28 +69,21 @@ describe('StudentDetailPage (HU05)', () => {
 
     renderPage();
 
-    fireEvent.change(await screen.findByLabelText('Peso (kg)'), {
-      target: { value: '82.5' },
-    });
-    fireEvent.change(screen.getByLabelText('Altura (cm)'), {
-      target: { value: '181' },
-    });
-    fireEvent.click(screen.getByRole('button', { name: 'Desbloquear alumno' }));
+    fireEvent.click(
+      await screen.findByRole('button', { name: 'Aprobar desbloqueo' }),
+    );
 
     expect(await screen.findByText('Alumno desbloqueado')).toBeVisible();
     const unlockCall = fetchMock.mock.calls.find(
       ([, init]) => init?.method === 'POST',
     );
-    expect(JSON.parse(String(unlockCall?.[1]?.body))).toEqual({
-      weightKg: 82.5,
-      heightCm: 181,
-    });
+    expect(JSON.parse(String(unlockCall?.[1]?.body))).toEqual({});
     await waitFor(() =>
       expect(screen.queryByText('Alumno bloqueado')).not.toBeInTheDocument(),
     );
   });
 
-  it('muestra el rechazo del backend sin perder el formulario', async () => {
+  it('muestra el rechazo del backend al aprobar', async () => {
     mockApi({
       [`GET /students/${JUAN}/status`]: { body: blockedStatus },
       [`POST /students/${JUAN}/unlock`]: {
@@ -95,13 +94,9 @@ describe('StudentDetailPage (HU05)', () => {
 
     renderPage();
 
-    fireEvent.change(await screen.findByLabelText('Peso (kg)'), {
-      target: { value: '80' },
-    });
-    fireEvent.change(screen.getByLabelText('Altura (cm)'), {
-      target: { value: '180' },
-    });
-    fireEvent.click(screen.getByRole('button', { name: 'Desbloquear alumno' }));
+    fireEvent.click(
+      await screen.findByRole('button', { name: 'Aprobar desbloqueo' }),
+    );
 
     expect(
       await screen.findByText('El alumno ya no está bloqueado.'),

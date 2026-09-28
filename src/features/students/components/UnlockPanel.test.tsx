@@ -5,45 +5,52 @@ import { UnlockPanel } from './UnlockPanel';
 
 const BLOCKED_STUDENT = {
   bloqueado: true,
+  measurementBlockState: 'PENDIENTE_MEDICION' as const,
   motivoBloqueo: '3 faltas consecutivas de medición.',
   fechaUltimaMedicion: '2026-03-01',
+  submittedAt: null,
 };
 
 describe('UnlockPanel', () => {
-  it('mantiene el botón de desbloqueo deshabilitado sin medición válida cargada', () => {
+  it('keeps approval disabled until the student submits measurements', () => {
     const onUnlock = vi.fn();
     render(<UnlockPanel student={BLOCKED_STUDENT} onUnlock={onUnlock} />);
 
-    const button = screen.getByRole('button', { name: 'Desbloquear alumno' });
+    const button = screen.getByRole('button', {
+      name: 'Aprobar desbloqueo',
+    });
     expect(button).toBeDisabled();
-
-    fireEvent.click(button);
-    expect(onUnlock).not.toHaveBeenCalled();
+    expect(
+      screen.getByText(/debe cargar personalmente el peso y la altura/),
+    ).toBeVisible();
   });
 
-  it('habilita el botón cuando la medición cargada es válida y desbloquea al confirmar', () => {
+  it('enables approval after the student submitted both measurements', () => {
     const onUnlock = vi.fn();
-    render(<UnlockPanel student={BLOCKED_STUDENT} onUnlock={onUnlock} />);
+    render(
+      <UnlockPanel
+        student={{
+          ...BLOCKED_STUDENT,
+          measurementBlockState: 'PENDIENTE_APROBACION',
+          submittedAt: '2026-09-20T10:00:00.000Z',
+        }}
+        onUnlock={onUnlock}
+      />,
+    );
 
-    fireEvent.change(screen.getByLabelText('Peso (kg)'), {
-      target: { value: '80' },
+    const button = screen.getByRole('button', {
+      name: 'Aprobar desbloqueo',
     });
-    fireEvent.change(screen.getByLabelText('Altura (cm)'), {
-      target: { value: '180' },
-    });
-
-    const button = screen.getByRole('button', { name: 'Desbloquear alumno' });
     expect(button).toBeEnabled();
-
     fireEvent.click(button);
-    expect(onUnlock).toHaveBeenCalledWith({ weightKg: 80, heightCm: 180 });
+    expect(onUnlock).toHaveBeenCalledWith();
   });
 
-  it('no renderiza nada si el alumno no está bloqueado', () => {
+  it('renders nothing for an unblocked student', () => {
     render(<UnlockPanel student={{ bloqueado: false }} onUnlock={vi.fn()} />);
 
     expect(
-      screen.queryByRole('button', { name: 'Desbloquear alumno' }),
+      screen.queryByRole('button', { name: 'Aprobar desbloqueo' }),
     ).not.toBeInTheDocument();
   });
 });
