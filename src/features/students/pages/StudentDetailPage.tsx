@@ -29,9 +29,8 @@ function unlockErrorMessage(error: unknown): string {
   if (error instanceof ApiError) {
     switch (error.code) {
       case 'pending_measurement_required':
-        return 'Cargá peso y altura para desbloquear al alumno.';
-      case 'invalid_request_body':
-        return 'Los valores de peso o altura no son válidos.';
+        return 'El alumno todavía debe cargar peso y altura.';
+      case 'measurement_block_already_resolved':
       case 'student_not_blocked':
         return 'El alumno ya no está bloqueado.';
       case 'forbidden_not_assigned':
@@ -132,8 +131,8 @@ export function StudentDetailPage() {
           <div className="mb-4">
             <Banner variant="info" title="Alumno desbloqueado">
               <p>
-                Se registró la medición y el contador de faltas volvió a 0. El
-                alumno recuperó el acceso.
+                La regularización fue aprobada, la racha volvió a 0 y el alumno
+                recuperó el acceso.
               </p>
             </Banner>
           </div>
@@ -159,7 +158,7 @@ export function StudentDetailPage() {
                 errorMessage={
                   unlock.error ? unlockErrorMessage(unlock.error) : null
                 }
-                onUnlock={(measurement) => unlock.mutate(measurement)}
+                onUnlock={() => unlock.mutate()}
               />
             </div>
           ) : (

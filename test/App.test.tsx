@@ -10,9 +10,12 @@ const juanStatus = {
   studentId: JUAN,
   displayName: 'Juan Pérez',
   bloqueado: true,
+  measurementBlockState: 'PENDIENTE_APROBACION',
   motivoBloqueo: 'Bloqueo por alcanzar la 3ª falta consecutiva.',
   fechaUltimaMedicion: '2026-02-27',
   faltasConsecutivas: 3,
+  blockedAt: '2026-09-01T10:00:00.000Z',
+  submittedAt: '2026-09-02T10:00:00.000Z',
   alturaCm: 181,
 };
 

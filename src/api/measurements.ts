@@ -14,6 +14,7 @@ export const measurementSchema = z.object({
   measuredOn: z.string(),
   /** `true` cuando sustituyó una medición previa del mismo tipo y fecha. */
   replacedPrevious: z.boolean(),
+  measurementBlockState: z.enum(['NORMAL', 'PENDIENTE_APROBACION']),
 });
 
 /**

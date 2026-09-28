@@ -10,10 +10,17 @@ export const studentStatusSchema = z.object({
   studentId: z.string(),
   displayName: z.string(),
   bloqueado: z.boolean(),
+  measurementBlockState: z.enum([
+    'NORMAL',
+    'PENDIENTE_MEDICION',
+    'PENDIENTE_APROBACION',
+  ]),
   motivoBloqueo: z.string().nullable(),
   /** `YYYY-MM-DD` */
   fechaUltimaMedicion: z.string().nullable(),
   faltasConsecutivas: z.number().int(),
+  blockedAt: z.string().nullable(),
+  submittedAt: z.string().nullable(),
   alturaCm: z.number(),
 });
 
@@ -32,11 +39,6 @@ export const trainerStudentSchema = studentStatusSchema.extend({
 
 export type StudentStatus = z.infer<typeof studentStatusSchema>;
 export type TrainerStudent = z.infer<typeof trainerStudentSchema>;
-
-export interface UnlockStudentInput {
-  weightKg: number;
-  heightCm: number;
-}
 
 /** `GET /trainers/me/students`: cartera del entrenador autenticado. */
 export async function fetchTrainerStudents(
@@ -58,17 +60,21 @@ export async function fetchStudentStatus(
   return studentStatusSchema.parse(body);
 }
 
-/**
- * `POST /students/:studentId/unlock`: desbloqueo con la medición adeudada
- * (HU05-T1). El backend lo hace en una única transacción.
- */
-export async function unlockStudent(
-  studentId: string,
-  input: UnlockStudentInput,
+/** Estado propio que sigue disponible durante el bloqueo funcional. */
+export async function fetchOwnMeasurementBlock(
+  signal?: AbortSignal,
 ): Promise<StudentStatus> {
+  const body = await apiGet('/students/me/measurement-block', { signal });
+  return studentStatusSchema.parse(body);
+}
+
+/**
+ * `POST /students/:studentId/unlock`: aprobación del entrenador, sin body.
+ */
+export async function unlockStudent(studentId: string): Promise<StudentStatus> {
   const body = await apiPost(
     `/students/${encodeURIComponent(studentId)}/unlock`,
-    input,
+    {},
   );
   return studentStatusSchema.parse(body);
 }

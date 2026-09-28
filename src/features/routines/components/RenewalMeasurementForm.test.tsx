@@ -50,6 +50,7 @@ describe('RenewalMeasurementForm (HU02 - T3 y T4)', () => {
         heightCm: 178,
         measuredOn: '2026-09-20',
         replacedPrevious: false,
+        measurementBlockState: 'NORMAL',
       });
 
     renderForm({ onRegistrada });
@@ -76,6 +77,7 @@ describe('RenewalMeasurementForm (HU02 - T3 y T4)', () => {
         heightCm: 100,
         measuredOn: '2026-09-20',
         replacedPrevious: false,
+        measurementBlockState: 'NORMAL',
       });
 
     renderForm();
