@@ -1,15 +1,15 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-import { unlockStudent, type UnlockStudentInput } from '../../../api/students';
+import { unlockStudent } from '../../../api/students';
 import { studentQueryKey } from './useStudentStatus';
 import { trainerStudentsQueryKey } from './useTrainerStudents';
 
-/** Desbloqueo del alumno con la medición adeudada (HU05-T1). */
+/** Aprobación de la regularización ya presentada por el alumno. */
 export function useUnlockStudent(studentId: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (input: UnlockStudentInput) => unlockStudent(studentId, input),
+    mutationFn: () => unlockStudent(studentId),
     onSuccess: async () => {
       await Promise.all([
         queryClient.invalidateQueries({
