@@ -24,7 +24,11 @@ function setLine(set: PrescribedSet): string {
       ? `${String(set.minRepetitions)} rep`
       : `${String(set.minRepetitions)}-${String(set.maxRepetitions)} rep`;
   const carga =
-    set.suggestedLoad > 0 ? `${String(set.suggestedLoad)} kg` : 'peso corporal';
+    set.suggestedLoad === null
+      ? 'carga a definir'
+      : set.suggestedLoad > 0
+        ? `${String(set.suggestedLoad)} kg`
+        : 'peso corporal';
   return `${repeticiones} · ${carga} · ${String(set.restSeconds)}s de descanso`;
 }
 

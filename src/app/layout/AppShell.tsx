@@ -279,9 +279,7 @@ export function AppShell() {
         <Outlet />
 
         <footer className="px-4 pb-8 text-[10px] leading-5 text-[#949188] sm:px-7 lg:px-9">
-          Proyecto Gimnasio · sistema visual Vivaz Adaptive . Solo el aviso de
-          renovación, la advertencia de datos desactualizados y el flujo de
-          desbloqueo ejecutan lógica real en este sprint.
+          Vivaz Adaptive · Tu entrenamiento.
         </footer>
       </div>
     </div>
