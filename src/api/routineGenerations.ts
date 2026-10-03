@@ -61,6 +61,7 @@ export type FinalizedGeneratedRoutine = z.infer<
 export interface RequestRoutineGenerationInput {
   textoLibre: string;
   idempotencyKey: string;
+  regenerar?: boolean;
 }
 
 export const TERMINAL_GENERATION_STATUSES: readonly RoutineGenerationStatus[] =

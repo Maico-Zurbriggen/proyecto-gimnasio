@@ -1,22 +1,23 @@
-import { Activity, ArrowUpRight, Dumbbell, Flame } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { ArrowUpRight } from 'lucide-react';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import { ApiError } from '../../../api/client';
+import {
+  fetchStudentRoutines,
+  fetchRoutineContent,
+  studentRoutinesQueryKey,
+  routineContentQueryKey,
+} from '../../../api/prescriptions';
 import { Banner } from '../../../shared/components/Banner';
+import { RoutinePrompt } from '../../../shared/components/RoutinePrompt';
 import { BentoCard } from '../../../shared/ui/BentoCard';
 import { PageHeader } from '../../../shared/ui/PageHeader';
-import { StatCard } from '../../../shared/ui/StatCard';
 import { RoutineGenerationPanel } from '../../routine-generations/components/RoutineGenerationPanel';
 import { RenewalBanner } from '../components/RenewalBanner';
 import { RenewalMeasurementForm } from '../components/RenewalMeasurementForm';
 import { useActiveRoutine } from '../hooks/useActiveRoutine';
-
-const NEXT_EXERCISES = [
-  ['01', 'Remo con barra', '4 × 8', '62,5 kg'],
-  ['02', 'Jalón al pecho', '3 × 10', '52,5 kg'],
-  ['03', 'Curl inclinado', '3 × 12', '12 kg'],
-] as const;
 
 /**
  * Aviso de renovación alimentado por `GET /routines/active` (HU01). Declara
@@ -118,12 +119,102 @@ function RenewalNoticeSection() {
   );
 }
 
-/**
- * Resumen del alumno. Solo el aviso de renovación (HU01) está conectado al
- * backend; el resto de los módulos son de referencia visual.
- */
+/** Resumen alimentado por las rutinas y el aviso de renovación del backend. */
 export interface StudentOverviewPageProps {
   studentId: string;
+}
+
+function RoutinePreviewSection({ studentId }: StudentOverviewPageProps) {
+  const routines = useQuery({
+    queryKey: studentRoutinesQueryKey(studentId),
+    queryFn: ({ signal }) => fetchStudentRoutines(studentId, signal),
+    enabled: Boolean(studentId),
+  });
+  const routine =
+    routines.data?.find(
+      (item) => item.state === 'PROPUESTA' || item.state === 'BLOQUEADA',
+    ) ?? routines.data?.find((item) => item.state === 'VIGENTE');
+  const content = useQuery({
+    queryKey: routineContentQueryKey(studentId, routine?.id ?? ''),
+    queryFn: ({ signal }) =>
+      fetchRoutineContent(studentId, routine?.id ?? '', signal),
+    enabled: Boolean(studentId && routine),
+  });
+
+  return (
+    <BentoCard>
+      {routines.isPending ? <p role="status">Cargando tus rutinas…</p> : null}
+      {routines.isError ? (
+        <Banner variant="danger" title="No pudimos cargar tus rutinas" />
+      ) : null}
+      {!routines.isPending && !routines.isError && !routine ? (
+        <p className="text-sm text-[#77756d]">
+          Todavía no tenés una rutina para consultar.
+        </p>
+      ) : null}
+      {routine ? (
+        <div className="flex flex-col gap-4">
+          <div>
+            <p className="eyebrow text-[#77756d]">Tu rutina</p>
+            <h2 className="font-display mt-2 text-xl font-semibold tracking-[-0.04em]">
+              {routine.state === 'VIGENTE'
+                ? 'Rutina vigente'
+                : 'Rutina pendiente de revisión'}
+            </h2>
+            <p className="mt-2 text-sm text-[#55534c]">
+              {routine.targetWeeklyFrequency} días por semana
+            </p>
+            {routine.state !== 'VIGENTE' ? (
+              <p className="mt-2 text-sm text-[#77756d]">
+                Tu entrenador debe aprobarla antes de que puedas entrenar con
+                ella.
+              </p>
+            ) : null}
+          </div>
+          {content.isPending ? (
+            <p role="status">Cargando los días y ejercicios…</p>
+          ) : null}
+          {content.isError ? (
+            <p role="alert">
+              No pudimos cargar el detalle de esta rutina. Podés reintentar
+              desde Mi rutina.
+            </p>
+          ) : null}
+          {content.data ? (
+            <RoutinePrompt prompt={content.data.generationPrompt} />
+          ) : null}
+          {content.data ? (
+            <ul className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+              {content.data.days.map((day) => (
+                <li
+                  key={day.position}
+                  className="rounded-xl border border-black/10 p-4"
+                >
+                  <h3 className="text-sm font-semibold">
+                    Día {day.position} · {day.name}
+                  </h3>
+                  <p className="mt-2 text-xs text-[#77756d]">
+                    {day.exercises.length} ejercicios
+                  </p>
+                  <ul className="mt-2 space-y-1 text-xs text-[#55534c]">
+                    {day.exercises.slice(0, 3).map((exercise) => (
+                      <li key={exercise.position}>{exercise.exerciseName}</li>
+                    ))}
+                  </ul>
+                </li>
+              ))}
+            </ul>
+          ) : null}
+          <Link
+            to="/alumno/rutina"
+            className="flex w-fit items-center gap-2 rounded-full bg-graphite px-4 py-2 text-xs font-bold text-white"
+          >
+            Ver rutina completa <ArrowUpRight className="size-4" />
+          </Link>
+        </div>
+      ) : null}
+    </BentoCard>
+  );
 }
 
 export function StudentOverviewPage({ studentId }: StudentOverviewPageProps) {
@@ -131,106 +222,15 @@ export function StudentOverviewPage({ studentId }: StudentOverviewPageProps) {
     <div>
       <PageHeader
         kicker="Resumen semanal"
-        title="Buen día, Maia."
-        description="Tu progreso no es una sensación: es la próxima decisión bien informada."
+        title="Tu entrenamiento"
+        description="Consultá tu rutina y seguí las solicitudes de generación."
       />
       <main className="flex flex-col gap-4 px-4 pb-10 sm:px-7 lg:px-9">
         <RenewalNoticeSection />
 
         <RoutineGenerationPanel studentId={studentId} />
 
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-12">
-          <BentoCard
-            tone="graphite"
-            className="min-h-[220px] md:col-span-2 xl:col-span-7"
-          >
-            <div className="flex h-full flex-col justify-between gap-8">
-              <div className="flex items-start justify-between">
-                <div>
-                  <p className="eyebrow text-lime">Sesión de hoy</p>
-                  <h2 className="font-display mt-3 text-2xl font-medium leading-tight tracking-[-0.05em]">
-                    Espalda &amp; Bíceps
-                  </h2>
-                </div>
-                <span className="flex size-10 items-center justify-center rounded-full border border-white/15 bg-white/8">
-                  <Dumbbell className="size-4 text-lime" />
-                </span>
-              </div>
-              <div className="flex flex-wrap items-end justify-between gap-4">
-                <span className="text-xs text-white/60">
-                  6 ejercicios · 55–65 min
-                </span>
-                <span className="rounded-full bg-lime px-4 py-2 text-xs font-bold text-graphite">
-                  Comenzar sesión
-                </span>
-              </div>
-            </div>
-          </BentoCard>
-
-          <BentoCard tone="lime" className="md:col-span-2 xl:col-span-5">
-            <div className="flex items-start justify-between">
-              <p className="eyebrow opacity-65">Adherencia</p>
-              <Activity className="size-4" />
-            </div>
-            <div className="mt-6 flex items-center gap-5">
-              <div className="flex size-20 shrink-0 items-center justify-center rounded-full border-[7px] border-ink font-display text-xl font-bold tracking-[-0.06em]">
-                88<span className="text-sm">%</span>
-              </div>
-              <div>
-                <p className="font-display text-lg font-semibold tracking-[-0.04em]">
-                  Vas 7 de 8
-                </p>
-                <p className="mt-1 text-xs leading-5 opacity-70">
-                  Sesiones previstas en cuatro semanas.
-                </p>
-              </div>
-            </div>
-          </BentoCard>
-
-          <StatCard
-            label="Racha"
-            value="12"
-            detail="días en movimiento"
-            icon={Flame}
-            className="md:col-span-1 xl:col-span-4"
-          />
-
-          <BentoCard className="md:col-span-1 xl:col-span-8">
-            <div className="flex items-start justify-between">
-              <div>
-                <p className="eyebrow text-[#77756d]">Tu próxima sesión</p>
-                <h3 className="font-display mt-2 text-2xl font-semibold tracking-[-0.06em]">
-                  Prescripción
-                </h3>
-              </div>
-              <Link
-                to="/alumno/rutina"
-                aria-label="Ver rutina"
-                className="flex size-8 items-center justify-center rounded-full border border-[#292823]/10"
-              >
-                <ArrowUpRight className="size-4" />
-              </Link>
-            </div>
-            <div className="mt-4 divide-y divide-[#292823]/8">
-              {NEXT_EXERCISES.map(([order, name, scheme, load]) => (
-                <div key={order} className="flex items-center gap-3 py-3">
-                  <span className="font-display text-xs font-bold text-[#b4b2a9]">
-                    {order}
-                  </span>
-                  <div className="flex-1">
-                    <p className="text-xs font-semibold">{name}</p>
-                    <p className="text-[10px] text-[#848178]">
-                      {scheme} · descanso 90s
-                    </p>
-                  </div>
-                  <span className="rounded-full bg-[#f0efe8] px-2 py-1 text-[10px] font-bold">
-                    {load}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </BentoCard>
-        </div>
+        <RoutinePreviewSection studentId={studentId} />
       </main>
     </div>
   );

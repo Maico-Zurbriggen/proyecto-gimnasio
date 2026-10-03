@@ -1,4 +1,5 @@
 import { useEffect, useState, type FormEvent } from 'react';
+import { Link } from 'react-router-dom';
 
 import { ApiError } from '../../../api/client';
 import type { RoutineGenerationStatus } from '../../../api/routineGenerations';
@@ -9,6 +10,7 @@ import { useFinalizeRoutineGeneration } from '../hooks/useFinalizeRoutineGenerat
 import { useRoutineGeneration } from '../hooks/useRoutineGeneration';
 import {
   clearGenerationTracking,
+  fingerprintGenerationInput,
   loadGenerationTracking,
   saveGenerationTracking,
   type GenerationTracking,
@@ -22,12 +24,34 @@ function createIdempotencyKey(): string {
   return crypto.randomUUID();
 }
 
+function isPendingRoutineConflict(error: unknown): boolean {
+  return (
+    error instanceof ApiError &&
+    error.code === 'proposed_routine_already_exists'
+  );
+}
+
 function requestErrorMessage(error: unknown): string {
   if (!(error instanceof ApiError)) {
     return 'No pudimos solicitar la rutina. Probá de nuevo.';
   }
 
   switch (error.code) {
+    case 'generation_preferences_unsatisfiable': {
+      const body = error.body;
+      const violations =
+        body &&
+        typeof body === 'object' &&
+        'violations' in body &&
+        Array.isArray(body.violations)
+          ? body.violations.filter(
+              (value): value is string => typeof value === 'string',
+            )
+          : [];
+      return violations.length
+        ? violations.join(' ')
+        : 'El pedido no se puede cumplir con los ejercicios compatibles disponibles. Reformulá las indicaciones.';
+    }
     case 'empty_prefiltered_catalog':
       return 'No hay ejercicios compatibles con el inventario del gimnasio.';
     case 'student_not_found':
@@ -41,10 +65,14 @@ function requestErrorMessage(error: unknown): string {
       return 'Escribí al menos una indicación para la nueva rutina.';
     case 'proposed_routine_already_exists':
       return 'Ya tenés una rutina propuesta pendiente de revisión.';
+    case 'routine_regeneration_not_allowed':
+      return 'La regeneración de prueba sólo está habilitada en el entorno local.';
     case 'invalid_generated_routine':
       return 'La salida no superó las validaciones de seguridad del backend.';
     case 'routine_generation_not_completed':
       return 'La generación todavía no terminó. Reintentá en unos segundos.';
+    case 'routine_generation_idempotency_conflict':
+      return 'La clave de esta solicitud ya se usó con otras indicaciones. Iniciá una solicitud nueva.';
     default:
       return 'No pudimos solicitar la rutina. Probá de nuevo.';
   }
@@ -94,24 +122,59 @@ export function RoutineGenerationPanel({
     const textoLibre = instructions.trim();
     if (!textoLibre) return;
 
-    const nextTracking = tracking ?? {
-      idempotencyKey: createIdempotencyKey(),
-    };
+    const inputFingerprint = await fingerprintGenerationInput(textoLibre);
+    const nextTracking =
+      tracking?.inputFingerprint === inputFingerprint
+        ? tracking
+        : tracking && !tracking.inputFingerprint
+          ? { ...tracking, inputFingerprint }
+          : {
+              idempotencyKey: createIdempotencyKey(),
+              inputFingerprint,
+              regenerate: tracking?.regenerate,
+            };
     saveGenerationTracking(studentId, nextTracking);
     setTracking(nextTracking);
 
-    try {
+    const submitWithTracking = async (requestTracking: GenerationTracking) => {
       const accepted = await request.mutateAsync({
         textoLibre,
-        idempotencyKey: nextTracking.idempotencyKey,
+        idempotencyKey: requestTracking.idempotencyKey,
+        ...(requestTracking.regenerate ? { regenerar: true } : {}),
       });
       const acceptedTracking = {
-        ...nextTracking,
+        ...requestTracking,
         requestId: accepted.requestId,
       };
       saveGenerationTracking(studentId, acceptedTracking);
       setTracking(acceptedTracking);
-    } catch {
+    };
+
+    try {
+      await submitWithTracking(nextTracking);
+    } catch (error) {
+      if (
+        error instanceof ApiError &&
+        error.code === 'routine_generation_idempotency_conflict'
+      ) {
+        const retryTracking = {
+          idempotencyKey: createIdempotencyKey(),
+          inputFingerprint,
+          regenerate: nextTracking.regenerate,
+        };
+        saveGenerationTracking(studentId, retryTracking);
+        setTracking(retryTracking);
+
+        // A 409 confirms this key and input were not accepted as a request.
+        // Retry once with a fresh key to recover stale or cross-tab state.
+        if (instructions.trim() === textoLibre) {
+          try {
+            await submitWithTracking(retryTracking);
+          } catch {
+            // Keep the new key so another attempt with the same input is safe.
+          }
+        }
+      }
       // La clave se conserva para que un reintento sea idempotente incluso si
       // la respuesta se perdió después de que backend aceptara la solicitud.
     }
@@ -125,14 +188,47 @@ export function RoutineGenerationPanel({
     finalize.reset();
   };
 
+  const retryWithNewIdempotencyKey = async () => {
+    const textoLibre = instructions.trim();
+    if (!textoLibre) return;
+    const inputFingerprint = await fingerprintGenerationInput(textoLibre);
+    const nextTracking = {
+      idempotencyKey: createIdempotencyKey(),
+      inputFingerprint,
+      regenerate: tracking?.regenerate,
+    };
+    saveGenerationTracking(studentId, nextTracking);
+    setTracking(nextTracking);
+    request.reset();
+  };
+
   const isActive =
     snapshot?.status === 'PENDIENTE' || snapshot?.status === 'PROCESANDO';
+  const pendingRoutineConflict = isPendingRoutineConflict(finalize.error);
+  const editingRegeneration = tracking?.regenerate && !tracking.requestId;
+  const canRegenerate =
+    import.meta.env.DEV &&
+    !request.isPending &&
+    !finalize.isPending &&
+    !editingRegeneration &&
+    (!tracking?.requestId || (snapshot && !isActive));
+
+  const prepareRegeneration = () => {
+    const nextTracking = {
+      idempotencyKey: createIdempotencyKey(),
+      regenerate: true,
+    };
+    saveGenerationTracking(studentId, nextTracking);
+    setTracking(nextTracking);
+    request.reset();
+    finalize.reset();
+  };
 
   return (
     <BentoCard className="mt-4">
       <p className="eyebrow text-[#77756d]">Generación asistida</p>
       <h2 className="font-display mt-2 text-2xl font-semibold tracking-[-0.06em]">
-        Nueva rutina
+        {editingRegeneration ? 'Regenerar rutina' : 'Nueva rutina'}
       </h2>
       <p className="mt-2 max-w-2xl text-xs leading-5 text-[#77756d]">
         Agregá indicaciones para complementar tu perfil, tus condiciones y el
@@ -145,6 +241,14 @@ export function RoutineGenerationPanel({
           aria-label="Generar rutina"
           className="mt-5 flex max-w-2xl flex-col gap-3"
         >
+          {editingRegeneration ? (
+            <Banner variant="warning" title="Prueba de regeneración">
+              <p>
+                Escribí otro prompt. La propuesta pendiente se reemplazará sólo
+                cuando la nueva generación termine y supere las validaciones.
+              </p>
+            </Banner>
+          ) : null}
           <label
             htmlFor="generation-instructions"
             className="eyebrow text-[#77756d]"
@@ -165,12 +269,34 @@ export function RoutineGenerationPanel({
               {requestErrorMessage(request.error)}
             </p>
           ) : null}
+          {isPendingRoutineConflict(request.error) ? (
+            <Link
+              to="/alumno/rutina"
+              className="w-fit rounded-full bg-graphite px-4 py-2 text-xs font-bold text-white"
+            >
+              Ver rutina pendiente de revisión
+            </Link>
+          ) : null}
+          {request.error instanceof ApiError &&
+          request.error.code === 'routine_generation_idempotency_conflict' ? (
+            <button
+              type="button"
+              onClick={() => void retryWithNewIdempotencyKey()}
+              className="w-fit rounded-full border border-black/10 px-4 py-2 text-xs font-bold"
+            >
+              Reintentar con una clave nueva
+            </button>
+          ) : null}
           <button
             type="submit"
             disabled={request.isPending || instructions.trim().length === 0}
             className="w-fit rounded-full bg-graphite px-4 py-2.5 text-xs font-bold text-white transition hover:brightness-110 disabled:opacity-60"
           >
-            {request.isPending ? 'Enviando…' : 'Generar nueva rutina'}
+            {request.isPending
+              ? 'Enviando…'
+              : editingRegeneration
+                ? 'Generar de nuevo'
+                : 'Generar nueva rutina'}
           </button>
         </form>
       ) : (
@@ -210,15 +336,35 @@ export function RoutineGenerationPanel({
           {snapshot ? (
             <Banner
               variant={
-                snapshot.status === 'NO_DISPONIBLE' ||
-                snapshot.status === 'CANCELADA' ||
-                finalize.isError
-                  ? 'danger'
-                  : 'info'
+                pendingRoutineConflict
+                  ? 'warning'
+                  : snapshot.status === 'NO_DISPONIBLE' ||
+                      snapshot.status === 'CANCELADA' ||
+                      finalize.isError
+                    ? 'danger'
+                    : 'info'
               }
-              title={statusLabel(snapshot.status)}
+              title={
+                pendingRoutineConflict
+                  ? 'Rutina pendiente de revisión'
+                  : statusLabel(snapshot.status)
+              }
               actions={
-                !isActive && !snapshot.routineId ? (
+                pendingRoutineConflict ? (
+                  <Link
+                    to="/alumno/rutina"
+                    className="rounded-full bg-graphite px-3.5 py-1.5 text-xs font-bold text-white"
+                  >
+                    Ver rutina pendiente de revisión
+                  </Link>
+                ) : snapshot.routineId || finalize.isSuccess ? (
+                  <Link
+                    to="/alumno/rutina"
+                    className="rounded-full bg-graphite px-3.5 py-1.5 text-xs font-bold text-white"
+                  >
+                    Ver rutina
+                  </Link>
+                ) : !isActive && !finalize.isPending ? (
                   <button
                     type="button"
                     onClick={startAnother}
@@ -256,6 +402,15 @@ export function RoutineGenerationPanel({
           ) : null}
         </div>
       )}
+      {canRegenerate ? (
+        <button
+          type="button"
+          onClick={prepareRegeneration}
+          className="mt-4 w-fit rounded-full border border-black/15 px-4 py-2.5 text-xs font-bold"
+        >
+          Regenerar
+        </button>
+      ) : null}
     </BentoCard>
   );
 }

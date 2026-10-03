@@ -2,7 +2,21 @@ const STORAGE_PREFIX = 'gym:routine-generation:';
 
 export interface GenerationTracking {
   idempotencyKey: string;
+  inputFingerprint?: string;
   requestId?: string;
+  regenerate?: boolean;
+}
+
+export async function fingerprintGenerationInput(
+  input: string,
+): Promise<string> {
+  const digest = await crypto.subtle.digest(
+    'SHA-256',
+    new TextEncoder().encode(input),
+  );
+  return Array.from(new Uint8Array(digest), (byte) =>
+    byte.toString(16).padStart(2, '0'),
+  ).join('');
 }
 
 function storageKey(studentId: string): string {
@@ -32,7 +46,18 @@ export function loadGenerationTracking(
       'requestId' in value && typeof value.requestId === 'string'
         ? value.requestId
         : undefined;
-    return { idempotencyKey: value.idempotencyKey, requestId };
+    const inputFingerprint =
+      'inputFingerprint' in value &&
+      typeof value.inputFingerprint === 'string' &&
+      /^[a-f0-9]{64}$/.test(value.inputFingerprint)
+        ? value.inputFingerprint
+        : undefined;
+    return {
+      idempotencyKey: value.idempotencyKey,
+      inputFingerprint,
+      requestId,
+      regenerate: 'regenerate' in value && value.regenerate === true,
+    };
   } catch {
     localStorage.removeItem(storageKey(studentId));
     return null;
