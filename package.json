@@ -15,9 +15,15 @@
     "typecheck": "tsc -b --pretty false"
   },
   "dependencies": {
+    "@tailwindcss/vite": "^4.3.3",
     "@tanstack/react-query": "^5.0.0",
+    "clsx": "^2.1.1",
+    "lucide-react": "^0.453.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-router-dom": "^7.18.3",
+    "tailwind-merge": "^3.7.0",
+    "tailwindcss": "^4.3.3",
     "zod": "^4.0.0"
   },
   "devDependencies": {

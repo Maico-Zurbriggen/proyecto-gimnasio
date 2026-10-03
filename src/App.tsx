@@ -1,9 +1,14 @@
+import { BrowserRouter } from 'react-router-dom';
+
+import { AppProviders } from './app/providers/AppProviders';
+import { AppRouter } from './app/router/AppRouter';
+
 export function App() {
   return (
-    <main className="shell">
-      <p className="eyebrow">Proyecto Gimnasio</p>
-      <h1>Base del frontend lista</h1>
-      <p>El próximo paso es construir el primer recorrido vertical.</p>
-    </main>
+    <AppProviders>
+      <BrowserRouter>
+        <AppRouter />
+      </BrowserRouter>
+    </AppProviders>
   );
 }
