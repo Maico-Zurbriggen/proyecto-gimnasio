@@ -46,12 +46,13 @@ const prescribedSetSchema = z.object({
   position: z.number().int(),
   minRepetitions: z.number().int(),
   maxRepetitions: z.number().int(),
-  suggestedLoad: z.number(),
+  suggestedLoad: z.number().nullable(),
   restSeconds: z.number().int(),
   warmup: z.boolean(),
 });
 
 export const routineContentSchema = routineSummarySchema.extend({
+  generationPrompt: z.string().nullable().default(null),
   days: z.array(
     z.object({
       position: z.number().int(),
@@ -88,6 +89,14 @@ export type RoutineSummary = z.infer<typeof routineSummarySchema>;
 export type RoutineContent = z.infer<typeof routineContentSchema>;
 export type PrescribedSet = z.infer<typeof prescribedSetSchema>;
 export type ReviewResult = 'APROBADA' | 'APROBADA_CON_CAMBIOS' | 'RECHAZADA';
+
+export function studentRoutinesQueryKey(studentId: string) {
+  return ['students', studentId, 'routines'] as const;
+}
+
+export function routineContentQueryKey(studentId: string, routineId: string) {
+  return [...studentRoutinesQueryKey(studentId), routineId] as const;
+}
 
 /** `GET /routine-templates`: plantillas asignables del gimnasio. */
 export async function fetchRoutineTemplates(

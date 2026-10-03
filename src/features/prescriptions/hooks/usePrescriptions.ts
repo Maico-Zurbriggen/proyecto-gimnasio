@@ -6,20 +6,14 @@ import {
   fetchRoutineTemplates,
   fetchStudentRoutines,
   reviewRoutine,
+  studentRoutinesQueryKey,
+  routineContentQueryKey,
   type ReviewResult,
 } from '../../../api/prescriptions';
 import { activeRoutineQueryKey } from '../../routines/hooks/useActiveRoutine';
 import { studentQueryKey } from '../../students/hooks/useStudentStatus';
 
 export const routineTemplatesQueryKey = ['routine-templates'] as const;
-
-export function studentRoutinesQueryKey(studentId: string) {
-  return ['student-routines', studentId] as const;
-}
-
-export function routineContentQueryKey(studentId: string, routineId: string) {
-  return ['routine-content', studentId, routineId] as const;
-}
 
 /** Plantillas que el entrenador puede asignar. */
 export function useRoutineTemplates() {

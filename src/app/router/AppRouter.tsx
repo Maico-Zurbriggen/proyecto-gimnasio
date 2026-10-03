@@ -9,6 +9,7 @@ import { NoAssignedRolePage } from '../../features/auth/pages/NoAssignedRolePage
 import { homeForRoles } from '../../features/auth/roles';
 import { CompleteAccountPage } from '../../features/invitations/pages/CompleteAccountPage';
 import { StudentRoutinePage } from '../../features/prescriptions/pages/StudentRoutinePage';
+import { RoutineGenerationPanel } from '../../features/routine-generations/components/RoutineGenerationPanel';
 import { ProposalReviewPage } from '../../features/adaptation-proposals/pages/ProposalReviewPage';
 import { TrainerRoutinesPage } from '../../features/adaptation-proposals/pages/TrainerRoutinesPage';
 import { StudentOverviewPage } from '../../features/routines/pages/StudentOverviewPage';
@@ -29,6 +30,15 @@ function HomeForSession() {
 function StudentOverviewRoute() {
   const { user } = useSession();
   return user ? <StudentOverviewPage studentId={user.id} /> : null;
+}
+
+function StudentRoutineRoute() {
+  const { user } = useSession();
+  return user ? (
+    <StudentRoutinePage
+      generationPanel={<RoutineGenerationPanel studentId={user.id} />}
+    />
+  ) : null;
 }
 
 /**
@@ -56,7 +66,7 @@ export function AppRouter() {
           <Route element={<RequireRole role="ALUMNO" />}>
             <Route element={<MeasurementBlockGate />}>
               <Route path="/alumno" element={<StudentOverviewRoute />} />
-              <Route path="/alumno/rutina" element={<StudentRoutinePage />} />
+              <Route path="/alumno/rutina" element={<StudentRoutineRoute />} />
               <Route
                 path="/alumno/sesion"
                 element={
