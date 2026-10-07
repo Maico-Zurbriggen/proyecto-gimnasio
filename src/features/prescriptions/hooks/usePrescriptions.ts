@@ -86,10 +86,12 @@ export function useReviewRoutine(studentId: string) {
       routineId: string;
       result: ReviewResult;
       observation?: string;
+      reviewToken?: string;
     }) =>
       reviewRoutine(studentId, input.routineId, {
         result: input.result,
         observation: input.observation,
+        reviewToken: input.reviewToken,
       }),
     onSuccess: invalidate,
   });

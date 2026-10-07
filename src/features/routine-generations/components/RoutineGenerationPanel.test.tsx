@@ -170,7 +170,7 @@ describe('RoutineGenerationPanel', () => {
     fireEvent.click(submit);
     expect(
       await screen.findByText(
-        'No hay ejercicios compatibles con el inventario del gimnasio.',
+        'El administrador debe habilitar ejercicios del gimnasio antes de generar una rutina.',
       ),
     ).toBeVisible();
     await waitFor(() => expect(postBodies()).toHaveLength(2));
