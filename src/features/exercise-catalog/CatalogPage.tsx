@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   catalogError,
-  catalogMediaUrl,
   createExercise,
   getExercise,
   getInventory,
@@ -19,6 +18,8 @@ import {
 } from '../../api/catalog';
 import { useSession } from '../auth/hooks/useSession';
 import { PageHeader } from '../../shared/ui/PageHeader';
+import { ExerciseImage } from './ExerciseImage';
+import { MuscleMap } from './MuscleMap';
 import {
   CodeChoices,
   ExerciseForm,
@@ -27,23 +28,6 @@ import {
   label,
   patterns,
 } from './ExerciseForm';
-
-function ExerciseImage({ url, alt }: { url: string; alt: string }) {
-  const [failed, setFailed] = useState(false);
-  return failed ? (
-    <p className="flex min-h-32 items-center justify-center rounded-xl bg-[#eeeede] px-4 text-sm text-[#77756d]">
-      Recurso visual no disponible
-    </p>
-  ) : (
-    <img
-      src={catalogMediaUrl(url)}
-      alt={alt}
-      loading="lazy"
-      onError={() => setFailed(true)}
-      className="aspect-square w-full rounded-xl bg-white object-contain"
-    />
-  );
-}
 
 function InventoryPanel({
   inventory,
@@ -199,17 +183,29 @@ function ExerciseDetail({
         · {label(item.state)}
       </p>
       <div className="my-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
-        {item.media.map((media, index) => (
-          <figure key={`${media.url}-${index}`}>
-            <ExerciseImage
-              url={media.url}
-              alt={`${item.name}: ${label(media.pose)}`}
-            />
-            <figcaption className="mt-1 text-center text-xs">
-              {label(media.pose)}
-            </figcaption>
-          </figure>
-        ))}
+        <div className="grid content-start grid-cols-2 gap-3">
+          {item.media.map((media, index) => (
+            <figure key={`${media.url}-${index}`}>
+              <ExerciseImage
+                url={media.url}
+                alt={`${item.name}: ${label(media.pose)}`}
+              />
+              <figcaption className="mt-1 text-center text-xs">
+                {label(media.pose)}
+              </figcaption>
+            </figure>
+          ))}
+          {item.media.length === 0 && (
+            <p className="col-span-2 py-6 text-sm text-[#706e65]">
+              Esta ficha todavía no tiene imágenes del ejercicio.
+            </p>
+          )}
+        </div>
+        <MuscleMap
+          primary={item.primaryMuscles}
+          secondary={item.secondaryMuscles}
+          muscles={taxonomies.muscles}
+        />
       </div>
       {item.description && (
         <p className="my-3 text-sm leading-6">{item.description}</p>
@@ -238,8 +234,18 @@ function ExerciseDetail({
             'Músculos secundarios',
             names(item.secondaryMuscles, taxonomies.muscles),
           ],
-          ['Equipamiento', names(item.equipment, taxonomies.equipment)],
-          ['Articulaciones', names(item.joints, taxonomies.joints)],
+          [
+            'Equipamiento',
+            item.equipment.length
+              ? names(item.equipment, taxonomies.equipment)
+              : 'Sin equipamiento registrado',
+          ],
+          [
+            'Articulaciones',
+            item.joints.length
+              ? names(item.joints, taxonomies.joints)
+              : 'Sin articulaciones registradas',
+          ],
         ].map(([term, value]) => (
           <div key={term}>
             <dt className="font-semibold">{term}</dt>
@@ -323,7 +329,10 @@ function ExerciseDetail({
           )}
         </section>
       )}
-      {item.source === 'RepDB' && (
+      {(item.source === 'RepDB' ||
+        item.media.some((media) =>
+          media.url.startsWith('/catalog/media/'),
+        )) && (
         <p className="mt-5 text-xs">
           Exercise data by RepDB (
           <a
@@ -823,12 +832,18 @@ function CatalogContent({ manage }: { manage: boolean }) {
                       disabled={!taxonomies.data}
                       className="block w-full text-left focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#567322]"
                     >
-                      {item.media[0] && (
-                        <ExerciseImage
-                          url={item.media[0].url}
-                          alt={item.name}
-                        />
-                      )}
+                      <ExerciseImage
+                        url={item.media[0]?.url ?? ''}
+                        alt={item.name}
+                        fallback={
+                          <MuscleMap
+                            compact
+                            primary={item.primaryMuscles}
+                            secondary={item.secondaryMuscles}
+                            muscles={taxonomies.data?.muscles ?? []}
+                          />
+                        }
+                      />
                       <h2 className="mt-3 text-lg font-semibold">
                         {item.name}
                       </h2>

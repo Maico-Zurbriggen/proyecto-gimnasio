@@ -43,7 +43,7 @@ const exercise = {
   movementPattern: 'CORE',
   difficultyLevel: 'AVANZADO',
   unilateral: false,
-  primaryMuscles: ['M1', 'M2'],
+  primaryMuscles: ['GLUTEO', 'CUADRICEPS'],
   secondaryMuscles: [],
   equipment: ['PESO_CORPORAL'],
   joints: ['HOMBRO'],
@@ -78,8 +78,8 @@ beforeEach(() => {
   });
   fixtures.taxonomies.mockResolvedValue({
     muscles: [
-      { code: 'M1', name: 'Primario uno' },
-      { code: 'M2', name: 'Primario dos' },
+      { code: 'GLUTEO', name: 'Primario uno' },
+      { code: 'CUADRICEPS', name: 'Primario dos' },
     ],
     equipment: [{ code: 'PESO_CORPORAL', name: 'Peso corporal' }],
     joints: [{ code: 'HOMBRO', name: 'Hombro' }],
@@ -143,8 +143,9 @@ describe('Catalogue workflows by role', () => {
       screen.getByRole('button', { name: /Ejercicio sintético/ }),
     );
     expect(screen.getByRole('dialog')).toBeVisible();
+    expect(screen.getByRole('img', { name: /Mapa muscular/ })).toBeVisible();
     expect(screen.getByText(exercise.instructions)).toBeVisible();
-    expect(screen.getAllByText(/Primario uno, Primario dos/)).toHaveLength(2);
+    expect(screen.getAllByText('Primario uno, Primario dos')).toHaveLength(2);
     expect(fixtures.list).toHaveBeenCalledWith(
       expect.objectContaining({ enabled: 'true' }),
       expect.any(AbortSignal),

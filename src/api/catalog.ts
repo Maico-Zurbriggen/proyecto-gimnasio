@@ -92,6 +92,8 @@ export function catalogError(error: unknown): string {
       'El administrador debe retirar este ejercicio antes de editarlo.',
     invalid_catalog_taxonomy:
       'La clasificación incluye una opción que ya no existe.',
+    invalid_catalog_media:
+      'La ilustración no está disponible para esta ficha. Recargá o indicá otra imagen.',
     invalid_request_body: 'Revisá los campos y las selecciones de la ficha.',
     invalid_catalog_request: 'Revisá los campos y las selecciones de la ficha.',
     forbidden: 'Tu rol no permite esta acción.',

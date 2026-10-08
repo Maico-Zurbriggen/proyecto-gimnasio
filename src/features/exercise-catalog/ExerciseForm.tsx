@@ -287,24 +287,32 @@ export function ExerciseForm({
                 ))}
               </select>
             </label>
-            <label className="text-sm">
-              URL HTTPS
-              <input
-                required
-                type="url"
-                pattern="https://.*"
-                className={fieldClass}
-                value={media.url}
-                onChange={(event) =>
-                  update(
-                    'media',
-                    form.media.map((item, i) =>
-                      i === index ? { ...item, url: event.target.value } : item,
-                    ),
-                  )
-                }
-              />
-            </label>
+            {media.url.startsWith('/catalog/media/') ? (
+              <p className="self-center text-sm">
+                Ilustración del catálogo conservada
+              </p>
+            ) : (
+              <label className="text-sm">
+                URL HTTPS
+                <input
+                  required
+                  type="url"
+                  pattern="https://.*"
+                  className={fieldClass}
+                  value={media.url}
+                  onChange={(event) =>
+                    update(
+                      'media',
+                      form.media.map((item, i) =>
+                        i === index
+                          ? { ...item, url: event.target.value }
+                          : item,
+                      ),
+                    )
+                  }
+                />
+              </label>
+            )}
             {form.media.length > 1 && (
               <button
                 type="button"

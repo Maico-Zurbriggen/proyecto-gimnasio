@@ -132,6 +132,7 @@ export interface components {
       media: {
         /** @enum {string} */
         pose: 'INICIO' | 'FINAL' | 'PRINCIPAL';
+        /** @description HTTPS image URL or an existing, authorized /catalog/media/{revision}/{filename}.webp reference. */
         url: string;
       }[];
     };
@@ -211,6 +212,7 @@ export interface components {
         media: {
           /** @enum {string} */
           pose: 'INICIO' | 'FINAL' | 'PRINCIPAL';
+          /** @description HTTPS image URL or an existing, authorized /catalog/media/{revision}/{filename}.webp reference. */
           url: string;
         }[];
       };
