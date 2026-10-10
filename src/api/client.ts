@@ -36,7 +36,7 @@ export interface ApiRequestOptions {
 }
 
 async function apiRequest(
-  method: 'GET' | 'POST',
+  method: 'GET' | 'POST' | 'PUT' | 'DELETE',
   path: string,
   { signal }: ApiRequestOptions = {},
   body?: unknown,
@@ -79,4 +79,19 @@ export function apiPost(
   options: ApiRequestOptions = {},
 ): Promise<unknown> {
   return apiRequest('POST', path, options, body);
+}
+
+export function apiPut(
+  path: string,
+  body: unknown,
+  options: ApiRequestOptions = {},
+): Promise<unknown> {
+  return apiRequest('PUT', path, options, body);
+}
+
+export function apiDelete(
+  path: string,
+  options: ApiRequestOptions = {},
+): Promise<unknown> {
+  return apiRequest('DELETE', path, options);
 }

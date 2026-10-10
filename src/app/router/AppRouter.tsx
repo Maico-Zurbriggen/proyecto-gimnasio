@@ -1,5 +1,6 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { CatalogPage } from '../../features/exercise-catalog/CatalogPage';
+import { GenerationSettingsPage } from '../../features/administration/pages/GenerationSettingsPage';
 
 import { AdminAnalyticsPage } from '../../features/administration/pages/AdminAnalyticsPage';
 import { RequireRole } from '../../features/auth/components/RequireRole';
@@ -137,16 +138,7 @@ export function AppRouter() {
               path="/entrenador/rutinas/revisar/:proposalId"
               element={<ProposalReviewPage />}
             />
-            <Route
-              path="/entrenador/plantillas"
-              element={
-                <PlaceholderPage
-                  kicker="Plantillas"
-                  title="Bases reutilizables, no rígidas."
-                  description="Composiciones de rutina que se pueden adaptar por alumno."
-                />
-              }
-            />
+            <Route path="/entrenador/plantillas" element={<TemplatesPage />} />
             <Route path="/entrenador/catalogo" element={<CatalogPage />} />
             <Route
               path="/entrenador/perfil"
