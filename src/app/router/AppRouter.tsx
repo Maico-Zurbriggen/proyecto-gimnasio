@@ -11,6 +11,7 @@ import { NoAssignedRolePage } from '../../features/auth/pages/NoAssignedRolePage
 import { homeForRoles } from '../../features/auth/roles';
 import { CompleteAccountPage } from '../../features/invitations/pages/CompleteAccountPage';
 import { StudentRoutinePage } from '../../features/prescriptions/pages/StudentRoutinePage';
+import { TemplatesPage } from '../../features/routine-templates/pages/TemplatesPage';
 import { RoutineGenerationPanel } from '../../features/routine-generations/components/RoutineGenerationPanel';
 import { ProposalReviewPage } from '../../features/adaptation-proposals/pages/ProposalReviewPage';
 import { TrainerRoutinesPage } from '../../features/adaptation-proposals/pages/TrainerRoutinesPage';
@@ -188,13 +189,7 @@ export function AppRouter() {
             />
             <Route
               path="/admin/configuracion"
-              element={
-                <PlaceholderPage
-                  kicker="Configuración"
-                  title="Identidad del gimnasio."
-                  description="Información general y preferencias administrativas."
-                />
-              }
+              element={<GenerationSettingsPage />}
             />
           </Route>
 

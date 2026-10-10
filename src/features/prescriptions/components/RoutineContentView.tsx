@@ -33,7 +33,10 @@ function setLine(set: PrescribedSet): string {
 }
 
 export interface RoutineContentViewProps {
-  routine: RoutineContent;
+  routine: Pick<
+    RoutineContent,
+    'days' | 'generationExplanation' | 'generationWarnings'
+  >;
 }
 
 /**

@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "generation:contract": "node scripts/generate-generation-contract.mjs && prettier --write src/api/generated/generation-management.ts",
     "catalog:generate": "openapi-typescript ../Backend/openapi/catalog.openapi.json --output src/api/generated/catalog.ts && prettier --write src/api/generated/catalog.ts",
     "build": "tsc -b && vite build",
     "check": "npm run format:check && npm run lint && npm run typecheck && npm test && npm run build",
