@@ -8,6 +8,10 @@ import { LoginPage } from '../../features/auth/pages/LoginPage';
 import { NoAssignedRolePage } from '../../features/auth/pages/NoAssignedRolePage';
 import { homeForRoles } from '../../features/auth/roles';
 import { CompleteAccountPage } from '../../features/invitations/pages/CompleteAccountPage';
+import { StudentOnboardingPage } from '../../features/onboarding/pages/StudentOnboardingPage';
+import { CreateGymPage } from '../../features/platform/pages/CreateGymPage';
+import { GymsPage } from '../../features/platform/pages/GymsPage';
+import { RoutineReviewPage } from '../../features/prescriptions/pages/RoutineReviewPage';
 import { StudentRoutinePage } from '../../features/prescriptions/pages/StudentRoutinePage';
 import { RoutineGenerationPanel } from '../../features/routine-generations/components/RoutineGenerationPanel';
 import { ProposalReviewPage } from '../../features/adaptation-proposals/pages/ProposalReviewPage';
@@ -30,6 +34,11 @@ function HomeForSession() {
 function StudentOverviewRoute() {
   const { user } = useSession();
   return user ? <StudentOverviewPage studentId={user.id} /> : null;
+}
+
+function StudentOnboardingRoute() {
+  const { user } = useSession();
+  return user ? <StudentOnboardingPage studentId={user.id} /> : null;
 }
 
 function StudentRoutineRoute() {
@@ -64,6 +73,11 @@ export function AppRouter() {
 
           {/* Alumno */}
           <Route element={<RequireRole role="ALUMNO" />}>
+            {/* FL-01: a donde llega el alumno recién dado de alta (HU06). */}
+            <Route
+              path="/alumno/puesta-en-contexto"
+              element={<StudentOnboardingRoute />}
+            />
             <Route element={<MeasurementBlockGate />}>
               <Route path="/alumno" element={<StudentOverviewRoute />} />
               <Route path="/alumno/rutina" element={<StudentRoutineRoute />} />
@@ -151,6 +165,11 @@ export function AppRouter() {
               path="/entrenador/rutinas/revisar/:proposalId"
               element={<ProposalReviewPage />}
             />
+            {/* HU17: revisión de una rutina propuesta desde la bandeja. */}
+            <Route
+              path="/entrenador/rutinas/propuestas/:studentId/:routineId"
+              element={<RoutineReviewPage />}
+            />
             <Route
               path="/entrenador/plantillas"
               element={
@@ -235,6 +254,15 @@ export function AppRouter() {
                   description="Información general y preferencias administrativas."
                 />
               }
+            />
+          </Route>
+
+          {/* SuperAdmin (HU13): sólo gestión de gimnasios. */}
+          <Route element={<RequireRole role="SUPERADMIN" showDenied />}>
+            <Route path="/superadmin" element={<GymsPage />} />
+            <Route
+              path="/superadmin/gimnasios/nuevo"
+              element={<CreateGymPage />}
             />
           </Route>
 

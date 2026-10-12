@@ -26,4 +26,13 @@ describe('auth role navigation', () => {
     );
     expect(canAccessPath('/admin/usuarios', ['ENTRENADOR'])).toBe(false);
   });
+
+  it('HU13: el SuperAdmin entra a su área y nadie más accede a ella', () => {
+    expect(homeForRoles(['SUPERADMIN'])).toBe('/superadmin');
+    expect(canAccessPath('/superadmin/gimnasios/nuevo', ['SUPERADMIN'])).toBe(
+      true,
+    );
+    expect(canAccessPath('/superadmin', ['ADMINISTRADOR'])).toBe(false);
+    expect(canAccessPath('/alumno', ['SUPERADMIN'])).toBe(false);
+  });
 });

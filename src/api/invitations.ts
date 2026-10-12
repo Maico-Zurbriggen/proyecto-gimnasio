@@ -8,8 +8,6 @@ import { apiGet, apiPost } from './client';
  * hasta que el backend publique OpenAPI.
  */
 export const validatedInvitationSchema = z.object({
-  id: z.string(),
-  gymId: z.string(),
   gymName: z.string(),
   email: z.string(),
   roles: z.array(z.enum(['ALUMNO', 'ENTRENADOR', 'ADMINISTRADOR'])),

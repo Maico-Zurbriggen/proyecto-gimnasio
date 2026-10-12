@@ -21,7 +21,8 @@ export const studentStatusSchema = z.object({
   faltasConsecutivas: z.number().int(),
   blockedAt: z.string().nullable(),
   submittedAt: z.string().nullable(),
-  alturaCm: z.number(),
+  /** `null` mientras el alumno no completó su puesta en contexto. */
+  alturaCm: z.number().nullable(),
 });
 
 export const trainerStudentSchema = studentStatusSchema.extend({

@@ -12,13 +12,12 @@ import {
   useStudentRoutines,
 } from '../hooks/usePrescriptions';
 import { RoutineContentView } from './RoutineContentView';
+import { RoutineReviewForm } from './RoutineReviewForm';
 
 const SELECT_CLASS =
   'rounded-xl border border-[#292823]/15 bg-white px-3 py-2 text-sm font-medium text-ink outline-none transition focus:border-graphite';
 const PRIMARY_BUTTON =
   'bg-graphite rounded-full px-4 py-2 text-sm font-bold text-white transition hover:brightness-110 disabled:opacity-60';
-const SECONDARY_BUTTON =
-  'rounded-full border border-[#292823]/15 bg-white px-4 py-2 text-sm font-bold transition hover:brightness-95 disabled:opacity-60';
 
 function errorMessage(error: unknown): string {
   if (error instanceof ApiError) {
@@ -29,8 +28,6 @@ function errorMessage(error: unknown): string {
         return 'Esa plantilla es de otro gimnasio.';
       case 'empty_template':
         return 'La plantilla no tiene días con ejercicios.';
-      case 'routine_not_reviewable':
-        return 'Esa rutina ya fue resuelta.';
       case 'forbidden_not_assigned':
         return 'No tenés asignado a este alumno.';
     }
@@ -58,7 +55,6 @@ export function RoutinePrescriptionPanel({
   const review = useReviewRoutine(studentId);
 
   const [templateId, setTemplateId] = useState('');
-  const [observation, setObservation] = useState('');
 
   const lista: RoutineSummary[] = routines.data ?? [];
   const propuesta = lista.find((routine) => routine.state === 'PROPUESTA');
@@ -67,7 +63,8 @@ export function RoutinePrescriptionPanel({
 
   const seleccion = templateId || (templates.data?.[0]?.id ?? '');
   const operando = assign.isPending || review.isPending;
-  const error = assign.error ?? review.error;
+  // Los errores de la revisión los muestra su propio formulario.
+  const error = assign.error;
 
   return (
     <BentoCard className="mt-4 flex flex-col gap-4">
@@ -129,49 +126,13 @@ export function RoutinePrescriptionPanel({
             <RoutineContentView routine={contenido.data} />
           ) : null}
 
-          <label className="flex flex-col gap-1.5">
-            <span className="eyebrow text-[#77756d]">
-              Observación (opcional)
-            </span>
-            <input
-              type="text"
-              value={observation}
-              maxLength={500}
-              onChange={(event) => setObservation(event.target.value)}
-              className={SELECT_CLASS}
-            />
-          </label>
-
-          <div className="flex flex-wrap gap-2">
-            <button
-              type="button"
-              disabled={operando}
-              className={PRIMARY_BUTTON}
-              onClick={() => {
-                review.mutate({
-                  routineId: propuesta.id,
-                  result: 'APROBADA',
-                  observation: observation || undefined,
-                });
-              }}
-            >
-              {review.isPending ? 'Aplicando…' : 'Aprobar y poner en vigencia'}
-            </button>
-            <button
-              type="button"
-              disabled={operando}
-              className={SECONDARY_BUTTON}
-              onClick={() => {
-                review.mutate({
-                  routineId: propuesta.id,
-                  result: 'RECHAZADA',
-                  observation: observation || undefined,
-                });
-              }}
-            >
-              Rechazar
-            </button>
-          </div>
+          <RoutineReviewForm
+            pending={review.isPending}
+            error={review.error}
+            onDecide={(decision) => {
+              review.mutate({ routineId: propuesta.id, ...decision });
+            }}
+          />
         </section>
       ) : (
         <section className="flex flex-col gap-3">

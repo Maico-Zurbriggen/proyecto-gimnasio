@@ -1,7 +1,7 @@
 import type { AuthenticatedUser } from '../../api/auth';
 
 export type UserRole = AuthenticatedUser['roles'][number];
-export type AppRole = 'alumno' | 'entrenador' | 'admin';
+export type AppRole = 'alumno' | 'entrenador' | 'admin' | 'superadmin';
 
 export interface AppRoleOption {
   appRole: AppRole;
@@ -24,10 +24,20 @@ export const APP_ROLE_OPTIONS: readonly AppRoleOption[] = [
     label: 'Admin',
     home: '/admin',
   },
+  {
+    appRole: 'superadmin',
+    userRole: 'SUPERADMIN',
+    label: 'SuperAdmin',
+    home: '/superadmin',
+  },
 ] as const;
 
-/** Mantiene la prioridad de entrada histórica: entrenador, admin y alumno. */
+/**
+ * Mantiene la prioridad de entrada histórica: entrenador, admin y alumno. El
+ * SuperAdmin es una cuenta del proveedor y entra directo a su área (HU13).
+ */
 const DEFAULT_ROLE_PRIORITY: readonly UserRole[] = [
+  'SUPERADMIN',
   'ENTRENADOR',
   'ADMINISTRADOR',
   'ALUMNO',
@@ -48,6 +58,7 @@ export function homeForRoles(roles: readonly UserRole[]): string {
 }
 
 export function resolveAppRole(pathname: string): AppRole {
+  if (pathname.startsWith('/superadmin')) return 'superadmin';
   if (pathname.startsWith('/entrenador')) return 'entrenador';
   if (pathname.startsWith('/admin')) return 'admin';
   return 'alumno';

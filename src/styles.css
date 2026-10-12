@@ -38,6 +38,17 @@ body {
   box-sizing: border-box;
 }
 
+/* RNF-34: foco visible en toda navegación por teclado, con contraste AA sobre
+   fondos claros y oscuros. */
+:focus-visible {
+  outline: 2px solid var(--color-graphite);
+  outline-offset: 2px;
+}
+
+aside :focus-visible {
+  outline-color: var(--color-lime);
+}
+
 @layer components {
   .font-display {
     font-family: var(--font-display);
