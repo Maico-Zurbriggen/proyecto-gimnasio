@@ -13,6 +13,8 @@ export const validatedInvitationSchema = z.object({
   roles: z.array(z.enum(['ALUMNO', 'ENTRENADOR', 'ADMINISTRADOR'])),
   /** Vencimiento de la invitación, en ISO 8601. */
   expiresAt: z.string(),
+  /** Profesor que va a tener el alumno, si lo invitó un entrenador. */
+  trainerName: z.string().nullable().default(null),
 });
 
 /**
@@ -57,4 +59,47 @@ export async function completeInvitationAccount(
     input,
   );
   return completedAccountSchema.parse(body);
+}
+
+const invitableRoleSchema = z.enum(['ALUMNO', 'ENTRENADOR', 'ADMINISTRADOR']);
+export type InvitableRole = z.infer<typeof invitableRoleSchema>;
+
+export const issuedInvitationSchema = z.object({
+  id: z.string(),
+  email: z.string(),
+  roles: z.array(invitableRoleSchema),
+  expiresAt: z.string(),
+  trainerName: z.string().nullable(),
+});
+
+export const listedInvitationSchema = z.object({
+  id: z.string(),
+  email: z.string(),
+  roles: z.array(invitableRoleSchema),
+  status: z.enum(['PENDIENTE', 'USADA', 'VENCIDA', 'REVOCADA']),
+  issuedAt: z.string(),
+  expiresAt: z.string(),
+  issuedByName: z.string().nullable(),
+});
+
+export type IssuedInvitation = z.infer<typeof issuedInvitationSchema>;
+export type ListedInvitation = z.infer<typeof listedInvitationSchema>;
+
+export const invitationsQueryKey = ['invitations'] as const;
+
+/** `POST /invitations`: emite la invitación y envía el enlace por correo. */
+export async function issueInvitation(input: {
+  email: string;
+  roles: InvitableRole[];
+}): Promise<IssuedInvitation> {
+  return issuedInvitationSchema.parse(await apiPost('/invitations', input));
+}
+
+/** `GET /invitations`: las del gimnasio (admin) o las propias (entrenador). */
+export async function fetchInvitations(
+  signal?: AbortSignal,
+): Promise<ListedInvitation[]> {
+  return z
+    .array(listedInvitationSchema)
+    .parse(await apiGet('/invitations', { signal }));
 }

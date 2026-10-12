@@ -8,6 +8,7 @@ import {
   History,
   LayoutDashboard,
   LineChart,
+  MailPlus,
   Play,
   Settings,
   SlidersHorizontal,
@@ -53,6 +54,11 @@ export const NAVIGATION: Record<
         icon: ClipboardCheck,
       },
       { label: 'Plantillas', to: '/entrenador/plantillas', icon: BookOpen },
+      {
+        label: 'Invitar alumnos',
+        to: '/entrenador/invitaciones',
+        icon: MailPlus,
+      },
     ],
     secondary: [
       { label: 'Ejercicios', to: '/entrenador/catalogo', icon: Grid3X3 },
@@ -62,7 +68,7 @@ export const NAVIGATION: Record<
   admin: {
     primary: [
       { label: 'Analítica', to: '/admin', icon: LayoutDashboard },
-      { label: 'Usuarios', to: '/admin/usuarios', icon: UsersRound },
+      { label: 'Invitaciones', to: '/admin/usuarios', icon: MailPlus },
       {
         label: 'Asignaciones',
         to: '/admin/asignaciones',

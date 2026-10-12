@@ -297,6 +297,15 @@ export function CompleteAccountPage() {
                 </strong>
                 .
               </p>
+              {invitation.trainerName ? (
+                <p className="bg-lime-soft mt-3 rounded-xl px-3 py-2 text-sm font-medium text-[#3b4d14]">
+                  Tu profesor va a ser{' '}
+                  <strong className="font-bold">
+                    {invitation.trainerName}
+                  </strong>
+                  .
+                </p>
+              ) : null}
             </div>
 
             <div className="flex flex-col gap-1.5">

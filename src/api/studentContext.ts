@@ -26,6 +26,9 @@ export const studentContextSchema = z.object({
   birthDate: z.string().nullable(),
   sex: z.enum(SEXES).nullable(),
   heightCm: z.number().nullable(),
+  weightKg: z.number().nullable(),
+  /** Profesor asignado; `null` mientras el gimnasio no asigne uno. */
+  trainer: z.object({ id: z.string(), displayName: z.string() }).nullable(),
   complete: z.boolean(),
 });
 
@@ -38,6 +41,7 @@ export interface StudentContextInput {
   birthDate: string;
   sex: (typeof SEXES)[number];
   heightCm: number;
+  weightKg: number;
 }
 
 export const studentContextQueryKey = ['students', 'me', 'context'] as const;

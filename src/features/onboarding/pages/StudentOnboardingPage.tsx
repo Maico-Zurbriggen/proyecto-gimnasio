@@ -60,6 +60,7 @@ export function StudentOnboardingPage({ studentId }: { studentId: string }) {
     birthDate: '',
     sex: '',
     heightCm: '',
+    weightKg: '',
     goal: '',
   });
   const [errores, setErrores] = useState<Partial<Record<Campo, string[]>>>({});
@@ -75,6 +76,7 @@ export function StudentOnboardingPage({ studentId }: { studentId: string }) {
       birthDate: data.birthDate ?? actual.birthDate,
       sex: data.sex ?? actual.sex,
       heightCm: data.heightCm?.toString() ?? actual.heightCm,
+      weightKg: data.weightKg?.toString() ?? actual.weightKg,
     }));
   }, [context.data]);
 
@@ -110,6 +112,7 @@ export function StudentOnboardingPage({ studentId }: { studentId: string }) {
     if (!form.birthDate) faltantes.birthDate = [obligatorio];
     if (!form.sex) faltantes.sex = [obligatorio];
     if (!form.heightCm) faltantes.heightCm = [obligatorio];
+    if (!form.weightKg) faltantes.weightKg = [obligatorio];
     setErrores(faltantes);
     if (Object.keys(faltantes).length > 0) return;
 
@@ -122,6 +125,7 @@ export function StudentOnboardingPage({ studentId }: { studentId: string }) {
         birthDate: form.birthDate,
         sex: form.sex as StudentContextInput['sex'],
         heightCm: Number(form.heightCm),
+        weightKg: Number(form.weightKg),
       },
     });
   };
@@ -179,123 +183,154 @@ export function StudentOnboardingPage({ studentId }: { studentId: string }) {
               </button>
             </div>
           ) : (
-            <form
-              noValidate
-              aria-label="Puesta en contexto"
-              onSubmit={handleSubmit}
-              className="grid gap-4 sm:grid-cols-2"
-            >
-              {campo('goal', 'Objetivo', (props) => (
-                <select
-                  {...props}
-                  required
-                  value={form.goal}
-                  onChange={(event) => cambiar('goal', event.target.value)}
-                >
-                  <option value="">Elegí tu objetivo</option>
-                  {GOAL_TYPES.map((goal) => (
-                    <option key={goal} value={goal}>
-                      {humanizeEnum(goal)}
-                    </option>
-                  ))}
-                </select>
-              ))}
-              {campo('experienceLevel', 'Nivel de experiencia', (props) => (
-                <select
-                  {...props}
-                  required
-                  value={form.experienceLevel}
-                  onChange={(event) =>
-                    cambiar('experienceLevel', event.target.value)
-                  }
-                >
-                  <option value="">Elegí tu nivel</option>
-                  {EXPERIENCE_LEVELS.map((level) => (
-                    <option key={level} value={level}>
-                      {humanizeEnum(level)}
-                    </option>
-                  ))}
-                </select>
-              ))}
-              {campo('availableDaysPerWeek', 'Días por semana', (props) => (
-                <select
-                  {...props}
-                  required
-                  value={form.availableDaysPerWeek}
-                  onChange={(event) =>
-                    cambiar('availableDaysPerWeek', event.target.value)
-                  }
-                >
-                  <option value="">Elegí cuántos días</option>
-                  {[1, 2, 3, 4, 5, 6, 7].map((days) => (
-                    <option key={days} value={days}>
-                      {days} {days === 1 ? 'día' : 'días'}
-                    </option>
-                  ))}
-                </select>
-              ))}
-              {campo('birthDate', 'Fecha de nacimiento', (props) => (
-                <input
-                  {...props}
-                  type="date"
-                  required
-                  value={form.birthDate}
-                  onChange={(event) => cambiar('birthDate', event.target.value)}
-                />
-              ))}
-              {campo('sex', 'Sexo', (props) => (
-                <select
-                  {...props}
-                  required
-                  value={form.sex}
-                  onChange={(event) => cambiar('sex', event.target.value)}
-                >
-                  <option value="">Elegí una opción</option>
-                  {SEXES.map((sex) => (
-                    <option key={sex} value={sex}>
-                      {humanizeEnum(sex)}
-                    </option>
-                  ))}
-                </select>
-              ))}
-              {campo('heightCm', 'Altura (cm)', (props) => (
-                <input
-                  {...props}
-                  type="number"
-                  inputMode="decimal"
-                  min={100}
-                  max={250}
-                  required
-                  value={form.heightCm}
-                  onChange={(event) => cambiar('heightCm', event.target.value)}
-                />
-              ))}
-
-              {guardar.isError && Object.keys(errores).length === 0 ? (
-                <p
-                  role="alert"
-                  className="text-coral-text text-xs font-semibold sm:col-span-2"
-                >
-                  No pudimos guardar tus datos. Intentá de nuevo.
+            <>
+              <div
+                className={`mb-5 rounded-2xl px-4 py-3 text-sm ${context.data.trainer ? 'bg-lime-soft text-[#3b4d14]' : 'bg-[#fdf3e0] text-[#5a3d0c]'}`}
+              >
+                <p className="eyebrow">Tu profesor</p>
+                <p className="mt-1 font-semibold">
+                  {context.data.trainer
+                    ? context.data.trainer.displayName
+                    : 'Todavía no tenés profesor asignado. El gimnasio te va a asignar uno.'}
                 </p>
-              ) : null}
-
-              <div className="flex flex-wrap items-center gap-3 sm:col-span-2">
-                <button
-                  type="submit"
-                  disabled={guardar.isPending}
-                  className="bg-graphite rounded-full px-4 py-2.5 text-sm font-bold text-white transition hover:brightness-110 disabled:opacity-60"
-                >
-                  {guardar.isPending ? 'Guardando…' : 'Guardar y continuar'}
-                </button>
-                <Link
-                  to="/alumno"
-                  className="text-sm font-bold text-[#3d3c36] underline underline-offset-2"
-                >
-                  Completar más tarde
-                </Link>
               </div>
-            </form>
+              <form
+                noValidate
+                aria-label="Puesta en contexto"
+                onSubmit={handleSubmit}
+                className="grid gap-4 sm:grid-cols-2"
+              >
+                {campo('goal', 'Objetivo', (props) => (
+                  <select
+                    {...props}
+                    required
+                    value={form.goal}
+                    onChange={(event) => cambiar('goal', event.target.value)}
+                  >
+                    <option value="">Elegí tu objetivo</option>
+                    {GOAL_TYPES.map((goal) => (
+                      <option key={goal} value={goal}>
+                        {humanizeEnum(goal)}
+                      </option>
+                    ))}
+                  </select>
+                ))}
+                {campo('experienceLevel', 'Nivel de experiencia', (props) => (
+                  <select
+                    {...props}
+                    required
+                    value={form.experienceLevel}
+                    onChange={(event) =>
+                      cambiar('experienceLevel', event.target.value)
+                    }
+                  >
+                    <option value="">Elegí tu nivel</option>
+                    {EXPERIENCE_LEVELS.map((level) => (
+                      <option key={level} value={level}>
+                        {humanizeEnum(level)}
+                      </option>
+                    ))}
+                  </select>
+                ))}
+                {campo('availableDaysPerWeek', 'Días por semana', (props) => (
+                  <select
+                    {...props}
+                    required
+                    value={form.availableDaysPerWeek}
+                    onChange={(event) =>
+                      cambiar('availableDaysPerWeek', event.target.value)
+                    }
+                  >
+                    <option value="">Elegí cuántos días</option>
+                    {[1, 2, 3, 4, 5, 6, 7].map((days) => (
+                      <option key={days} value={days}>
+                        {days} {days === 1 ? 'día' : 'días'}
+                      </option>
+                    ))}
+                  </select>
+                ))}
+                {campo('birthDate', 'Fecha de nacimiento', (props) => (
+                  <input
+                    {...props}
+                    type="date"
+                    required
+                    value={form.birthDate}
+                    onChange={(event) =>
+                      cambiar('birthDate', event.target.value)
+                    }
+                  />
+                ))}
+                {campo('sex', 'Sexo', (props) => (
+                  <select
+                    {...props}
+                    required
+                    value={form.sex}
+                    onChange={(event) => cambiar('sex', event.target.value)}
+                  >
+                    <option value="">Elegí una opción</option>
+                    {SEXES.map((sex) => (
+                      <option key={sex} value={sex}>
+                        {humanizeEnum(sex)}
+                      </option>
+                    ))}
+                  </select>
+                ))}
+                {campo('heightCm', 'Altura (cm)', (props) => (
+                  <input
+                    {...props}
+                    type="number"
+                    inputMode="decimal"
+                    min={100}
+                    max={250}
+                    required
+                    value={form.heightCm}
+                    onChange={(event) =>
+                      cambiar('heightCm', event.target.value)
+                    }
+                  />
+                ))}
+                {campo('weightKg', 'Peso (kg)', (props) => (
+                  <input
+                    {...props}
+                    type="number"
+                    inputMode="decimal"
+                    step="0.1"
+                    min={20}
+                    max={250}
+                    required
+                    value={form.weightKg}
+                    onChange={(event) =>
+                      cambiar('weightKg', event.target.value)
+                    }
+                  />
+                ))}
+
+                {guardar.isError && Object.keys(errores).length === 0 ? (
+                  <p
+                    role="alert"
+                    className="text-coral-text text-xs font-semibold sm:col-span-2"
+                  >
+                    No pudimos guardar tus datos. Intentá de nuevo.
+                  </p>
+                ) : null}
+
+                <div className="flex flex-wrap items-center gap-3 sm:col-span-2">
+                  <button
+                    type="submit"
+                    disabled={guardar.isPending}
+                    className="bg-graphite rounded-full px-4 py-2.5 text-sm font-bold text-white transition hover:brightness-110 disabled:opacity-60"
+                  >
+                    {guardar.isPending ? 'Guardando…' : 'Guardar y continuar'}
+                  </button>
+                  <Link
+                    to="/alumno"
+                    className="text-sm font-bold text-[#3d3c36] underline underline-offset-2"
+                  >
+                    Completar más tarde
+                  </Link>
+                </div>
+              </form>
+            </>
           )}
         </BentoCard>
       </main>

@@ -8,6 +8,7 @@ import { LoginPage } from '../../features/auth/pages/LoginPage';
 import { NoAssignedRolePage } from '../../features/auth/pages/NoAssignedRolePage';
 import { homeForRoles } from '../../features/auth/roles';
 import { CompleteAccountPage } from '../../features/invitations/pages/CompleteAccountPage';
+import { InvitationsPage } from '../../features/invitations/pages/InvitationsPage';
 import { StudentOnboardingPage } from '../../features/onboarding/pages/StudentOnboardingPage';
 import { CreateGymPage } from '../../features/platform/pages/CreateGymPage';
 import { GymsPage } from '../../features/platform/pages/GymsPage';
@@ -170,6 +171,11 @@ export function AppRouter() {
               path="/entrenador/rutinas/propuestas/:studentId/:routineId"
               element={<RoutineReviewPage />}
             />
+            {/* FL-19: el entrenador invita alumnos, que quedan asignados a él. */}
+            <Route
+              path="/entrenador/invitaciones"
+              element={<InvitationsPage canChooseRoles={false} />}
+            />
             <Route
               path="/entrenador/plantillas"
               element={
@@ -205,15 +211,10 @@ export function AppRouter() {
           {/* Administrador */}
           <Route element={<RequireRole role="ADMINISTRADOR" />}>
             <Route path="/admin" element={<AdminAnalyticsPage />} />
+            {/* FL-19: el administrador invita con cualquier rol del gimnasio. */}
             <Route
               path="/admin/usuarios"
-              element={
-                <PlaceholderPage
-                  kicker="Usuarios y roles"
-                  title="Personas, roles y estado."
-                  description="Gestión del acceso dentro del gimnasio."
-                />
-              }
+              element={<InvitationsPage canChooseRoles />}
             />
             <Route
               path="/admin/asignaciones"

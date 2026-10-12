@@ -14,6 +14,8 @@ const VACIO = {
   birthDate: null,
   sex: null,
   heightCm: null,
+  weightKg: null,
+  trainer: { id: '21000000-0000-4000-8000-000000000002', displayName: 'Lucía' },
   complete: false,
 };
 
@@ -49,7 +51,7 @@ describe('StudentOnboardingPage (FL-01)', () => {
       await screen.findByRole('button', { name: 'Guardar y continuar' }),
     );
 
-    expect(screen.getAllByText('Este dato es obligatorio.')).toHaveLength(6);
+    expect(screen.getAllByText('Este dato es obligatorio.')).toHaveLength(7);
     expect(
       fetchMock.mock.calls.some(([, init]) => init?.method === 'PUT'),
     ).toBe(false);
@@ -65,6 +67,8 @@ describe('StudentOnboardingPage (FL-01)', () => {
           birthDate: '1995-05-20',
           sex: 'FEMENINO',
           heightCm: 165,
+          weightKg: 62.5,
+          trainer: null,
           complete: true,
         },
       },
@@ -82,6 +86,7 @@ describe('StudentOnboardingPage (FL-01)', () => {
     elegir(/Fecha de nacimiento/, '1995-05-20');
     elegir(/Sexo/, 'FEMENINO');
     elegir(/Altura/, '165');
+    elegir(/Peso/, '62.5');
     fireEvent.click(
       screen.getByRole('button', { name: 'Guardar y continuar' }),
     );
@@ -97,6 +102,7 @@ describe('StudentOnboardingPage (FL-01)', () => {
         birthDate: '1995-05-20',
         sex: 'FEMENINO',
         heightCm: 165,
+        weightKg: 62.5,
       });
     });
   });
@@ -110,6 +116,8 @@ describe('StudentOnboardingPage (FL-01)', () => {
           birthDate: '2020-01-01',
           sex: 'MASCULINO',
           heightCm: 170,
+          weightKg: 80,
+          trainer: null,
           complete: true,
         },
       },
@@ -138,5 +146,23 @@ describe('StudentOnboardingPage (FL-01)', () => {
       'aria-invalid',
       'true',
     );
+  });
+
+  it('muestra el profesor asignado, o que el gimnasio va a asignar uno', async () => {
+    mockApi({ 'GET /students/me/context': { body: VACIO } });
+    renderPage();
+
+    expect(await screen.findByText('Lucía')).toBeVisible();
+  });
+
+  it('sin profesor explica que el gimnasio lo asigna', async () => {
+    mockApi({
+      'GET /students/me/context': { body: { ...VACIO, trainer: null } },
+    });
+    renderPage();
+
+    expect(
+      await screen.findByText(/El gimnasio te va a asignar uno/),
+    ).toBeVisible();
   });
 });

@@ -185,6 +185,17 @@ describe('CompleteAccountPage (HU06)', () => {
     });
   });
 
+  it('muestra quién va a ser el profesor cuando lo invitó un entrenador', async () => {
+    renderPage({
+      [`GET /invitations/${TOKEN}`]: {
+        body: { ...INVITACION, trainerName: 'Lucía Entrenadora' },
+      },
+    });
+
+    expect(await screen.findByText('Lucía Entrenadora')).toBeVisible();
+    expect(screen.getByText(/Tu profesor va a ser/)).toBeVisible();
+  });
+
   describe('T6: mensajes por estado de la invitación', () => {
     it.each([
       [410, 'invitation_expired', 'La invitación venció'],
