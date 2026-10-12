@@ -96,6 +96,7 @@ export function CompleteAccountPage() {
   );
   const [cargando, setCargando] = useState(true);
   const [errorDeRed, setErrorDeRed] = useState(false);
+  const [demasiadosIntentos, setDemasiadosIntentos] = useState(false);
   const [estadoInvalido, setEstadoInvalido] =
     useState<InvitationErrorType | null>(null);
   const [intento, setIntento] = useState(0);
@@ -119,6 +120,7 @@ export function CompleteAccountPage() {
     const controller = new AbortController();
     setCargando(true);
     setErrorDeRed(false);
+    setDemasiadosIntentos(false);
     setEstadoInvalido(null);
 
     fetchInvitation(token, controller.signal)
@@ -131,6 +133,9 @@ export function CompleteAccountPage() {
         } else {
           // Criterio 3: falla de red o del servidor, se puede reintentar.
           setErrorDeRed(true);
+          setDemasiadosIntentos(
+            caught instanceof ApiError && caught.code === 'too_many_attempts',
+          );
         }
       })
       .finally(() => {
@@ -265,7 +270,9 @@ export function CompleteAccountPage() {
               No pudimos verificar la invitación.
             </p>
             <p className="text-sm text-[#55534c]">
-              Puede ser un problema de conexión. Probá de nuevo.
+              {demasiadosIntentos
+                ? 'Hubo demasiados intentos seguidos. Esperá un minuto y volvé a probar.'
+                : 'Puede ser un problema de conexión. Probá de nuevo.'}
             </p>
             <button
               type="button"

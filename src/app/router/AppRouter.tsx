@@ -1,6 +1,7 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 
 import { AdminAnalyticsPage } from '../../features/administration/pages/AdminAnalyticsPage';
+import { AssignmentsPage } from '../../features/administration/pages/AssignmentsPage';
 import { RequireRole } from '../../features/auth/components/RequireRole';
 import { RequireSession } from '../../features/auth/components/RequireSession';
 import { useSession } from '../../features/auth/hooks/useSession';
@@ -216,16 +217,8 @@ export function AppRouter() {
               path="/admin/usuarios"
               element={<InvitationsPage canChooseRoles />}
             />
-            <Route
-              path="/admin/asignaciones"
-              element={
-                <PlaceholderPage
-                  kicker="Asignaciones"
-                  title="Entrenadores y alumnos."
-                  description="La relación vigente determina qué información ve cada entrenador."
-                />
-              }
-            />
+            {/* RF-066: el administrador asigna entrenadores a los alumnos. */}
+            <Route path="/admin/asignaciones" element={<AssignmentsPage />} />
             <Route
               path="/admin/ejercicios"
               element={
