@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { apiGet, apiPost } from './client';
+import { apiGet, apiPatch, apiPost } from './client';
 
 /**
  * Contrato del aprovisionamiento de gimnasios (HU13), sólo para el SuperAdmin.
@@ -84,5 +84,31 @@ export async function reissueBootstrapInvitation(
       `/platform/gyms/${encodeURIComponent(gymId)}/bootstrap-invitation`,
       {},
     ),
+  );
+}
+
+/** Edición (HU13 - criterios 22 y 23). */
+export async function updateGym(
+  gymId: string,
+  input: {
+    nombre?: string;
+    zonaHoraria?: string;
+    confirmarCambioDeZona?: boolean;
+  },
+): Promise<GymSummary> {
+  return gymSummarySchema.parse(
+    await apiPatch(`/platform/gyms/${encodeURIComponent(gymId)}`, input),
+  );
+}
+
+/** Suspensión o reactivación sin borrar datos. */
+export async function setGymStatus(
+  gymId: string,
+  activo: boolean,
+): Promise<GymSummary> {
+  return gymSummarySchema.parse(
+    await apiPost(`/platform/gyms/${encodeURIComponent(gymId)}/status`, {
+      activo,
+    }),
   );
 }

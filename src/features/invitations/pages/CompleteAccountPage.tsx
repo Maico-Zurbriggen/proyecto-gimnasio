@@ -105,6 +105,7 @@ export function CompleteAccountPage() {
   const [contrasena, setContrasena] = useState('');
   const [repeticion, setRepeticion] = useState('');
   const [mostrarContrasena, setMostrarContrasena] = useState(false);
+  const [consiente, setConsiente] = useState(false);
   const [errores, setErrores] = useState<ErroresDeCampo>({});
   const [errorEnvio, setErrorEnvio] = useState<string | null>(null);
   const [cuentaExistente, setCuentaExistente] = useState(false);
@@ -186,6 +187,10 @@ export function CompleteAccountPage() {
       const result = await completeInvitationAccount(token, {
         displayName: nombre.trim(),
         password: contrasena,
+        // FL-19/3: separado del alta y opcional; sólo aplica a alumnos.
+        ...(invitation?.healthConsentText
+          ? { healthDataConsent: consiente }
+          : {}),
       });
       // La cookie de sesión ya vino en la respuesta: sólo hay que adoptarla.
       adoptSession(result.user);
@@ -428,6 +433,23 @@ export function CompleteAccountPage() {
                 mensajes={errores.confirmation}
               />
             </div>
+
+            {invitation.healthConsentText ? (
+              <fieldset className="rounded-xl border border-[#292823]/10 bg-[#faf9f4] p-3">
+                <legend className="eyebrow px-1 text-[#5f5d55]">
+                  Datos de salud (opcional)
+                </legend>
+                <label className="flex items-start gap-2 text-xs font-medium text-[#3d3c36]">
+                  <input
+                    type="checkbox"
+                    className="mt-0.5 size-4 shrink-0"
+                    checked={consiente}
+                    onChange={(event) => setConsiente(event.target.checked)}
+                  />
+                  <span>{invitation.healthConsentText}</span>
+                </label>
+              </fieldset>
+            ) : null}
 
             {cuentaExistente ? (
               <div

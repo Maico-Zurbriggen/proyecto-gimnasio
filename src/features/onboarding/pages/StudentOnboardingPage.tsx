@@ -15,6 +15,7 @@ import {
   SEXES,
   declareGoal,
   fetchOwnContext,
+  grantHealthConsent,
   saveOwnContext,
   studentContextQueryKey,
   type StudentContextInput,
@@ -23,7 +24,7 @@ import { humanizeEnum } from '../../../shared/lib/format';
 import { BentoCard } from '../../../shared/ui/BentoCard';
 import { PageHeader } from '../../../shared/ui/PageHeader';
 
-type Campo = keyof StudentContextInput | 'goal';
+type Campo = keyof StudentContextInput | 'goal' | 'consent';
 
 const INPUT_CLASS =
   'w-full rounded-xl border bg-white px-3.5 py-2.5 text-sm font-medium text-ink outline-none transition focus:border-graphite';
@@ -64,6 +65,8 @@ export function StudentOnboardingPage({ studentId }: { studentId: string }) {
     goal: '',
   });
   const [errores, setErrores] = useState<Partial<Record<Campo, string[]>>>({});
+  const [consiente, setConsiente] = useState(false);
+  const yaConsintio = context.data?.healthDataConsent ?? false;
 
   useEffect(() => {
     const data = context.data;
@@ -85,6 +88,8 @@ export function StudentOnboardingPage({ studentId }: { studentId: string }) {
       context: StudentContextInput;
       goal: (typeof GOAL_TYPES)[number];
     }) => {
+      // RN-104: el consentimiento va antes que cualquier dato de salud.
+      if (!yaConsintio) await grantHealthConsent();
       await saveOwnContext(input.context);
       await declareGoal(studentId, input.goal);
     },
@@ -113,6 +118,10 @@ export function StudentOnboardingPage({ studentId }: { studentId: string }) {
     if (!form.sex) faltantes.sex = [obligatorio];
     if (!form.heightCm) faltantes.heightCm = [obligatorio];
     if (!form.weightKg) faltantes.weightKg = [obligatorio];
+    if (!yaConsintio && !consiente)
+      faltantes.consent = [
+        'Para guardar tu peso y tu altura necesitamos tu consentimiento.',
+      ];
     setErrores(faltantes);
     if (Object.keys(faltantes).length > 0) return;
 
@@ -304,6 +313,32 @@ export function StudentOnboardingPage({ studentId }: { studentId: string }) {
                     }
                   />
                 ))}
+
+                {yaConsintio ? null : (
+                  <fieldset className="rounded-xl border border-[#292823]/10 bg-[#faf9f4] p-3 sm:col-span-2">
+                    <legend className="eyebrow px-1 text-[#5f5d55]">
+                      Consentimiento para datos de salud{' '}
+                      <span aria-hidden="true">*</span>
+                    </legend>
+                    <label className="flex items-start gap-2 text-xs font-medium text-[#3d3c36]">
+                      <input
+                        type="checkbox"
+                        className="mt-0.5 size-4 shrink-0"
+                        checked={consiente}
+                        aria-invalid={errores.consent ? true : undefined}
+                        aria-describedby={
+                          errores.consent ? `${ids}-consent-error` : undefined
+                        }
+                        onChange={(event) => setConsiente(event.target.checked)}
+                      />
+                      <span>{context.data.healthConsentText}</span>
+                    </label>
+                    <Errores
+                      id={`${ids}-consent-error`}
+                      mensajes={errores.consent}
+                    />
+                  </fieldset>
+                )}
 
                 {guardar.isError && Object.keys(errores).length === 0 ? (
                   <p

@@ -29,6 +29,9 @@ export const studentContextSchema = z.object({
   weightKg: z.number().nullable(),
   /** Profesor asignado; `null` mientras el gimnasio no asigne uno. */
   trainer: z.object({ id: z.string(), displayName: z.string() }).nullable(),
+  /** RN-104: sin consentimiento no se cargan peso ni altura. */
+  healthDataConsent: z.boolean(),
+  healthConsentText: z.string(),
   complete: z.boolean(),
 });
 
@@ -68,4 +71,11 @@ export async function declareGoal(
   type: (typeof GOAL_TYPES)[number],
 ): Promise<void> {
   await apiPost(`/students/${encodeURIComponent(studentId)}/goals`, { type });
+}
+
+/** `POST /students/me/health-consent`: otorgar el consentimiento después del alta. */
+export async function grantHealthConsent(): Promise<StudentContext> {
+  return studentContextSchema.parse(
+    await apiPost('/students/me/health-consent', {}),
+  );
 }

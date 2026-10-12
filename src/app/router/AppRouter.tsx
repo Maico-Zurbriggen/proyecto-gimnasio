@@ -2,6 +2,7 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 
 import { AdminAnalyticsPage } from '../../features/administration/pages/AdminAnalyticsPage';
 import { AssignmentsPage } from '../../features/administration/pages/AssignmentsPage';
+import { InventoryPage } from '../../features/administration/pages/InventoryPage';
 import { RequireRole } from '../../features/auth/components/RequireRole';
 import { RequireSession } from '../../features/auth/components/RequireSession';
 import { useSession } from '../../features/auth/hooks/useSession';
@@ -219,6 +220,8 @@ export function AppRouter() {
             />
             {/* RF-066: el administrador asigna entrenadores a los alumnos. */}
             <Route path="/admin/asignaciones" element={<AssignmentsPage />} />
+            {/* FL-20: inventario del gimnasio. */}
+            <Route path="/admin/inventario" element={<InventoryPage />} />
             <Route
               path="/admin/ejercicios"
               element={

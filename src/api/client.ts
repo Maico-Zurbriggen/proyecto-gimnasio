@@ -36,7 +36,7 @@ export interface ApiRequestOptions {
 }
 
 async function apiRequest(
-  method: 'GET' | 'POST' | 'PUT',
+  method: 'GET' | 'POST' | 'PUT' | 'PATCH',
   path: string,
   { signal }: ApiRequestOptions = {},
   body?: unknown,
@@ -87,6 +87,14 @@ export function apiPut(
   options: ApiRequestOptions = {},
 ): Promise<unknown> {
   return apiRequest('PUT', path, options, body);
+}
+
+export function apiPatch(
+  path: string,
+  body: unknown,
+  options: ApiRequestOptions = {},
+): Promise<unknown> {
+  return apiRequest('PATCH', path, options, body);
 }
 
 /** Errores por campo que devuelve el backend (`fields`), si vinieron. */

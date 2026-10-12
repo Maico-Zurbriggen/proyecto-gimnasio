@@ -16,6 +16,8 @@ const VACIO = {
   heightCm: null,
   weightKg: null,
   trainer: { id: '21000000-0000-4000-8000-000000000002', displayName: 'Lucía' },
+  healthDataConsent: true,
+  healthConsentText: 'Acepto el tratamiento de mis datos de salud.',
   complete: false,
 };
 
@@ -69,6 +71,8 @@ describe('StudentOnboardingPage (FL-01)', () => {
           heightCm: 165,
           weightKg: 62.5,
           trainer: null,
+          healthDataConsent: true,
+          healthConsentText: 'Acepto el tratamiento de mis datos de salud.',
           complete: true,
         },
       },
@@ -118,6 +122,8 @@ describe('StudentOnboardingPage (FL-01)', () => {
           heightCm: 170,
           weightKg: 80,
           trainer: null,
+          healthDataConsent: true,
+          healthConsentText: 'Acepto el tratamiento de mis datos de salud.',
           complete: true,
         },
       },
@@ -164,5 +170,65 @@ describe('StudentOnboardingPage (FL-01)', () => {
     expect(
       await screen.findByText(/El gimnasio te va a asignar uno/),
     ).toBeVisible();
+  });
+
+  it('RN-104: sin consentimiento lo pide y lo registra antes de guardar', async () => {
+    const fetchMock = mockApi({
+      'GET /students/me/context': {
+        body: { ...VACIO, healthDataConsent: false },
+      },
+      'POST /students/me/health-consent': {
+        status: 201,
+        body: { ...VACIO, healthDataConsent: true },
+      },
+      'PUT /students/me/context': { body: { ...VACIO, complete: true } },
+      [`POST /students/${STUDENT}/goals`]: { status: 201, body: {} },
+    });
+    renderPage();
+
+    await screen.findByRole('form', { name: 'Puesta en contexto' });
+    expect(
+      screen.getByText('Acepto el tratamiento de mis datos de salud.'),
+    ).toBeVisible();
+    const elegir = (label: RegExp, value: string) => {
+      fireEvent.change(screen.getByLabelText(label), { target: { value } });
+    };
+    elegir(/Objetivo/, 'FUERZA');
+    elegir(/Nivel de experiencia/, 'PRINCIPIANTE');
+    elegir(/Días por semana/, '3');
+    elegir(/Fecha de nacimiento/, '1995-05-20');
+    elegir(/^Sexo/, 'FEMENINO');
+    elegir(/Altura/, '165');
+    elegir(/Peso/, '60');
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Guardar y continuar' }),
+    );
+
+    expect(
+      screen.getByText(
+        'Para guardar tu peso y tu altura necesitamos tu consentimiento.',
+      ),
+    ).toBeVisible();
+    expect(
+      fetchMock.mock.calls.some(([, init]) => init?.method === 'PUT'),
+    ).toBe(false);
+
+    fireEvent.click(
+      screen.getByRole('checkbox', {
+        name: 'Acepto el tratamiento de mis datos de salud.',
+      }),
+    );
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Guardar y continuar' }),
+    );
+
+    expect(await screen.findByText('Resumen del alumno')).toBeVisible();
+    const metodos = fetchMock.mock.calls
+      .filter(([, init]) => init?.method && init.method !== 'GET')
+      .map(([url, init]) => `${init?.method} ${new URL(String(url)).pathname}`);
+    expect(metodos.slice(0, 2)).toEqual([
+      'POST /students/me/health-consent',
+      'PUT /students/me/context',
+    ]);
   });
 });

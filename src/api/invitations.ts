@@ -15,6 +15,8 @@ export const validatedInvitationSchema = z.object({
   expiresAt: z.string(),
   /** Profesor que va a tener el alumno, si lo invitó un entrenador. */
   trainerName: z.string().nullable().default(null),
+  /** Texto del consentimiento de datos de salud (sólo si se invita a un alumno). */
+  healthConsentText: z.string().nullable().default(null),
 });
 
 /**
@@ -33,6 +35,8 @@ export type CompletedAccount = z.infer<typeof completedAccountSchema>;
 export interface CompleteAccountInput {
   displayName: string;
   password: string;
+  /** FL-19/3: separado y opcional. */
+  healthDataConsent?: boolean;
 }
 
 /** `GET /invitations/:token`: estado de la invitación (HU06-T1 y T6). */

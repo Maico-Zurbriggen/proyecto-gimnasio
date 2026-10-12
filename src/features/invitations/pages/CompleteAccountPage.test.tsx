@@ -196,6 +196,35 @@ describe('CompleteAccountPage (HU06)', () => {
     expect(screen.getByText(/Tu profesor va a ser/)).toBeVisible();
   });
 
+  it('FL-19/3: el consentimiento de datos de salud es separado y opcional', async () => {
+    const fetchMock = renderPage({
+      [`GET /invitations/${TOKEN}`]: {
+        body: {
+          ...INVITACION,
+          healthConsentText: 'Acepto el tratamiento de mis datos de salud.',
+        },
+      },
+      [`POST /invitations/${TOKEN}/complete`]: CREADA(['ALUMNO']),
+    });
+    await screen.findByRole('form', { name: 'Completar cuenta' });
+
+    const casilla = screen.getByRole('checkbox', {
+      name: 'Acepto el tratamiento de mis datos de salud.',
+    });
+    expect(casilla).not.toBeChecked();
+    fireEvent.click(casilla);
+    completarFormulario();
+    fireEvent.click(botonCrear());
+
+    await screen.findByText('Puesta en contexto');
+    const post = fetchMock.mock.calls.find(
+      ([, init]) => init?.method === 'POST',
+    );
+    expect(JSON.parse(String(post?.[1]?.body))).toMatchObject({
+      healthDataConsent: true,
+    });
+  });
+
   describe('T6: mensajes por estado de la invitación', () => {
     it.each([
       [410, 'invitation_expired', 'La invitación venció'],

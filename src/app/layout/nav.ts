@@ -74,6 +74,7 @@ export const NAVIGATION: Record<
         to: '/admin/asignaciones',
         icon: ClipboardCheck,
       },
+      { label: 'Inventario', to: '/admin/inventario', icon: Dumbbell },
       { label: 'Catálogo', to: '/admin/ejercicios', icon: Grid3X3 },
     ],
     secondary: [
