@@ -1,4 +1,4 @@
-import { fireEvent, screen } from '@testing-library/react';
+import { fireEvent, screen, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { mockApi, renderRoute } from '../../../../test/apiMocks';
@@ -69,6 +69,80 @@ function renderPage() {
 }
 
 describe('ProposalReviewPage (HU04)', () => {
+  it('lets the trainer request regeneration with feedback and disables approval while pending', async () => {
+    const candidateRequestId = '70000000-0000-4000-8000-000000000001';
+    let input: Record<string, unknown> | undefined;
+    mockApi({
+      [`GET /proposals/${PROPOSAL}`]: {
+        body: review({ regeneration: { candidateRequestId } }),
+      },
+      [`GET /proposals/${PROPOSAL}/regeneration`]: { body: null },
+      [`POST /proposals/${PROPOSAL}/regeneration`]: (init) => {
+        input = JSON.parse(String(init?.body));
+        return {
+          status: 202,
+          body: {
+            id: 'regen',
+            trainerId: 'trainer',
+            proposalId: PROPOSAL,
+            candidateRequestId,
+            feedback: 'Más variedad de ejercicios',
+            requestId: 'request',
+            state: 'PENDIENTE',
+            error: null,
+          },
+        };
+      },
+    });
+    renderPage();
+    const textarea = await screen.findByLabelText(
+      'Qué debería mejorar la nueva planilla',
+    );
+    const button = screen.getByRole('button', {
+      name: 'Regenerar planilla con IA',
+    });
+    expect(button).toBeDisabled();
+    fireEvent.change(textarea, {
+      target: { value: 'Más variedad de ejercicios' },
+    });
+    fireEvent.click(button);
+    expect(
+      await screen.findByText(/La IA está generando otra planilla/),
+    ).toBeVisible();
+    expect(screen.getByRole('button', { name: 'Aprobar' })).toBeDisabled();
+    expect(input).toMatchObject({
+      feedback: 'Más variedad de ejercicios',
+      candidateRequestId,
+    });
+    expect(typeof input?.idempotencyKey).toBe('string');
+  });
+
+  it('restores a failed regeneration after reload and keeps the previous proposal available', async () => {
+    const candidateRequestId = '70000000-0000-4000-8000-000000000001';
+    mockApi({
+      [`GET /proposals/${PROPOSAL}`]: {
+        body: review({ regeneration: { candidateRequestId } }),
+      },
+      [`GET /proposals/${PROPOSAL}/regeneration`]: {
+        body: {
+          id: 'regen',
+          trainerId: 'trainer',
+          proposalId: PROPOSAL,
+          candidateRequestId,
+          feedback: 'Cambiar',
+          requestId: 'request',
+          state: 'NO_DISPONIBLE',
+          error: 'IA caída.',
+        },
+      },
+    });
+    renderPage();
+    expect(await screen.findByText(/No se pudo regenerar:/)).toHaveTextContent(
+      'planilla anterior sigue disponible',
+    );
+    expect(screen.getByRole('button', { name: 'Aprobar' })).toBeEnabled();
+  });
+
   afterEach(() => {
     vi.unstubAllGlobals();
   });
@@ -111,6 +185,109 @@ describe('ProposalReviewPage (HU04)', () => {
     expect(
       screen.queryByText('Propuesta generada sin datos actualizados'),
     ).not.toBeInTheDocument();
+  });
+
+  it('shows the automatic structure as a readable plan and derives the before/after from captured evidence', async () => {
+    const sets = [
+      {
+        position: 1,
+        minRepetitions: 8,
+        maxRepetitions: 12,
+        suggestedLoad: 10.5,
+        restSeconds: 90,
+        warmup: false,
+      },
+    ];
+    const body = review({
+      adjustments: [
+        {
+          id: ADJ_LOAD,
+          type: 'ESTRUCTURA',
+          routineExerciseId: null,
+          exerciseName: null,
+          criterion: 'Renovación automática por ciclo cumplido.',
+          previousValue: { routine_type: 'FUERZA', target_weekly_frequency: 2 },
+          proposedValue: {
+            routineType: 'FUERZA',
+            targetWeeklyFrequency: 2,
+            days: [
+              {
+                position: 1,
+                name: 'Día A',
+                dominantPattern: 'CORE',
+                exercises: [
+                  {
+                    position: 1,
+                    exerciseId: 'plancha',
+                    exerciseName: 'Plancha abdominal',
+                    movementPattern: 'CORE',
+                    note: null,
+                    sets,
+                  },
+                ],
+              },
+              {
+                position: 2,
+                name: 'Día B',
+                dominantPattern: 'AISLAMIENTO_SUPERIOR',
+                exercises: [
+                  {
+                    position: 1,
+                    exerciseId: 'curl',
+                    exerciseName: 'Curl de bíceps',
+                    movementPattern: 'AISLAMIENTO_SUPERIOR',
+                    note: null,
+                    sets,
+                  },
+                ],
+              },
+            ],
+          },
+          supportingData: {
+            estructuraVigente: {
+              days: [
+                {
+                  position: 1,
+                  name: 'Día A',
+                  exercises: [{ exerciseId: 'curl' }],
+                },
+                {
+                  position: 2,
+                  name: 'Día B',
+                  exercises: [{ exerciseId: 'plancha' }],
+                },
+              ],
+            },
+            mediciones: [
+              { type: 'PESO_CORPORAL', value: 73, measuredOn: '2026-09-01' },
+            ],
+          },
+          state: 'PENDIENTE',
+        },
+      ],
+    });
+    const fetchMock = mockApi({ [`GET /proposals/${PROPOSAL}`]: { body } });
+    renderPage();
+    expect(
+      await screen.findByRole('heading', { name: 'Planilla propuesta por IA' }),
+    ).toBeVisible();
+    expect(
+      screen.getAllByText('Serie 1: 8-12 rep · 10.5 kg · 90s de descanso'),
+    ).toHaveLength(2);
+    const table = screen.getByRole('table', {
+      name: 'Distribución vigente y propuesta',
+    });
+    const row = within(table).getByText('Curl de bíceps').closest('tr')!;
+    expect(
+      within(row)
+        .getAllByRole('cell')
+        .map((cell) => cell.textContent),
+    ).toEqual(['Curl de bíceps', 'Día A', 'Día B']);
+    expect(screen.getByText(/Peso corporal: 73/)).toBeVisible();
+    expect(screen.queryByText(/"exerciseId"/)).not.toBeInTheDocument();
+    expect(
+      fetchMock.mock.calls.some(([, init]) => init?.method === 'POST'),
+    ).toBe(false);
   });
 
   it('Esc. 3: aprobar parcialmente envía sólo los ajustes marcados', async () => {

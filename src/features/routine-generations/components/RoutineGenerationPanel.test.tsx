@@ -170,7 +170,7 @@ describe('RoutineGenerationPanel', () => {
     fireEvent.click(submit);
     expect(
       await screen.findByText(
-        'No hay ejercicios compatibles con el inventario del gimnasio.',
+        'El administrador debe habilitar ejercicios del gimnasio antes de generar una rutina.',
       ),
     ).toBeVisible();
     await waitFor(() => expect(postBodies()).toHaveLength(2));
@@ -462,5 +462,81 @@ describe('RoutineGenerationPanel', () => {
     expect(
       await screen.findByRole('link', { name: 'Ver rutina' }),
     ).toBeVisible();
+  });
+
+  it('habla del alumno y enlaza la ficha en vista del entrenador', async () => {
+    mockApi({
+      [`POST /students/${STUDENT_ID}/routine-generations`]: {
+        status: 202,
+        body: { requestId: REQUEST_ID, status: 'pending' },
+      },
+      [`GET /students/${STUDENT_ID}/routine-generations/${REQUEST_ID}`]: {
+        body: {
+          requestId: REQUEST_ID,
+          status: 'COMPLETADA',
+          routineId: ROUTINE_ID,
+          estructuraCandidata: null,
+          violaciones: null,
+          error: null,
+        },
+      },
+    });
+
+    renderRoute(
+      '/entrenador',
+      '/entrenador',
+      <RoutineGenerationPanel
+        studentId={STUDENT_ID}
+        revisionHref={`/entrenador/alumnos/${STUDENT_ID}/rutina`}
+        nombreAlumno="Juan Pérez"
+      />,
+    );
+
+    expect(await screen.findByText(/el perfil de Juan Pérez/)).toBeVisible();
+    fireEvent.change(screen.getByLabelText('Indicaciones'), {
+      target: { value: 'Priorizar fuerza' },
+    });
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Generar nueva rutina' }),
+    );
+    expect(
+      await screen.findByRole('link', { name: 'Ver rutina' }),
+    ).toHaveAttribute('href', `/entrenador/alumnos/${STUDENT_ID}/rutina`);
+  });
+
+  it('avisa al entrenador cuando el alumno ya tiene propuesta pendiente', async () => {
+    mockApi({
+      [`POST /students/${STUDENT_ID}/routine-generations`]: {
+        status: 409,
+        body: { error: 'proposed_routine_already_exists' },
+      },
+    });
+
+    renderRoute(
+      '/entrenador',
+      '/entrenador',
+      <RoutineGenerationPanel
+        studentId={STUDENT_ID}
+        revisionHref={`/entrenador/alumnos/${STUDENT_ID}/rutina`}
+        nombreAlumno="Juan Pérez"
+      />,
+    );
+    fireEvent.change(screen.getByLabelText('Indicaciones'), {
+      target: { value: 'Crear una rutina de fuerza' },
+    });
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Generar nueva rutina' }),
+    );
+
+    expect(
+      await screen.findByText(
+        'El alumno ya tiene una rutina propuesta pendiente de revisión.',
+      ),
+    ).toBeVisible();
+    expect(
+      await screen.findByRole('link', {
+        name: 'Ver rutina pendiente de revisión',
+      }),
+    ).toHaveAttribute('href', `/entrenador/alumnos/${STUDENT_ID}/rutina`);
   });
 });
