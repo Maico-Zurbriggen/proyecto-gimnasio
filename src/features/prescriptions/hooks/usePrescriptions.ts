@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import {
   assignRoutineFromTemplate,
+  createManualRoutine,
   fetchRoutineContent,
   fetchRoutineTemplates,
   fetchStudentRoutines,
@@ -9,6 +10,7 @@ import {
   studentRoutinesQueryKey,
   routineContentQueryKey,
   type ReviewResult,
+  type WriteManualRoutine,
 } from '../../../api/prescriptions';
 import { activeRoutineQueryKey } from '../../routines/hooks/useActiveRoutine';
 import { studentQueryKey } from '../../students/hooks/useStudentStatus';
@@ -73,6 +75,17 @@ export function useAssignRoutine(studentId: string) {
   return useMutation({
     mutationFn: (templateId: string) =>
       assignRoutineFromTemplate(studentId, templateId),
+    onSuccess: invalidate,
+  });
+}
+
+/** Crea una rutina manual del entrenador: queda en PROPUESTA (HU16). */
+export function useCreateManualRoutine(studentId: string) {
+  const invalidate = useInvalidateRoutines(studentId);
+
+  return useMutation({
+    mutationFn: (input: WriteManualRoutine) =>
+      createManualRoutine(studentId, input),
     onSuccess: invalidate,
   });
 }

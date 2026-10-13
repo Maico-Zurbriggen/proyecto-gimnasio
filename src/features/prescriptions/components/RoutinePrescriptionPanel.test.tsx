@@ -1,5 +1,5 @@
 import { fireEvent, screen, waitFor } from '@testing-library/react';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import {
   mockApi,
@@ -7,6 +7,14 @@ import {
   type MockResponse,
 } from '../../../../test/apiMocks';
 import { RoutinePrescriptionPanel } from './RoutinePrescriptionPanel';
+
+const catalogFixtures = vi.hoisted(() => ({ search: vi.fn() }));
+vi.mock('../../../api/catalog', async () => {
+  const actual = await vi.importActual<typeof import('../../../api/catalog')>(
+    '../../../api/catalog',
+  );
+  return { ...actual, listCatalog: catalogFixtures.search };
+});
 
 const STUDENT = '21000000-0000-4000-8000-000000000004';
 const ROUTINE = 'd76887cb-c813-4580-9a62-20ba084d26d1';
@@ -103,8 +111,43 @@ function render(routes: Record<string, MockResponse> = {}) {
   return fetchMock;
 }
 
+const EJERCICIO_MANUAL = {
+  id: 'e0000000-0003-4000-8000-000000000003',
+  name: 'Sentadilla con barra',
+  description: null,
+  instructions: 'Bajá con la espalda neutra.',
+  tips: [],
+  movementPattern: 'DOMINANTE_RODILLA',
+  difficultyLevel: 'INTERMEDIO',
+  unilateral: false,
+  origin: 'CATALOGO_BASE',
+  state: 'APROBADO',
+  source: 'RepDB',
+  authorUserId: null,
+  revision: 1,
+  enabled: true,
+  availabilityRevision: 1,
+  availabilityUpdatedAt: null,
+  updatedAt: '2026-10-01T00:00:00.000Z',
+  equipment: ['BARRA'],
+  primaryMuscles: ['CUADRICEPS'],
+  secondaryMuscles: ['GLUTEO'],
+  joints: ['RODILLA'],
+  media: [],
+};
+
 describe('RoutinePrescriptionPanel (RF-022, RF-110)', () => {
+  beforeEach(() => {
+    catalogFixtures.search.mockResolvedValue({
+      items: [EJERCICIO_MANUAL],
+      total: 1,
+      page: 1,
+      pageSize: 8,
+    });
+  });
+
   afterEach(() => {
+    localStorage.clear();
     vi.unstubAllGlobals();
   });
 
@@ -222,5 +265,83 @@ describe('RoutinePrescriptionPanel (RF-022, RF-110)', () => {
     expect(
       await screen.findByText('Rutina vigente: fuerza · 4 días por semana.'),
     ).toBeInTheDocument();
+  });
+
+  it('ofrece generar con IA para el alumno desde la ficha', async () => {
+    render();
+
+    expect(
+      await screen.findByRole('button', { name: 'Generar nueva rutina' }),
+    ).toBeInTheDocument();
+    expect(screen.getByLabelText('Indicaciones')).toBeInTheDocument();
+  });
+
+  it('crea una rutina manual como propuesta sin plantilla', async () => {
+    const fetchMock = render({
+      [`POST /students/${STUDENT}/routines/manual`]: {
+        status: 201,
+        body: {
+          routineId: 'rutina-manual',
+          versionId: 'version-1',
+          state: 'PROPUESTA',
+        },
+      },
+    });
+
+    fireEvent.change(screen.getByLabelText('Nombre del día 1'), {
+      target: { value: 'Día A' },
+    });
+    fireEvent.change(
+      screen.getByPlaceholderText(/Buscar ejercicio habilitado/),
+      { target: { value: 'sentadilla' } },
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Buscar' }));
+    fireEvent.click(
+      await screen.findByRole('button', {
+        name: 'Agregar Sentadilla con barra',
+      }),
+    );
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Crear rutina manual' }),
+    );
+
+    await waitFor(() => {
+      const llamada = fetchMock.mock.calls.find(
+        ([url, init]) =>
+          init?.method === 'POST' && String(url).endsWith('/routines/manual'),
+      );
+      expect(JSON.parse(String(llamada?.[1]?.body))).toMatchObject({
+        routineType: 'HIPERTROFIA',
+        days: [
+          {
+            name: 'Día A',
+            exercises: [
+              {
+                exerciseId: EJERCICIO_MANUAL.id,
+                sets: [{ maxRepetitions: 12 }],
+              },
+            ],
+          },
+        ],
+      });
+    });
+    expect(await screen.findByText('Rutina manual creada')).toBeInTheDocument();
+  });
+
+  it('oculta generación y manual cuando hay una propuesta abierta', async () => {
+    render({
+      [`GET /students/${STUDENT}/routines`]: { body: [rutina('PROPUESTA')] },
+      [`GET /students/${STUDENT}/routines/${ROUTINE}`]: { body: CONTENIDO },
+    });
+
+    expect(
+      await screen.findByText('Propuesta sin resolver'),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Generar nueva rutina' }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Crear rutina manual' }),
+    ).not.toBeInTheDocument();
   });
 });

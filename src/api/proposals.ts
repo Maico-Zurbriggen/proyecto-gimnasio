@@ -1,4 +1,9 @@
 import { z } from 'zod';
+import {
+  proposalRegenerationSchema,
+  proposalRegenerationReferenceSchema,
+  type RegenerateProposalInput,
+} from './generated/generation-management';
 
 import { apiGet, apiPost } from './client';
 
@@ -40,6 +45,7 @@ export const proposalSummarySchema = z.object({
 });
 
 export const proposalReviewSchema = z.object({
+  regeneration: proposalRegenerationReferenceSchema.optional(),
   id: z.string(),
   state: z.string(),
   createdAt: z.string(),
@@ -83,9 +89,36 @@ export type ProposalDecision = z.infer<typeof proposalDecisionSchema>;
 export type ProposalResolution = z.infer<typeof proposalResolutionSchema>;
 
 export interface ResolveProposalInput {
+  candidateRequestId?: string;
   decision: ProposalDecision;
   acceptedAdjustmentIds?: string[];
   reason?: string;
+}
+
+export type { ProposalRegeneration } from './generated/generation-management';
+export async function fetchProposalRegeneration(
+  proposalId: string,
+  signal?: AbortSignal,
+) {
+  return proposalRegenerationSchema
+    .nullable()
+    .parse(
+      await apiGet(
+        `/proposals/${encodeURIComponent(proposalId)}/regeneration`,
+        { signal },
+      ),
+    );
+}
+export async function regenerateProposal(
+  proposalId: string,
+  input: RegenerateProposalInput,
+) {
+  return proposalRegenerationSchema.parse(
+    await apiPost(
+      `/proposals/${encodeURIComponent(proposalId)}/regeneration`,
+      input,
+    ),
+  );
 }
 
 /** `GET /trainers/me/proposals`: propuestas pendientes de los alumnos a cargo. */

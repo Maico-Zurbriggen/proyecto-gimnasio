@@ -1,4 +1,5 @@
 import type { ProposalAdjustment } from '../../../api/proposals';
+import { humanizeEnum } from '../../../shared/lib/format';
 
 type AdjustmentType = ProposalAdjustment['type'];
 
@@ -59,8 +60,17 @@ export function formatAdjustmentValue(
       }
       break;
     }
-    case 'ESTRUCTURA':
+    case 'ESTRUCTURA': {
+      const routineType =
+        field(value, 'routineType') ?? field(value, 'routine_type');
+      const frequency =
+        field(value, 'targetWeeklyFrequency') ??
+        field(value, 'target_weekly_frequency');
+      if (typeof routineType === 'string' && typeof frequency === 'number') {
+        return `${humanizeEnum(routineType)} · ${frequency} días por semana`;
+      }
       break;
+    }
   }
   return JSON.stringify(value);
 }

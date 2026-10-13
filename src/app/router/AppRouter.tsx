@@ -1,5 +1,6 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { CatalogPage } from '../../features/exercise-catalog/CatalogPage';
+import { GenerationSettingsPage } from '../../features/administration/pages/GenerationSettingsPage';
 
 import { AdminAnalyticsPage } from '../../features/administration/pages/AdminAnalyticsPage';
 import { RequireRole } from '../../features/auth/components/RequireRole';
@@ -10,6 +11,7 @@ import { NoAssignedRolePage } from '../../features/auth/pages/NoAssignedRolePage
 import { homeForRoles } from '../../features/auth/roles';
 import { CompleteAccountPage } from '../../features/invitations/pages/CompleteAccountPage';
 import { StudentRoutinePage } from '../../features/prescriptions/pages/StudentRoutinePage';
+import { TemplatesPage } from '../../features/routine-templates/pages/TemplatesPage';
 import { RoutineGenerationPanel } from '../../features/routine-generations/components/RoutineGenerationPanel';
 import { ProposalReviewPage } from '../../features/adaptation-proposals/pages/ProposalReviewPage';
 import { TrainerRoutinesPage } from '../../features/adaptation-proposals/pages/TrainerRoutinesPage';
@@ -137,16 +139,7 @@ export function AppRouter() {
               path="/entrenador/rutinas/revisar/:proposalId"
               element={<ProposalReviewPage />}
             />
-            <Route
-              path="/entrenador/plantillas"
-              element={
-                <PlaceholderPage
-                  kicker="Plantillas"
-                  title="Bases reutilizables, no rígidas."
-                  description="Composiciones de rutina que se pueden adaptar por alumno."
-                />
-              }
-            />
+            <Route path="/entrenador/plantillas" element={<TemplatesPage />} />
             <Route path="/entrenador/catalogo" element={<CatalogPage />} />
             <Route
               path="/entrenador/perfil"
@@ -196,13 +189,7 @@ export function AppRouter() {
             />
             <Route
               path="/admin/configuracion"
-              element={
-                <PlaceholderPage
-                  kicker="Configuración"
-                  title="Identidad del gimnasio."
-                  description="Información general y preferencias administrativas."
-                />
-              }
+              element={<GenerationSettingsPage />}
             />
           </Route>
 
