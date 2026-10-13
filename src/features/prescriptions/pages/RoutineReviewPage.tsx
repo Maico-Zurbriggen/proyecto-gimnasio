@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 
 import { ApiError } from '../../../api/client';
@@ -31,9 +32,15 @@ export function RoutineReviewPage() {
     routineId: string;
   }>();
   const navigate = useNavigate();
+  // Al aplicar un cambio la rutina original pasa a DESCARTADA antes de navegar
+  // a la nueva: el panel debe seguir montado hasta entonces.
+  const [changePanel, setChangePanel] = useState(false);
   const content = useRoutineContent(studentId, routineId);
   const pending = usePendingRoutineReviews();
   const review = useReviewRoutine(studentId);
+  useEffect(() => {
+    if (content.data?.state === 'PROPUESTA') setChangePanel(true);
+  }, [content.data?.state]);
   const resumen = pending.data?.find((item) => item.routineId === routineId);
 
   if (review.isSuccess) {
@@ -138,7 +145,11 @@ export function RoutineReviewPage() {
                 pending={review.isPending}
                 error={review.error}
                 onDecide={(decision) => {
-                  review.mutate({ routineId, ...decision });
+                  review.mutate({
+                    routineId,
+                    reviewToken: content.data?.reviewToken,
+                    ...decision,
+                  });
                 }}
               />
             ) : null}
@@ -150,7 +161,7 @@ export function RoutineReviewPage() {
               Volver a la bandeja
             </Link>
           </BentoCard>
-          {content.data?.state === 'PROPUESTA' ? (
+          {changePanel ? (
             <RoutineChangeRequestPanel
               studentId={studentId}
               esEntrenador

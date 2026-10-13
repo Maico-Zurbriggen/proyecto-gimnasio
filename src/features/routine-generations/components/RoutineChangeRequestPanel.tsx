@@ -55,7 +55,9 @@ export function RoutineChangeRequestPanel({
   const appliedRoutineId = finalize.data?.routineId;
   useEffect(() => {
     if (!appliedRoutineId) return;
-    void invalidateRoutines().then(() => onApplied?.(appliedRoutineId));
+    // Navegar primero: al refrescar, la rutina anterior pasa a DESCARTADA.
+    onApplied?.(appliedRoutineId);
+    void invalidateRoutines();
     // Sólo cuando aparece la rutina nueva.
   }, [appliedRoutineId]);
 
