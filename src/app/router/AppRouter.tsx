@@ -8,7 +8,9 @@ import { InventoryPage } from '../../features/administration/pages/InventoryPage
 import { RequireRole } from '../../features/auth/components/RequireRole';
 import { RequireSession } from '../../features/auth/components/RequireSession';
 import { useSession } from '../../features/auth/hooks/useSession';
+import { ChangePasswordPage } from '../../features/auth/pages/ChangePasswordPage';
 import { LoginPage } from '../../features/auth/pages/LoginPage';
+import { RecoverPasswordPage } from '../../features/auth/pages/RecoverPasswordPage';
 import { NoAssignedRolePage } from '../../features/auth/pages/NoAssignedRolePage';
 import { homeForRoles } from '../../features/auth/roles';
 import { CompleteAccountPage } from '../../features/invitations/pages/CompleteAccountPage';
@@ -16,6 +18,7 @@ import { InvitationsPage } from '../../features/invitations/pages/InvitationsPag
 import { StudentOnboardingPage } from '../../features/onboarding/pages/StudentOnboardingPage';
 import { CreateGymPage } from '../../features/platform/pages/CreateGymPage';
 import { GymsPage } from '../../features/platform/pages/GymsPage';
+import { StudentProfilePage } from '../../features/physical-conditions/pages/StudentProfilePage';
 import { RoutineReviewPage } from '../../features/prescriptions/pages/RoutineReviewPage';
 import { StudentRoutinePage } from '../../features/prescriptions/pages/StudentRoutinePage';
 import { TemplatesPage } from '../../features/routine-templates/pages/TemplatesPage';
@@ -47,6 +50,11 @@ function StudentOnboardingRoute() {
   return user ? <StudentOnboardingPage studentId={user.id} /> : null;
 }
 
+function StudentProfileRoute() {
+  const { user } = useSession();
+  return user ? <StudentProfilePage studentId={user.id} /> : null;
+}
+
 function StudentRoutineRoute() {
   const { user } = useSession();
   return user ? (
@@ -64,12 +72,16 @@ export function AppRouter() {
           públicas. La invitación es la credencial de quien todavía no tiene cuenta. */}
       <Route path="/ingresar" element={<LoginPage />} />
       <Route path="/invitacion/:token" element={<CompleteAccountPage />} />
+      {/* HU09: recuperación sin sesión; el token viaja en el enlace del correo. */}
+      <Route path="/recuperar-contrasena" element={<RecoverPasswordPage />} />
 
       {/* HU07-T7: el resto exige sesión; sin ella se redirige al login. */}
       <Route element={<RequireSession />}>
         <Route path="/sin-acceso" element={<NoAssignedRolePage />} />
         <Route element={<AppShell />}>
           <Route path="/" element={<HomeForSession />} />
+          {/* HU09 - RF-003: cada usuario cambia sólo su propia contraseña. */}
+          <Route path="/cuenta/contrasena" element={<ChangePasswordPage />} />
 
           {/* Alumno */}
           <Route element={<RequireRole role="ALUMNO" />}>
@@ -112,16 +124,8 @@ export function AppRouter() {
                 }
               />
               <Route path="/alumno/catalogo" element={<CatalogPage />} />
-              <Route
-                path="/alumno/perfil"
-                element={
-                  <PlaceholderPage
-                    kicker="Mi perfil"
-                    title="Tus datos de entrenamiento."
-                    description="Objetivos, restricciones y mediciones declaradas."
-                  />
-                }
-              />
+              {/* HU11 - T3: condiciones físicas declaradas por el alumno. */}
+              <Route path="/alumno/perfil" element={<StudentProfileRoute />} />
             </Route>
           </Route>
 

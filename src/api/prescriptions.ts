@@ -72,6 +72,16 @@ export const routineContentSchema = routineSummarySchema.extend({
           exerciseId: z.string(),
           exerciseName: z.string(),
           available: z.boolean().optional(),
+          /** HU11 - criterio 13: ADVERTIDO o INCOMPATIBLE, con su motivo. */
+          compatibilityState: z
+            .enum([
+              'COMPATIBLE',
+              'ADVERTIDO',
+              'INCOMPATIBLE',
+              'EJERCICIO_DESACTIVADO',
+            ])
+            .optional(),
+          compatibilityReason: z.string().nullable().optional(),
           movementPattern: z.string(),
           note: z.string().nullable(),
           sets: z.array(prescribedSetSchema),

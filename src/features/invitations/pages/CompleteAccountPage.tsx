@@ -13,11 +13,11 @@ import {
   InvitationStatusCard,
   type InvitationErrorType,
 } from '../components/InvitationStatusCard';
-import { PasswordRequirementsList } from '../components/PasswordRequirementsList';
+import { PasswordRequirementsList } from '../../../shared/components/PasswordRequirementsList';
 import {
   LARGO_MAXIMO_CONTRASENA,
   isPasswordStrong,
-} from '../utils/passwordStrength';
+} from '../../../shared/lib/passwordStrength';
 
 const LARGO_MINIMO_NOMBRE = 2;
 
