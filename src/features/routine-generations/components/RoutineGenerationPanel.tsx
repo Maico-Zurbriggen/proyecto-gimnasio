@@ -53,7 +53,17 @@ function requestErrorMessage(error: unknown): string {
         : 'El pedido no se puede cumplir con los ejercicios compatibles disponibles. Reformulá las indicaciones.';
     }
     case 'empty_prefiltered_catalog':
-      return 'No hay ejercicios compatibles con el inventario del gimnasio.';
+    case 'empty_gym_catalog':
+      return 'El administrador debe habilitar ejercicios del gimnasio antes de generar una rutina.';
+    case 'generation_context_changed':
+      return 'Cambió tu perfil, el inventario o un ejercicio seleccionado. Iniciá una nueva solicitud.';
+    case 'generation_unable':
+      return error.body &&
+        typeof error.body === 'object' &&
+        'reason' in error.body &&
+        typeof error.body.reason === 'string'
+        ? error.body.reason
+        : 'La IA no pudo proponer una rutina con la información disponible.';
     case 'student_not_found':
       return 'Tu perfil de alumno ya no está disponible.';
     case 'forbidden_not_assigned':
@@ -231,8 +241,9 @@ export function RoutineGenerationPanel({
         {editingRegeneration ? 'Regenerar rutina' : 'Nueva rutina'}
       </h2>
       <p className="mt-2 max-w-2xl text-xs leading-5 text-[#77756d]">
-        Agregá indicaciones para complementar tu perfil, tus condiciones y el
-        equipamiento que el backend valida antes de crear la propuesta.
+        Agregá indicaciones para complementar tu perfil y tu historial. La IA
+        elegirá entre los ejercicios habilitados del gimnasio y el entrenador
+        revisará la propuesta antes de ponerla en vigencia.
       </p>
 
       {!tracking?.requestId ? (
@@ -389,7 +400,10 @@ export function RoutineGenerationPanel({
                           ? requestErrorMessage(finalize.error)
                           : snapshot.status === 'CANCELADA'
                             ? 'La solicitud fue cancelada y no produjo una rutina.'
-                            : `No se pudo completar la generación${snapshot.error ? ` (${snapshot.error})` : ''}.`}
+                            : snapshot.error === 'context_capacity_exceeded'
+                              ? 'El contexto completo supera la capacidad configurada del modelo. El administrador debe revisar la configuración del servicio.'
+                              : (snapshot.reason ??
+                                'No se pudo completar la generación. Intentá con una nueva solicitud.')}
               </p>
               {snapshot.violaciones?.length ? (
                 <ul className="mt-2 list-disc pl-5">

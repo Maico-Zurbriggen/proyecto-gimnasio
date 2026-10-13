@@ -52,6 +52,9 @@ const prescribedSetSchema = z.object({
 });
 
 export const routineContentSchema = routineSummarySchema.extend({
+  reviewToken: z.string().optional(),
+  generationExplanation: z.string().nullable().optional(),
+  generationWarnings: z.array(z.string()).optional(),
   generationPrompt: z.string().nullable().default(null),
   days: z.array(
     z.object({
@@ -63,6 +66,7 @@ export const routineContentSchema = routineSummarySchema.extend({
           position: z.number().int(),
           exerciseId: z.string(),
           exerciseName: z.string(),
+          available: z.boolean().optional(),
           movementPattern: z.string(),
           note: z.string().nullable(),
           sets: z.array(prescribedSetSchema),
@@ -147,7 +151,7 @@ export async function assignRoutineFromTemplate(
 export async function reviewRoutine(
   studentId: string,
   routineId: string,
-  input: { result: ReviewResult; observation?: string },
+  input: { result: ReviewResult; observation?: string; reviewToken?: string },
 ): Promise<z.infer<typeof reviewedRoutineSchema>> {
   const body = await apiPost(
     `/students/${encodeURIComponent(studentId)}/routines/${encodeURIComponent(routineId)}/review`,

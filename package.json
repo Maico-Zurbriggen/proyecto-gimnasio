@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "catalog:generate": "openapi-typescript ../Backend/openapi/catalog.openapi.json --output src/api/generated/catalog.ts && prettier --write src/api/generated/catalog.ts",
     "build": "tsc -b && vite build",
     "check": "npm run format:check && npm run lint && npm run typecheck && npm test && npm run build",
     "dev": "vite --host 0.0.0.0",
@@ -19,6 +20,7 @@
     "@tanstack/react-query": "^5.0.0",
     "clsx": "^2.1.1",
     "lucide-react": "^0.453.0",
+    "openapi-fetch": "^0.17.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-router-dom": "^7.18.3",
@@ -37,6 +39,7 @@
     "eslint": "^9.0.0",
     "globals": "^16.0.0",
     "jsdom": "^27.0.0",
+    "openapi-typescript": "7.13.0",
     "prettier": "^3.0.0",
     "typescript": "^5.9.0",
     "typescript-eslint": "^8.0.0",

@@ -43,52 +43,76 @@ export interface RoutineContentViewProps {
  */
 export function RoutineContentView({ routine }: RoutineContentViewProps) {
   return (
-    <ol className="flex flex-col gap-3">
-      {routine.days.map((day) => (
-        <li
-          key={day.position}
-          className="rounded-xl border border-[#292823]/10 bg-white p-4"
-        >
-          <div className="flex flex-wrap items-baseline justify-between gap-2">
-            <h3 className="font-display text-base font-bold tracking-[-0.03em]">
-              Día {day.position} · {day.name}
-            </h3>
-            <span className="eyebrow text-[#77756d]">
-              {patternLabel(day.dominantPattern)}
-            </span>
-          </div>
+    <div className="space-y-3">
+      {routine.generationExplanation && (
+        <section className="rounded-xl bg-[#eef1e4] p-4 text-sm">
+          <h3 className="font-semibold">Criterio de la propuesta de IA</h3>
+          <p className="mt-2">{routine.generationExplanation}</p>
+          {routine.generationWarnings?.length ? (
+            <ul className="mt-2 list-disc pl-5">
+              {routine.generationWarnings.map((warning, index) => (
+                <li key={index}>{warning}</li>
+              ))}
+            </ul>
+          ) : null}
+        </section>
+      )}
+      <ol className="flex flex-col gap-3">
+        {routine.days.map((day) => (
+          <li
+            key={day.position}
+            className="rounded-xl border border-[#292823]/10 bg-white p-4"
+          >
+            <div className="flex flex-wrap items-baseline justify-between gap-2">
+              <h3 className="font-display text-base font-bold tracking-[-0.03em]">
+                Día {day.position} · {day.name}
+              </h3>
+              <span className="eyebrow text-[#77756d]">
+                {patternLabel(day.dominantPattern)}
+              </span>
+            </div>
 
-          <ul className="mt-3 flex flex-col gap-2.5">
-            {day.exercises.map((exercise) => (
-              <li key={exercise.position} className="text-sm">
-                <p className="font-semibold">
-                  {exercise.position}. {exercise.exerciseName}
-                </p>
-                {exercise.sets.length > 0 ? (
-                  <ul className="mt-1 flex flex-col gap-0.5 pl-4 text-xs text-[#55534c]">
-                    {exercise.sets.map((set) => (
-                      <li key={set.position}>
-                        Serie {set.position}
-                        {set.warmup ? ' (entrada en calor)' : ''}:{' '}
-                        {setLine(set)}
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p className="mt-1 pl-4 text-xs text-[#77756d]">
-                    Sin series prescriptas.
+            <ul className="mt-3 flex flex-col gap-2.5">
+              {day.exercises.map((exercise) => (
+                <li key={exercise.position} className="text-sm">
+                  <p className="font-semibold">
+                    {exercise.position}. {exercise.exerciseName}
                   </p>
-                )}
-                {exercise.note ? (
-                  <p className="mt-1 pl-4 text-xs font-medium text-[#77756d]">
-                    Nota: {exercise.note}
-                  </p>
-                ) : null}
-              </li>
-            ))}
-          </ul>
-        </li>
-      ))}
-    </ol>
+                  {exercise.available === false && (
+                    <p
+                      role="status"
+                      className="mt-1 text-xs font-medium text-red-800"
+                    >
+                      Este ejercicio ya no está disponible en el gimnasio.
+                      Requiere revisión del entrenador.
+                    </p>
+                  )}
+                  {exercise.sets.length > 0 ? (
+                    <ul className="mt-1 flex flex-col gap-0.5 pl-4 text-xs text-[#55534c]">
+                      {exercise.sets.map((set) => (
+                        <li key={set.position}>
+                          Serie {set.position}
+                          {set.warmup ? ' (entrada en calor)' : ''}:{' '}
+                          {setLine(set)}
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="mt-1 pl-4 text-xs text-[#77756d]">
+                      Sin series prescriptas.
+                    </p>
+                  )}
+                  {exercise.note ? (
+                    <p className="mt-1 pl-4 text-xs font-medium text-[#77756d]">
+                      Nota: {exercise.note}
+                    </p>
+                  ) : null}
+                </li>
+              ))}
+            </ul>
+          </li>
+        ))}
+      </ol>
+    </div>
   );
 }

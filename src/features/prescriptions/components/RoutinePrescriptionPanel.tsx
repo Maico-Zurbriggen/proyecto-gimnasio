@@ -31,6 +31,10 @@ function errorMessage(error: unknown): string {
         return 'La plantilla no tiene días con ejercicios.';
       case 'routine_not_reviewable':
         return 'Esa rutina ya fue resuelta.';
+      case 'routine_review_conflict':
+        return 'Cambió la rutina, el perfil o el catálogo. Recargá la propuesta y revisala nuevamente.';
+      case 'routine_exercise_unavailable':
+        return 'La rutina contiene un ejercicio que ya no está habilitado. Rechazá la propuesta y solicitá otra.';
       case 'forbidden_not_assigned':
         return 'No tenés asignado a este alumno.';
     }
@@ -86,6 +90,16 @@ export function RoutinePrescriptionPanel({
       {error ? (
         <p role="alert" className="text-coral-strong text-xs font-medium">
           {errorMessage(error)}
+          <button
+            type="button"
+            className="ml-2 underline"
+            onClick={() => {
+              void contenido.refetch();
+              review.reset();
+            }}
+          >
+            Recargar propuesta
+          </button>
         </p>
       ) : null}
 
@@ -145,12 +159,21 @@ export function RoutinePrescriptionPanel({
           <div className="flex flex-wrap gap-2">
             <button
               type="button"
-              disabled={operando}
+              disabled={
+                operando ||
+                !contenido.data ||
+                contenido.data.days.some((day) =>
+                  day.exercises.some(
+                    (exercise) => exercise.available === false,
+                  ),
+                )
+              }
               className={PRIMARY_BUTTON}
               onClick={() => {
                 review.mutate({
                   routineId: propuesta.id,
                   result: 'APROBADA',
+                  reviewToken: contenido.data?.reviewToken,
                   observation: observation || undefined,
                 });
               }}

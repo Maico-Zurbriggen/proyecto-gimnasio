@@ -1,5 +1,7 @@
 # Dependencies and builds
 node_modules/
+.playwright-cli/
+output/playwright/
 dist/
 coverage/
 .turbo/

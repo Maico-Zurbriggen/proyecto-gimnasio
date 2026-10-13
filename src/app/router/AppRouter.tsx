@@ -1,4 +1,5 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
+import { CatalogPage } from '../../features/exercise-catalog/CatalogPage';
 
 import { AdminAnalyticsPage } from '../../features/administration/pages/AdminAnalyticsPage';
 import { RequireRole } from '../../features/auth/components/RequireRole';
@@ -41,13 +42,7 @@ function StudentRoutineRoute() {
   ) : null;
 }
 
-/**
- * Rutas de la app. Las páginas listadas en `PlaceholderPage` son de
- * referencia visual y no ejecutan lógica real en este
- * sprint; solo el resumen del alumno (HU01), la revisión de propuesta
- * (HU04), la ficha del alumno (HU05) y el completado de cuenta desde la
- * invitación (HU06) están conectadas de verdad.
- */
+/** Rutas protegidas por sesión, rol y bloqueo de mediciones cuando corresponde. */
 export function AppRouter() {
   return (
     <Routes>
@@ -97,16 +92,7 @@ export function AppRouter() {
                   />
                 }
               />
-              <Route
-                path="/alumno/catalogo"
-                element={
-                  <PlaceholderPage
-                    kicker="Catálogo de ejercicios"
-                    title="Elegí con información."
-                    description="Explorá movimientos por grupo muscular, equipamiento y nivel."
-                  />
-                }
-              />
+              <Route path="/alumno/catalogo" element={<CatalogPage />} />
               <Route
                 path="/alumno/perfil"
                 element={
@@ -161,16 +147,7 @@ export function AppRouter() {
                 />
               }
             />
-            <Route
-              path="/entrenador/catalogo"
-              element={
-                <PlaceholderPage
-                  kicker="Catálogo"
-                  title="Ejercicios para prescribir."
-                  description="Técnicas, músculos involucrados y equipamiento."
-                />
-              }
-            />
+            <Route path="/entrenador/catalogo" element={<CatalogPage />} />
             <Route
               path="/entrenador/perfil"
               element={
@@ -206,16 +183,7 @@ export function AppRouter() {
                 />
               }
             />
-            <Route
-              path="/admin/ejercicios"
-              element={
-                <PlaceholderPage
-                  kicker="Curación del catálogo"
-                  title="Ejercicios con criterio."
-                  description="Revisión de ejercicios propuestos antes de publicarlos."
-                />
-              }
-            />
+            <Route path="/admin/ejercicios" element={<CatalogPage manage />} />
             <Route
               path="/admin/reglas"
               element={

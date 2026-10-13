@@ -38,6 +38,7 @@ const routineGenerationSnapshotSchema = routineGenerationAcceptedSchema.extend({
   violaciones: z.array(z.string()).nullable(),
   error: z.string().nullable(),
   routineId: z.string().uuid().nullable().default(null),
+  reason: z.string().nullable().optional(),
 });
 
 const finalizedGeneratedRoutineSchema = z.object({
