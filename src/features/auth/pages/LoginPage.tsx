@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react';
-import { Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
 
 import { ApiError } from '../../../api/client';
 import { useSession } from '../hooks/useSession';
@@ -105,6 +105,13 @@ export function LoginPage() {
               className={inputClass}
             />
           </label>
+          {/* HU09: recuperación de credenciales sin sesión. */}
+          <Link
+            to="/recuperar-contrasena"
+            className="-mt-2 self-end text-xs font-semibold text-[#55534c] underline underline-offset-2 hover:text-ink"
+          >
+            Olvidé mi contraseña
+          </Link>
 
           {error ? (
             <p role="alert" className="text-coral-strong text-xs font-medium">
