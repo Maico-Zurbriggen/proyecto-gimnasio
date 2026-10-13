@@ -221,6 +221,24 @@ describe('StudentConditionsPanel (HU11 - T3)', () => {
     ).toBeVisible();
   });
 
+  it('una condición declarada hoy se puede cerrar recién mañana', async () => {
+    const hoy = new Date().toISOString().slice(0, 10);
+    mockApi({
+      [`GET ${BASE}/status`]: { body: { ...ESTADO, activeCount: 1 } },
+      [`GET ${BASE}`]: { body: [{ ...RODILLA, startsOn: hoy }] },
+    });
+    renderPanel();
+
+    expect(
+      await screen.findByText(
+        'La declaraste hoy: podés cerrarla desde mañana.',
+      ),
+    ).toBeVisible();
+    expect(
+      screen.queryByRole('button', { name: 'Cerrar condición' }),
+    ).toBeNull();
+  });
+
   it('ofrece reintentar si falla la carga', async () => {
     mockApi({
       [`GET ${BASE}/status`]: { status: 500, body: { error: 'internal' } },

@@ -62,6 +62,16 @@ function CerrarCondicion({
     },
   });
 
+  // La base exige fin posterior al inicio, y el backend cuenta días en UTC:
+  // una condición que empezó hoy recién se puede cerrar mañana.
+  if (condition.startsOn >= new Date().toISOString().slice(0, 10)) {
+    return (
+      <p className="text-xs text-[#5f5d55]">
+        La declaraste hoy: podés cerrarla desde mañana.
+      </p>
+    );
+  }
+
   if (!confirmando) {
     return (
       <button
