@@ -38,6 +38,12 @@ export function evaluatePasswordRequirements(
   ];
 }
 
+/** Largo máximo que acepta el backend (bcrypt sólo considera 72 bytes). */
+export const LARGO_MAXIMO_CONTRASENA = 64;
+
 export function isPasswordStrong(password: string): boolean {
-  return evaluatePasswordRequirements(password).every((req) => req.passed);
+  return (
+    password.length <= LARGO_MAXIMO_CONTRASENA &&
+    evaluatePasswordRequirements(password).every((req) => req.passed)
+  );
 }

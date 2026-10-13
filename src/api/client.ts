@@ -36,7 +36,7 @@ export interface ApiRequestOptions {
 }
 
 async function apiRequest(
-  method: 'GET' | 'POST' | 'PUT' | 'DELETE',
+  method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE',
   path: string,
   { signal }: ApiRequestOptions = {},
   body?: unknown,
@@ -94,4 +94,41 @@ export function apiDelete(
   options: ApiRequestOptions = {},
 ): Promise<unknown> {
   return apiRequest('DELETE', path, options);
+}
+
+export function apiPatch(
+  path: string,
+  body: unknown,
+  options: ApiRequestOptions = {},
+): Promise<unknown> {
+  return apiRequest('PATCH', path, options, body);
+}
+
+/** Errores por campo que devuelve el backend (`fields`), si vinieron. */
+export function fieldErrors(error: unknown): Record<string, string[]> {
+  if (
+    error instanceof ApiError &&
+    typeof error.body === 'object' &&
+    error.body !== null &&
+    'fields' in error.body &&
+    typeof error.body.fields === 'object' &&
+    error.body.fields !== null
+  ) {
+    return error.body.fields as Record<string, string[]>;
+  }
+  return {};
+}
+
+/** Mensaje legible del backend, si lo trae. */
+export function apiMessage(error: unknown): string | null {
+  if (
+    error instanceof ApiError &&
+    typeof error.body === 'object' &&
+    error.body !== null &&
+    'message' in error.body &&
+    typeof error.body.message === 'string'
+  ) {
+    return error.body.message;
+  }
+  return null;
 }

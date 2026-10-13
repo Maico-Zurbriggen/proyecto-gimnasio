@@ -9,7 +9,9 @@ import { apiGet, apiPost } from './client';
 export const authenticatedUserSchema = z.object({
   id: z.string(),
   gymId: z.string(),
-  roles: z.array(z.enum(['ALUMNO', 'ENTRENADOR', 'ADMINISTRADOR'])),
+  roles: z.array(
+    z.enum(['ALUMNO', 'ENTRENADOR', 'ADMINISTRADOR', 'SUPERADMIN']),
+  ),
 });
 
 export const loginResponseSchema = z.object({

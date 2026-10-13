@@ -5,7 +5,9 @@ import {
   createManualRoutine,
   fetchRoutineContent,
   fetchRoutineTemplates,
+  fetchPendingRoutineReviews,
   fetchStudentRoutines,
+  pendingRoutineReviewsQueryKey,
   reviewRoutine,
   studentRoutinesQueryKey,
   routineContentQueryKey,
@@ -13,6 +15,7 @@ import {
   type WriteManualRoutine,
 } from '../../../api/prescriptions';
 import { activeRoutineQueryKey } from '../../routines/hooks/useActiveRoutine';
+import { trainerStudentsQueryKey } from '../../students/hooks/useTrainerStudents';
 import { studentQueryKey } from '../../students/hooks/useStudentStatus';
 
 export const routineTemplatesQueryKey = ['routine-templates'] as const;
@@ -64,6 +67,11 @@ function useInvalidateRoutines(studentId: string) {
         queryKey: [...studentQueryKey(studentId), 'routines', 'active'],
       }),
       queryClient.invalidateQueries({ queryKey: activeRoutineQueryKey }),
+      // La bandeja y el contador de pendientes de la cartera (HU17).
+      queryClient.invalidateQueries({
+        queryKey: pendingRoutineReviewsQueryKey,
+      }),
+      queryClient.invalidateQueries({ queryKey: trainerStudentsQueryKey }),
     ]);
   };
 }
@@ -100,12 +108,22 @@ export function useReviewRoutine(studentId: string) {
       result: ReviewResult;
       observation?: string;
       reviewToken?: string;
+      confirmGoalMismatch?: boolean;
     }) =>
       reviewRoutine(studentId, input.routineId, {
         result: input.result,
         observation: input.observation,
         reviewToken: input.reviewToken,
+        confirmGoalMismatch: input.confirmGoalMismatch,
       }),
     onSuccess: invalidate,
+  });
+}
+
+/** Bandeja de aceptación y rechazo de rutinas del entrenador (HU17). */
+export function usePendingRoutineReviews() {
+  return useQuery({
+    queryKey: pendingRoutineReviewsQueryKey,
+    queryFn: ({ signal }) => fetchPendingRoutineReviews(signal),
   });
 }

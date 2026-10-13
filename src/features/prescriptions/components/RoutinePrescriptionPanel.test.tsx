@@ -95,7 +95,12 @@ async function botonAsignarHabilitado() {
   return boton;
 }
 
-function render(routes: Record<string, MockResponse> = {}) {
+function render(
+  routes: Record<
+    string,
+    MockResponse | ((init?: RequestInit) => MockResponse)
+  > = {},
+) {
   const fetchMock = mockApi({
     'GET /routine-templates': { body: PLANTILLAS },
     [`GET /students/${STUDENT}/routines`]: { body: [] },
@@ -223,9 +228,10 @@ describe('RoutinePrescriptionPanel (RF-022, RF-110)', () => {
       },
     });
 
-    fireEvent.change(await screen.findByLabelText('Observación (opcional)'), {
-      target: { value: 'Arranca con esta' },
-    });
+    fireEvent.change(
+      await screen.findByLabelText('Observación para el alumno'),
+      { target: { value: 'Arranca con esta' } },
+    );
     fireEvent.click(
       screen.getByRole('button', { name: 'Aprobar y poner en vigencia' }),
     );
@@ -238,6 +244,75 @@ describe('RoutinePrescriptionPanel (RF-022, RF-110)', () => {
       expect(JSON.parse(String(llamada?.[1]?.body))).toEqual({
         result: 'APROBADA',
         observation: 'Arranca con esta',
+      });
+    });
+  });
+
+  it('HU17: rechazar sin motivo no llama al backend y lo pide en el campo', async () => {
+    const fetchMock = render({
+      [`GET /students/${STUDENT}/routines`]: { body: [rutina('PROPUESTA')] },
+      [`GET /students/${STUDENT}/routines/${ROUTINE}`]: { body: CONTENIDO },
+    });
+
+    fireEvent.click(await screen.findByRole('button', { name: 'Rechazar' }));
+
+    expect(
+      screen.getByText('Para rechazar la rutina indicá el motivo.'),
+    ).toBeInTheDocument();
+    expect(screen.getByLabelText('Observación para el alumno')).toHaveAttribute(
+      'aria-invalid',
+      'true',
+    );
+    expect(
+      fetchMock.mock.calls.some(([url]) => String(url).endsWith('/review')),
+    ).toBe(false);
+  });
+
+  it('RN-40: si el backend pide confirmar el objetivo, exige marcarla antes de aprobar', async () => {
+    let intentos = 0;
+    const fetchMock = render({
+      [`GET /students/${STUDENT}/routines`]: { body: [rutina('PROPUESTA')] },
+      [`GET /students/${STUDENT}/routines/${ROUTINE}`]: { body: CONTENIDO },
+      [`POST /students/${STUDENT}/routines/${ROUTINE}/review`]: () => {
+        intentos += 1;
+        return intentos === 1
+          ? {
+              status: 409,
+              body: { error: 'goal_mismatch_confirmation_required' },
+            }
+          : {
+              body: {
+                routineId: ROUTINE,
+                state: 'VIGENTE',
+                archivedRoutineId: null,
+              },
+            };
+      },
+    });
+
+    const aprobar = await screen.findByRole('button', {
+      name: 'Aprobar y poner en vigencia',
+    });
+    fireEvent.click(aprobar);
+
+    const confirmacion = await screen.findByLabelText(
+      'Lo revisé y quiero aprobarla igual.',
+    );
+    expect(
+      screen.getByRole('button', { name: 'Aprobar y poner en vigencia' }),
+    ).toBeDisabled();
+    fireEvent.click(confirmacion);
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Aprobar y poner en vigencia' }),
+    );
+
+    await waitFor(() => {
+      const llamadas = fetchMock.mock.calls.filter(([url]) =>
+        String(url).endsWith('/review'),
+      );
+      expect(JSON.parse(String(llamadas[1]?.[1]?.body))).toEqual({
+        result: 'APROBADA',
+        confirmGoalMismatch: true,
       });
     });
   });

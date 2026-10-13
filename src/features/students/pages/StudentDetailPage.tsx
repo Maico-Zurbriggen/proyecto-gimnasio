@@ -170,7 +170,10 @@ export function StudentDetailPage() {
               </h2>
               <p className="mt-4 text-xs text-[#77756d]">
                 Faltas consecutivas: {student.faltasConsecutivas} · Altura:{' '}
-                {student.alturaCm} cm · {lastMeasurement}.
+                {student.alturaCm === null
+                  ? 'sin declarar'
+                  : `${String(student.alturaCm)} cm`}{' '}
+                · {lastMeasurement}.
               </p>
             </BentoCard>
           )}

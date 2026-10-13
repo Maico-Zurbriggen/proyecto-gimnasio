@@ -48,4 +48,25 @@ describe('RequireRole', () => {
 
     expect(await screen.findByText('Área administrativa')).toBeTruthy();
   });
+
+  it('HU13: por URL directa al área del SuperAdmin muestra acceso denegado', async () => {
+    mockSession(['ADMINISTRADOR']);
+    render(
+      <MemoryRouter initialEntries={['/superadmin']}>
+        <Routes>
+          <Route element={<RequireRole role="SUPERADMIN" showDenied />}>
+            <Route path="/superadmin" element={<p>Gimnasios</p>} />
+          </Route>
+        </Routes>
+      </MemoryRouter>,
+    );
+
+    expect(
+      await screen.findByRole('heading', { name: 'Acceso denegado' }),
+    ).toBeTruthy();
+    expect(screen.queryByText('Gimnasios')).toBeNull();
+    expect(
+      screen.getByRole('link', { name: 'Ir a mi inicio' }).getAttribute('href'),
+    ).toBe('/admin');
+  });
 });

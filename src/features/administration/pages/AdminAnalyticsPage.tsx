@@ -1,6 +1,7 @@
 import { Activity, CircleAlert, UsersRound } from 'lucide-react';
 
 import { BentoCard } from '../../../shared/ui/BentoCard';
+import { GymSetupChecklist } from '../components/GymSetupChecklist';
 import { PageHeader } from '../../../shared/ui/PageHeader';
 import { StatCard } from '../../../shared/ui/StatCard';
 
@@ -14,6 +15,7 @@ export function AdminAnalyticsPage() {
         description="Indicadores agregados para anticipar deserción y acompañar la operación del gimnasio."
       />
       <main className="px-4 pb-10 sm:px-7 lg:px-9">
+        <GymSetupChecklist />
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <StatCard
             label="Socios activos"

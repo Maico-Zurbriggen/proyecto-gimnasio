@@ -93,6 +93,27 @@ const reviewedRoutineSchema = z.object({
   archivedRoutineId: z.string().nullable(),
 });
 
+/** Rutina PROPUESTA en la bandeja del entrenador (HU17). */
+export const pendingRoutineReviewSchema = z.object({
+  routineId: z.string(),
+  studentId: z.string(),
+  studentName: z.string(),
+  routineType: trainingPurposeSchema,
+  origin: z.string(),
+  targetWeeklyFrequency: z.number().int(),
+  requestedAt: z.string(),
+  requestedByName: z.string().nullable(),
+  requestedByStudent: z.boolean(),
+  versionId: z.string(),
+  versionNumber: z.number().int(),
+  dayCount: z.number().int(),
+  exerciseCount: z.number().int(),
+  currentGoal: trainingPurposeSchema.nullable(),
+  replacesActiveRoutine: z.boolean(),
+  goalMismatch: z.boolean(),
+});
+
+export type PendingRoutineReview = z.infer<typeof pendingRoutineReviewSchema>;
 export type RoutineTemplate = z.infer<typeof routineTemplateSchema>;
 export type RoutineSummary = z.infer<typeof routineSummarySchema>;
 export type RoutineContent = z.infer<typeof routineContentSchema>;
@@ -182,6 +203,20 @@ export function routineTemplateQueryKey(templateId: string) {
   return [...routineTemplatesQueryKey(), templateId] as const;
 }
 
+export const pendingRoutineReviewsQueryKey = [
+  'trainers',
+  'me',
+  'routine-reviews',
+] as const;
+
+/** `GET /trainers/me/routine-reviews`: bandeja de aceptación y rechazo (HU17). */
+export async function fetchPendingRoutineReviews(
+  signal?: AbortSignal,
+): Promise<PendingRoutineReview[]> {
+  const body = await apiGet('/trainers/me/routine-reviews', { signal });
+  return z.array(pendingRoutineReviewSchema).parse(body);
+}
+
 export function studentRoutinesQueryKey(studentId: string) {
   return ['students', studentId, 'routines'] as const;
 }
@@ -251,7 +286,13 @@ export async function createManualRoutine(
 export async function reviewRoutine(
   studentId: string,
   routineId: string,
-  input: { result: ReviewResult; observation?: string; reviewToken?: string },
+  input: {
+    result: ReviewResult;
+    observation?: string;
+    reviewToken?: string;
+    /** RN-40: confirma aprobar un tipo que no coincide con el objetivo. */
+    confirmGoalMismatch?: boolean;
+  },
 ): Promise<z.infer<typeof reviewedRoutineSchema>> {
   const body = await apiPost(
     `/students/${encodeURIComponent(studentId)}/routines/${encodeURIComponent(routineId)}/review`,
