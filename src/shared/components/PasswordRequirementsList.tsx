@@ -1,4 +1,4 @@
-import { evaluatePasswordRequirements } from '../utils/passwordStrength';
+import { evaluatePasswordRequirements } from '../lib/passwordStrength';
 
 export interface PasswordRequirementsListProps {
   password: string;

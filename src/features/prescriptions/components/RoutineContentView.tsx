@@ -32,6 +32,39 @@ function setLine(set: PrescribedSet): string {
   return `${repeticiones} · ${carga} · ${String(set.restSeconds)}s de descanso`;
 }
 
+type Exercise = RoutineContent['days'][number]['exercises'][number];
+
+/**
+ * Compatibilidad del ejercicio con las condiciones del alumno (HU11 - criterio
+ * front 13). La calcula el backend; acá sólo se muestra, con texto además del
+ * color.
+ */
+function CompatibilityNotice({
+  state,
+  reason,
+}: {
+  state: Exercise['compatibilityState'];
+  reason: Exercise['compatibilityReason'];
+}) {
+  if (state !== 'ADVERTIDO' && state !== 'INCOMPATIBLE') return null;
+  const incompatible = state === 'INCOMPATIBLE';
+  return (
+    <p
+      className={`mt-1 flex flex-wrap items-center gap-1.5 text-xs ${incompatible ? 'text-[#7a2a20]' : 'text-[#5a3d0c]'}`}
+    >
+      <span
+        className={`rounded-full px-2 py-0.5 text-[11px] font-bold ${incompatible ? 'bg-[#fbe7e5]' : 'bg-[#fdf3e0]'}`}
+      >
+        {incompatible ? 'Incompatible' : 'Advertencia'}
+      </span>
+      {reason ??
+        (incompatible
+          ? 'Compromete una zona con una condición declarada.'
+          : 'Involucra una zona con una condición leve.')}
+    </p>
+  );
+}
+
 export interface RoutineContentViewProps {
   routine: Pick<
     RoutineContent,
@@ -81,6 +114,10 @@ export function RoutineContentView({ routine }: RoutineContentViewProps) {
                   <p className="font-semibold">
                     {exercise.position}. {exercise.exerciseName}
                   </p>
+                  <CompatibilityNotice
+                    state={exercise.compatibilityState}
+                    reason={exercise.compatibilityReason}
+                  />
                   {exercise.available === false && (
                     <p
                       role="status"

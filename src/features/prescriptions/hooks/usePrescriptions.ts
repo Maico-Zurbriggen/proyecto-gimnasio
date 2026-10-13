@@ -56,7 +56,7 @@ export function useRoutineContent(
  * listado del alumno, la rutina vigente que ve el entrenador en la ficha y la
  * que ve el alumno con su aviso de renovación.
  */
-function useInvalidateRoutines(studentId: string) {
+export function useInvalidateRoutines(studentId: string) {
   const queryClient = useQueryClient();
   return async () => {
     await Promise.all([

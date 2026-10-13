@@ -7,6 +7,7 @@ import { BentoCard } from '../../../shared/ui/BentoCard';
 import { PageHeader } from '../../../shared/ui/PageHeader';
 import { SectionTabs } from '../../../shared/ui/SectionTabs';
 import { RoutinePrescriptionPanel } from '../../prescriptions/components/RoutinePrescriptionPanel';
+import { TrainerConditionsCard } from '../../physical-conditions/components/TrainerConditionsCard';
 import { StudentPendingProposals } from '../../adaptation-proposals/components/StudentPendingProposals';
 import { ActiveRoutineCard } from '../components/ActiveRoutineCard';
 import { UnlockPanel } from '../components/UnlockPanel';
@@ -184,6 +185,9 @@ export function StudentDetailPage() {
             className="xl:col-span-4"
           />
         </div>
+
+        {/* HU11: condiciones declaradas por el alumno, sólo lectura. */}
+        <TrainerConditionsCard studentId={student.studentId} />
 
         {!student.bloqueado ? (
           <>

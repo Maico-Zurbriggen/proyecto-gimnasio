@@ -1,10 +1,11 @@
-import { Bell, LogOut } from 'lucide-react';
+import { Bell, KeyRound, LogOut } from 'lucide-react';
 import { useState } from 'react';
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
 
 import { useSession } from '../../features/auth/hooks/useSession';
 import {
   availableAppRoles,
+  homeForRoles,
   resolveAppRole,
   type UserRole,
 } from '../../features/auth/roles';
@@ -28,7 +29,7 @@ function LogoutButton() {
           setSaliendo(false);
         });
       }}
-      className="ml-auto flex size-7 shrink-0 items-center justify-center rounded-full text-white/45 transition hover:bg-white/10 hover:text-white disabled:opacity-50"
+      className="flex size-7 shrink-0 items-center justify-center rounded-full text-white/45 transition hover:bg-white/10 hover:text-white disabled:opacity-50"
     >
       <LogOut className="size-4" />
     </button>
@@ -206,6 +207,15 @@ function Sidebar({
             </p>
             <p className="mt-0.5 text-[10px] text-white/45">{meta.caption}</p>
           </div>
+          {/* HU09 - RF-003: disponible para todos los roles. */}
+          <Link
+            to="/cuenta/contrasena"
+            aria-label="Cambiar contraseña"
+            title="Cambiar contraseña"
+            className="ml-auto flex size-7 shrink-0 items-center justify-center rounded-full text-white/45 transition hover:bg-white/10 hover:text-white"
+          >
+            <KeyRound className="size-4" />
+          </Link>
           <LogoutButton />
         </div>
       </div>
@@ -220,7 +230,13 @@ function Sidebar({
 export function AppShell() {
   const { pathname } = useLocation();
   const { user } = useSession();
-  const role = resolveAppRole(pathname);
+  // Las rutas de cuenta no pertenecen a un rol: se muestra el menú del rol
+  // principal del usuario.
+  const role = resolveAppRole(
+    pathname.startsWith('/cuenta/')
+      ? homeForRoles(user?.roles ?? [])
+      : pathname,
+  );
   const trainerStudents = useTrainerStudents({
     enabled: role === 'entrenador',
   });
