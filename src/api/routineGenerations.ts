@@ -59,11 +59,17 @@ export type FinalizedGeneratedRoutine = z.infer<
   typeof finalizedGeneratedRoutineSchema
 >;
 
-export interface RequestRoutineGenerationInput {
-  textoLibre: string;
-  idempotencyKey: string;
-  regenerar?: boolean;
-}
+export type RequestRoutineGenerationInput =
+  | {
+      textoLibre: string;
+      idempotencyKey: string;
+      regenerar?: boolean;
+    }
+  | {
+      /** Cambios pedidos sobre la rutina propuesta vigente (HITL). */
+      cambios: string;
+      idempotencyKey: string;
+    };
 
 export const TERMINAL_GENERATION_STATUSES: readonly RoutineGenerationStatus[] =
   ['COMPLETADA', 'NO_DISPONIBLE', 'CANCELADA'];

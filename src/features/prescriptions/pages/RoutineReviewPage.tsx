@@ -1,10 +1,12 @@
-import { Link, useParams } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 
 import { ApiError } from '../../../api/client';
 import { Banner } from '../../../shared/components/Banner';
 import { formatDate, humanizeEnum } from '../../../shared/lib/format';
 import { BentoCard } from '../../../shared/ui/BentoCard';
 import { PageHeader } from '../../../shared/ui/PageHeader';
+import { RoutineChangeRequestPanel } from '../../routine-generations/components/RoutineChangeRequestPanel';
 import { RoutineContentView } from '../components/RoutineContentView';
 import { RoutineReviewForm } from '../components/RoutineReviewForm';
 import {
@@ -29,9 +31,16 @@ export function RoutineReviewPage() {
     studentId: string;
     routineId: string;
   }>();
+  const navigate = useNavigate();
+  // Al aplicar un cambio la rutina original pasa a DESCARTADA antes de navegar
+  // a la nueva: el panel debe seguir montado hasta entonces.
+  const [changePanel, setChangePanel] = useState(false);
   const content = useRoutineContent(studentId, routineId);
   const pending = usePendingRoutineReviews();
   const review = useReviewRoutine(studentId);
+  useEffect(() => {
+    if (content.data?.state === 'PROPUESTA') setChangePanel(true);
+  }, [content.data?.state]);
   const resumen = pending.data?.find((item) => item.routineId === routineId);
 
   if (review.isSuccess) {
@@ -111,42 +120,60 @@ export function RoutineReviewPage() {
           )}
         </BentoCard>
 
-        <BentoCard className="flex flex-col gap-4 lg:col-span-5">
-          <div>
-            <p className="eyebrow text-[#5f5d55]">Decisión</p>
-            {content.data && content.data.state !== 'PROPUESTA' ? (
-              <p className="mt-3 text-sm">
-                Esta rutina ya no está pendiente: su estado es{' '}
-                <strong>{humanizeEnum(content.data.state)}</strong>.
-              </p>
-            ) : null}
-            {resumen?.replacesActiveRoutine ? (
-              <p className="mt-3 text-xs text-[#55534c]">
-                <span aria-hidden="true">↻ </span>
-                El alumno tiene una rutina vigente: si aprobás ésta, la anterior
-                se archiva.
-              </p>
-            ) : null}
-          </div>
+        <div className="flex flex-col gap-4 lg:col-span-5">
+          <BentoCard className="flex flex-col gap-4">
+            <div>
+              <p className="eyebrow text-[#5f5d55]">Decisión</p>
+              {content.data && content.data.state !== 'PROPUESTA' ? (
+                <p className="mt-3 text-sm">
+                  Esta rutina ya no está pendiente: su estado es{' '}
+                  <strong>{humanizeEnum(content.data.state)}</strong>.
+                </p>
+              ) : null}
+              {resumen?.replacesActiveRoutine ? (
+                <p className="mt-3 text-xs text-[#55534c]">
+                  <span aria-hidden="true">↻ </span>
+                  El alumno tiene una rutina vigente: si aprobás ésta, la
+                  anterior se archiva.
+                </p>
+              ) : null}
+            </div>
 
-          {content.data?.state === 'PROPUESTA' ? (
-            <RoutineReviewForm
-              goalMismatch={resumen?.goalMismatch}
-              pending={review.isPending}
-              error={review.error}
-              onDecide={(decision) => {
-                review.mutate({ routineId, ...decision });
+            {content.data?.state === 'PROPUESTA' ? (
+              <RoutineReviewForm
+                goalMismatch={resumen?.goalMismatch}
+                pending={review.isPending}
+                error={review.error}
+                onDecide={(decision) => {
+                  review.mutate({
+                    routineId,
+                    reviewToken: content.data?.reviewToken,
+                    ...decision,
+                  });
+                }}
+              />
+            ) : null}
+
+            <Link
+              to={VOLVER}
+              className="text-sm font-bold text-[#3d3c36] underline underline-offset-2"
+            >
+              Volver a la bandeja
+            </Link>
+          </BentoCard>
+          {changePanel ? (
+            <RoutineChangeRequestPanel
+              studentId={studentId}
+              esEntrenador
+              onApplied={(newRoutineId) => {
+                void navigate(
+                  `/entrenador/rutinas/propuestas/${studentId}/${newRoutineId}`,
+                  { replace: true },
+                );
               }}
             />
           ) : null}
-
-          <Link
-            to={VOLVER}
-            className="text-sm font-bold text-[#3d3c36] underline underline-offset-2"
-          >
-            Volver a la bandeja
-          </Link>
-        </BentoCard>
+        </div>
       </main>
     </div>
   );
