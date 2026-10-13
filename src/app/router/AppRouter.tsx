@@ -1,6 +1,10 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
+import { CatalogPage } from '../../features/exercise-catalog/CatalogPage';
+import { GenerationSettingsPage } from '../../features/administration/pages/GenerationSettingsPage';
 
 import { AdminAnalyticsPage } from '../../features/administration/pages/AdminAnalyticsPage';
+import { AssignmentsPage } from '../../features/administration/pages/AssignmentsPage';
+import { InventoryPage } from '../../features/administration/pages/InventoryPage';
 import { RequireRole } from '../../features/auth/components/RequireRole';
 import { RequireSession } from '../../features/auth/components/RequireSession';
 import { useSession } from '../../features/auth/hooks/useSession';
@@ -8,7 +12,13 @@ import { LoginPage } from '../../features/auth/pages/LoginPage';
 import { NoAssignedRolePage } from '../../features/auth/pages/NoAssignedRolePage';
 import { homeForRoles } from '../../features/auth/roles';
 import { CompleteAccountPage } from '../../features/invitations/pages/CompleteAccountPage';
+import { InvitationsPage } from '../../features/invitations/pages/InvitationsPage';
+import { StudentOnboardingPage } from '../../features/onboarding/pages/StudentOnboardingPage';
+import { CreateGymPage } from '../../features/platform/pages/CreateGymPage';
+import { GymsPage } from '../../features/platform/pages/GymsPage';
+import { RoutineReviewPage } from '../../features/prescriptions/pages/RoutineReviewPage';
 import { StudentRoutinePage } from '../../features/prescriptions/pages/StudentRoutinePage';
+import { TemplatesPage } from '../../features/routine-templates/pages/TemplatesPage';
 import { RoutineGenerationPanel } from '../../features/routine-generations/components/RoutineGenerationPanel';
 import { ProposalReviewPage } from '../../features/adaptation-proposals/pages/ProposalReviewPage';
 import { TrainerRoutinesPage } from '../../features/adaptation-proposals/pages/TrainerRoutinesPage';
@@ -32,6 +42,11 @@ function StudentOverviewRoute() {
   return user ? <StudentOverviewPage studentId={user.id} /> : null;
 }
 
+function StudentOnboardingRoute() {
+  const { user } = useSession();
+  return user ? <StudentOnboardingPage studentId={user.id} /> : null;
+}
+
 function StudentRoutineRoute() {
   const { user } = useSession();
   return user ? (
@@ -41,13 +56,7 @@ function StudentRoutineRoute() {
   ) : null;
 }
 
-/**
- * Rutas de la app. Las páginas listadas en `PlaceholderPage` son de
- * referencia visual y no ejecutan lógica real en este
- * sprint; solo el resumen del alumno (HU01), la revisión de propuesta
- * (HU04), la ficha del alumno (HU05) y el completado de cuenta desde la
- * invitación (HU06) están conectadas de verdad.
- */
+/** Rutas protegidas por sesión, rol y bloqueo de mediciones cuando corresponde. */
 export function AppRouter() {
   return (
     <Routes>
@@ -64,6 +73,11 @@ export function AppRouter() {
 
           {/* Alumno */}
           <Route element={<RequireRole role="ALUMNO" />}>
+            {/* FL-01: a donde llega el alumno recién dado de alta (HU06). */}
+            <Route
+              path="/alumno/puesta-en-contexto"
+              element={<StudentOnboardingRoute />}
+            />
             <Route element={<MeasurementBlockGate />}>
               <Route path="/alumno" element={<StudentOverviewRoute />} />
               <Route path="/alumno/rutina" element={<StudentRoutineRoute />} />
@@ -97,16 +111,7 @@ export function AppRouter() {
                   />
                 }
               />
-              <Route
-                path="/alumno/catalogo"
-                element={
-                  <PlaceholderPage
-                    kicker="Catálogo de ejercicios"
-                    title="Elegí con información."
-                    description="Explorá movimientos por grupo muscular, equipamiento y nivel."
-                  />
-                }
-              />
+              <Route path="/alumno/catalogo" element={<CatalogPage />} />
               <Route
                 path="/alumno/perfil"
                 element={
@@ -151,25 +156,17 @@ export function AppRouter() {
               path="/entrenador/rutinas/revisar/:proposalId"
               element={<ProposalReviewPage />}
             />
+            <Route path="/entrenador/plantillas" element={<TemplatesPage />} />
+            <Route path="/entrenador/catalogo" element={<CatalogPage />} />
+            {/* HU17: revisión de una rutina propuesta desde la bandeja. */}
             <Route
-              path="/entrenador/plantillas"
-              element={
-                <PlaceholderPage
-                  kicker="Plantillas"
-                  title="Bases reutilizables, no rígidas."
-                  description="Composiciones de rutina que se pueden adaptar por alumno."
-                />
-              }
+              path="/entrenador/rutinas/propuestas/:studentId/:routineId"
+              element={<RoutineReviewPage />}
             />
+            {/* FL-19: el entrenador invita alumnos, que quedan asignados a él. */}
             <Route
-              path="/entrenador/catalogo"
-              element={
-                <PlaceholderPage
-                  kicker="Catálogo"
-                  title="Ejercicios para prescribir."
-                  description="Técnicas, músculos involucrados y equipamiento."
-                />
-              }
+              path="/entrenador/invitaciones"
+              element={<InvitationsPage canChooseRoles={false} />}
             />
             <Route
               path="/entrenador/perfil"
@@ -186,36 +183,16 @@ export function AppRouter() {
           {/* Administrador */}
           <Route element={<RequireRole role="ADMINISTRADOR" />}>
             <Route path="/admin" element={<AdminAnalyticsPage />} />
+            {/* FL-19: el administrador invita con cualquier rol del gimnasio. */}
             <Route
               path="/admin/usuarios"
-              element={
-                <PlaceholderPage
-                  kicker="Usuarios y roles"
-                  title="Personas, roles y estado."
-                  description="Gestión del acceso dentro del gimnasio."
-                />
-              }
+              element={<InvitationsPage canChooseRoles />}
             />
-            <Route
-              path="/admin/asignaciones"
-              element={
-                <PlaceholderPage
-                  kicker="Asignaciones"
-                  title="Entrenadores y alumnos."
-                  description="La relación vigente determina qué información ve cada entrenador."
-                />
-              }
-            />
-            <Route
-              path="/admin/ejercicios"
-              element={
-                <PlaceholderPage
-                  kicker="Curación del catálogo"
-                  title="Ejercicios con criterio."
-                  description="Revisión de ejercicios propuestos antes de publicarlos."
-                />
-              }
-            />
+            <Route path="/admin/ejercicios" element={<CatalogPage manage />} />
+            {/* RF-066: el administrador asigna entrenadores a los alumnos. */}
+            <Route path="/admin/asignaciones" element={<AssignmentsPage />} />
+            {/* FL-20: inventario del gimnasio. */}
+            <Route path="/admin/inventario" element={<InventoryPage />} />
             <Route
               path="/admin/reglas"
               element={
@@ -228,13 +205,16 @@ export function AppRouter() {
             />
             <Route
               path="/admin/configuracion"
-              element={
-                <PlaceholderPage
-                  kicker="Configuración"
-                  title="Identidad del gimnasio."
-                  description="Información general y preferencias administrativas."
-                />
-              }
+              element={<GenerationSettingsPage />}
+            />
+          </Route>
+
+          {/* SuperAdmin (HU13): sólo gestión de gimnasios. */}
+          <Route element={<RequireRole role="SUPERADMIN" showDenied />}>
+            <Route path="/superadmin" element={<GymsPage />} />
+            <Route
+              path="/superadmin/gimnasios/nuevo"
+              element={<CreateGymPage />}
             />
           </Route>
 

@@ -3,11 +3,13 @@ import { ArrowUpRight } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 
 import { fetchTrainerStudents } from '../../../api/students';
-import { humanizeEnum } from '../../../shared/lib/format';
+import { formatDate, humanizeEnum } from '../../../shared/lib/format';
 import { BentoCard } from '../../../shared/ui/BentoCard';
 import { PageHeader } from '../../../shared/ui/PageHeader';
 import { SectionTabs } from '../../../shared/ui/SectionTabs';
+import { usePendingRoutineReviews } from '../../prescriptions/hooks/usePrescriptions';
 import { useTrainerStudents } from '../../students/hooks/useTrainerStudents';
+import { originLabel } from '../../prescriptions/lib/origin';
 import { useTrainerProposals } from '../hooks/useTrainerProposals';
 
 function LoadError({ onRetry, busy }: { onRetry: () => void; busy: boolean }) {
@@ -28,51 +30,80 @@ function LoadError({ onRetry, busy }: { onRetry: () => void; busy: boolean }) {
   );
 }
 
-/** Rutinas propuestas que todavía requieren la revisión del entrenador. */
+/**
+ * Bandeja de aceptación y rechazo de rutinas (HU17): cada rutina PROPUESTA de
+ * la cartera, de la más antigua a la más reciente, con lo necesario para
+ * priorizar sin abrirla.
+ */
 function PendingRoutineReviews() {
-  const { data, error, isPending, isFetching, refetch } = useTrainerStudents();
-  const pending = (data ?? []).filter(
-    (student) => student.rutinasPendientesRevision > 0,
+  const { data, error, isPending, isFetching, refetch } =
+    usePendingRoutineReviews();
+  // La cartera ya se carga para el contador del menú: de ahí sale el aviso de
+  // alumnos sin mediciones, que conviene ver antes de aprobar.
+  const cartera = useTrainerStudents();
+  const sinMediciones = new Set(
+    (cartera.data ?? [])
+      .filter((student) => student.fechaUltimaMedicion === null)
+      .map((student) => student.studentId),
   );
 
   return (
     <BentoCard>
-      <p className="eyebrow text-[#77756d]">Rutinas nuevas por aprobar</p>
+      <p className="eyebrow text-[#5f5d55]">Rutinas nuevas por aprobar</p>
       {isPending ? (
-        <p role="status" className="mt-5 text-xs text-[#8c897f]">
+        <p role="status" className="mt-5 text-xs text-[#5f5d55]">
           Cargando rutinas propuestas…
         </p>
       ) : error ? (
         <LoadError onRetry={() => void refetch()} busy={isFetching} />
-      ) : pending.length === 0 ? (
-        <p className="mt-5 text-xs text-[#8c897f]">
+      ) : data.length === 0 ? (
+        <p className="mt-5 text-xs text-[#5f5d55]">
           No hay rutinas nuevas esperando tu revisión.
         </p>
       ) : (
-        <div className="mt-5 space-y-2">
-          {pending.map((student) => (
-            <Link
-              key={student.studentId}
-              to={`/entrenador/alumnos/${student.studentId}`}
-              className="flex items-center justify-between gap-3 rounded-2xl border border-[#292823]/8 p-4 transition hover:bg-[#faf9f4]"
-            >
-              <div>
-                <p className="text-xs font-bold">{student.displayName}</p>
-                <p className="mt-1 text-[10px] text-[#77756d]">
-                  {student.rutinasPendientesRevision === 1
-                    ? 'Una rutina propuesta espera aprobación'
-                    : `${String(student.rutinasPendientesRevision)} rutinas propuestas esperan aprobación`}
-                </p>
-                {student.fechaUltimaMedicion === null ? (
-                  <p className="mt-1 text-[10px] font-bold text-coral-text">
-                    Sin mediciones registradas
+        <ul aria-label="Rutinas por aprobar" className="mt-5 space-y-2">
+          {data.map((item) => (
+            <li key={item.routineId}>
+              <Link
+                to={`/entrenador/rutinas/propuestas/${item.studentId}/${item.routineId}`}
+                className="flex items-center justify-between gap-3 rounded-2xl border border-[#292823]/8 p-4 transition hover:bg-[#faf9f4]"
+              >
+                <div className="min-w-0">
+                  <p className="text-xs font-bold">{item.studentName}</p>
+                  <p className="mt-1 text-[11px] text-[#5f5d55]">
+                    {humanizeEnum(item.routineType)} · {String(item.dayCount)}{' '}
+                    días · {String(item.exerciseCount)} ejercicios
                   </p>
-                ) : null}
-              </div>
-              <ArrowUpRight className="size-4 shrink-0 text-[#77756d]" />
-            </Link>
+                  <p className="mt-1 text-[11px] text-[#5f5d55]">
+                    {originLabel(item)} · {formatDate(item.requestedAt)}
+                  </p>
+                  <div className="mt-1.5 flex flex-wrap gap-1.5">
+                    {item.goalMismatch ? (
+                      <span className="rounded-full bg-[#fdf3e0] px-2 py-0.5 text-[10px] font-bold text-[#5a3d0c]">
+                        <span aria-hidden="true">! </span>No coincide con el
+                        objetivo
+                      </span>
+                    ) : null}
+                    {sinMediciones.has(item.studentId) ? (
+                      <span className="text-coral-text rounded-full bg-[#fbe7e5] px-2 py-0.5 text-[10px] font-bold">
+                        Sin mediciones registradas
+                      </span>
+                    ) : null}
+                    {item.replacesActiveRoutine ? (
+                      <span className="rounded-full bg-[#f4f3ee] px-2 py-0.5 text-[10px] font-bold text-[#3d3c36]">
+                        <span aria-hidden="true">↻ </span>Reemplaza la vigente
+                      </span>
+                    ) : null}
+                  </div>
+                </div>
+                <span className="flex shrink-0 items-center gap-1 text-xs font-bold">
+                  Revisar
+                  <ArrowUpRight aria-hidden="true" className="size-4" />
+                </span>
+              </Link>
+            </li>
           ))}
-        </div>
+        </ul>
       )}
     </BentoCard>
   );
