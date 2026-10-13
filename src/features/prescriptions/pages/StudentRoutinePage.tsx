@@ -6,6 +6,7 @@ import { RoutinePrompt } from '../../../shared/components/RoutinePrompt';
 import { BentoCard } from '../../../shared/ui/BentoCard';
 import { PageHeader } from '../../../shared/ui/PageHeader';
 import { useSession } from '../../auth/hooks/useSession';
+import { RoutineChangeRequestPanel } from '../../routine-generations/components/RoutineChangeRequestPanel';
 import { RoutineContentView } from '../components/RoutineContentView';
 import {
   useRoutineContent,
@@ -102,6 +103,10 @@ function StudentRoutineSection({
           <RoutinePrompt prompt={contenido.data.generationPrompt} />
           <RoutineContentView routine={contenido.data} />
         </>
+      ) : null}
+
+      {routine.state === 'PROPUESTA' ? (
+        <RoutineChangeRequestPanel studentId={studentId} />
       ) : null}
     </section>
   );
