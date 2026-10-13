@@ -52,6 +52,7 @@ function rutina(state: string) {
 
 const CONTENIDO = {
   ...rutina('PROPUESTA'),
+  reviewToken: 'a'.repeat(64),
   days: [
     {
       position: 1,
@@ -232,9 +233,11 @@ describe('RoutinePrescriptionPanel (RF-022, RF-110)', () => {
       await screen.findByLabelText('Observación para el alumno'),
       { target: { value: 'Arranca con esta' } },
     );
-    fireEvent.click(
-      screen.getByRole('button', { name: 'Aprobar y poner en vigencia' }),
-    );
+    const aprobar = screen.getByRole('button', {
+      name: 'Aprobar y poner en vigencia',
+    });
+    await waitFor(() => expect(aprobar).toBeEnabled());
+    fireEvent.click(aprobar);
 
     await waitFor(() => {
       const llamada = fetchMock.mock.calls.find(
@@ -244,6 +247,7 @@ describe('RoutinePrescriptionPanel (RF-022, RF-110)', () => {
       expect(JSON.parse(String(llamada?.[1]?.body))).toEqual({
         result: 'APROBADA',
         observation: 'Arranca con esta',
+        reviewToken: 'a'.repeat(64),
       });
     });
   });
@@ -293,6 +297,7 @@ describe('RoutinePrescriptionPanel (RF-022, RF-110)', () => {
     const aprobar = await screen.findByRole('button', {
       name: 'Aprobar y poner en vigencia',
     });
+    await waitFor(() => expect(aprobar).toBeEnabled());
     fireEvent.click(aprobar);
 
     const confirmacion = await screen.findByLabelText(
@@ -313,6 +318,7 @@ describe('RoutinePrescriptionPanel (RF-022, RF-110)', () => {
       expect(JSON.parse(String(llamadas[1]?.[1]?.body))).toEqual({
         result: 'APROBADA',
         confirmGoalMismatch: true,
+        reviewToken: 'a'.repeat(64),
       });
     });
   });

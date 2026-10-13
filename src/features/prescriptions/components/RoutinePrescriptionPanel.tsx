@@ -18,13 +18,12 @@ import {
   ManualRoutineForm,
   manualRoutineErrorMessage,
 } from './ManualRoutineForm';
+import { RoutineReviewForm } from './RoutineReviewForm';
 
 const SELECT_CLASS =
   'rounded-xl border border-[#292823]/15 bg-white px-3 py-2 text-sm font-medium text-ink outline-none transition focus:border-graphite';
 const PRIMARY_BUTTON =
   'bg-graphite rounded-full px-4 py-2 text-sm font-bold text-white transition hover:brightness-110 disabled:opacity-60';
-const SECONDARY_BUTTON =
-  'rounded-full border border-[#292823]/15 bg-white px-4 py-2 text-sm font-bold transition hover:brightness-95 disabled:opacity-60';
 
 function errorMessage(error: unknown): string {
   if (error instanceof ApiError) {
@@ -75,7 +74,6 @@ export function RoutinePrescriptionPanel({
   const manual = useCreateManualRoutine(studentId);
 
   const [templateId, setTemplateId] = useState('');
-  const [observation, setObservation] = useState('');
 
   const lista: RoutineSummary[] = routines.data ?? [];
   const propuesta = lista.find((routine) => routine.state === 'PROPUESTA');
@@ -84,7 +82,7 @@ export function RoutinePrescriptionPanel({
 
   const seleccion = templateId || (templates.data?.[0]?.id ?? '');
   const operando = assign.isPending || review.isPending;
-  const error = assign.error ?? review.error;
+  const error = assign.error;
 
   return (
     <>
@@ -157,60 +155,25 @@ export function RoutinePrescriptionPanel({
               <RoutineContentView routine={contenido.data} />
             ) : null}
 
-            <label className="flex flex-col gap-1.5">
-              <span className="eyebrow text-[#77756d]">
-                Observación (opcional)
-              </span>
-              <input
-                type="text"
-                value={observation}
-                maxLength={500}
-                onChange={(event) => setObservation(event.target.value)}
-                className={SELECT_CLASS}
-              />
-            </label>
-
-            <div className="flex flex-wrap gap-2">
-              <button
-                type="button"
-                disabled={
-                  operando ||
-                  !contenido.data ||
-                  contenido.data.days.some((day) =>
-                    day.exercises.some(
-                      (exercise) => exercise.available === false,
-                    ),
-                  )
-                }
-                className={PRIMARY_BUTTON}
-                onClick={() => {
-                  review.mutate({
-                    routineId: propuesta.id,
-                    result: 'APROBADA',
-                    reviewToken: contenido.data?.reviewToken,
-                    observation: observation || undefined,
-                  });
-                }}
-              >
-                {review.isPending
-                  ? 'Aplicando…'
-                  : 'Aprobar y poner en vigencia'}
-              </button>
-              <button
-                type="button"
-                disabled={operando}
-                className={SECONDARY_BUTTON}
-                onClick={() => {
-                  review.mutate({
-                    routineId: propuesta.id,
-                    result: 'RECHAZADA',
-                    observation: observation || undefined,
-                  });
-                }}
-              >
-                Rechazar
-              </button>
-            </div>
+            <RoutineReviewForm
+              pending={review.isPending}
+              error={review.error}
+              approveDisabled={
+                !contenido.data ||
+                contenido.data.days.some((day) =>
+                  day.exercises.some(
+                    (exercise) => exercise.available === false,
+                  ),
+                )
+              }
+              onDecide={(decision) => {
+                review.mutate({
+                  routineId: propuesta.id,
+                  reviewToken: contenido.data?.reviewToken,
+                  ...decision,
+                });
+              }}
+            />
           </section>
         ) : (
           <section className="flex flex-col gap-3">

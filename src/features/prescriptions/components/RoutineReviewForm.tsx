@@ -20,6 +20,7 @@ export interface RoutineReviewFormProps {
   /** El tipo de la rutina no coincide con el objetivo vigente (RN-40). */
   goalMismatch?: boolean;
   pending: boolean;
+  approveDisabled?: boolean;
   error: unknown;
   onDecide: (decision: RoutineReviewDecision) => void;
 }
@@ -54,6 +55,7 @@ function mensajeDeError(error: unknown): string | null {
 export function RoutineReviewForm({
   goalMismatch = false,
   pending,
+  approveDisabled = false,
   error,
   onDecide,
 }: RoutineReviewFormProps) {
@@ -139,7 +141,9 @@ export function RoutineReviewForm({
       <div className="flex flex-wrap gap-2">
         <button
           type="button"
-          disabled={pending || (pideConfirmacion && !confirmado)}
+          disabled={
+            pending || approveDisabled || (pideConfirmacion && !confirmado)
+          }
           aria-busy={pending}
           className={PRIMARY_BUTTON}
           onClick={() =>
