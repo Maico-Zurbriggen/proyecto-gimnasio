@@ -57,15 +57,16 @@ const ROLE_META: Record<
     initials: 'AD',
     caption: 'Sesión activa',
   },
+  superadmin: {
+    title: 'Plataforma',
+    name: 'SuperAdmin',
+    initials: 'SA',
+    caption: 'Sesión activa',
+  },
 };
 
 function Wordmark({ role }: { role: ReturnType<typeof resolveAppRole> }) {
-  const home =
-    role === 'admin'
-      ? '/admin'
-      : role === 'entrenador'
-        ? '/entrenador'
-        : '/alumno';
+  const home = `/${role}`;
   return (
     <Link to={home} className="flex items-center gap-3 px-1 py-2">
       <span className="flex size-9 shrink-0 items-center justify-center rounded-[11px] bg-lime font-display text-sm font-black text-graphite">
@@ -168,7 +169,7 @@ function Sidebar({
           </ul>
         </div>
 
-        <div>
+        <div hidden={NAVIGATION[role].secondary.length === 0}>
           <p className="px-3 text-[10px] tracking-[0.13em] text-white/35 uppercase">
             Herramientas
           </p>
@@ -256,11 +257,7 @@ export function AppShell() {
               <span className="mt-1 block h-0.5 w-5 bg-current" />
             </button>
             <span className="eyebrow text-[#79776e]">
-              {role === 'alumno'
-                ? 'Alumno'
-                : role === 'entrenador'
-                  ? 'Entrenador'
-                  : 'Administrador'}
+              {ROLE_META[role].name}
             </span>
           </div>
           <div className="flex items-center gap-2 sm:gap-3">

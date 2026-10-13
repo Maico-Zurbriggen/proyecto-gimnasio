@@ -79,3 +79,9 @@ npm run check
 - Documentación canónica: [proyecto-gimnasio-documentacion](https://github.com/Maico-Zurbriggen/proyecto-gimnasio-documentacion).
 
 Para trabajo asistido por IA, comenzar por `AGENTS.md` y el `manifest.json` del repositorio documental.
+
+## Catálogo de ejercicios
+
+Implementación y operación de RepDB, habilitaciones y generación `2.0`: [documentación canónica](https://github.com/Maico-Zurbriggen/proyecto-gimnasio-documentacion/blob/main/architecture/exercise-catalog.md).
+
+Regenerar los tipos del catálogo desde backend con `npm run catalog:generate`; no editar `src/api/generated/catalog.ts` manualmente.

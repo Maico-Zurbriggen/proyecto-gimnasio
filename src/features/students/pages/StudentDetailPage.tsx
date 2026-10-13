@@ -7,6 +7,7 @@ import { BentoCard } from '../../../shared/ui/BentoCard';
 import { PageHeader } from '../../../shared/ui/PageHeader';
 import { SectionTabs } from '../../../shared/ui/SectionTabs';
 import { RoutinePrescriptionPanel } from '../../prescriptions/components/RoutinePrescriptionPanel';
+import { StudentPendingProposals } from '../../adaptation-proposals/components/StudentPendingProposals';
 import { ActiveRoutineCard } from '../components/ActiveRoutineCard';
 import { UnlockPanel } from '../components/UnlockPanel';
 import { useStudentStatus } from '../hooks/useStudentStatus';
@@ -169,7 +170,10 @@ export function StudentDetailPage() {
               </h2>
               <p className="mt-4 text-xs text-[#77756d]">
                 Faltas consecutivas: {student.faltasConsecutivas} · Altura:{' '}
-                {student.alturaCm} cm · {lastMeasurement}.
+                {student.alturaCm === null
+                  ? 'sin declarar'
+                  : `${String(student.alturaCm)} cm`}{' '}
+                · {lastMeasurement}.
               </p>
             </BentoCard>
           )}
@@ -183,9 +187,11 @@ export function StudentDetailPage() {
 
         {!student.bloqueado ? (
           <>
+            <StudentPendingProposals studentId={student.studentId} />
             <RoutinePrescriptionPanel
               key={`prescripcion-${student.studentId}`}
               studentId={student.studentId}
+              nombreAlumno={student.displayName}
             />
           </>
         ) : null}

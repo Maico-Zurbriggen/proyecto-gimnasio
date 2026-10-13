@@ -18,6 +18,16 @@ import {
 
 export interface RoutineGenerationPanelProps {
   studentId: string;
+  /**
+   * Destino del enlace "Ver rutina". El alumno va a `/alumno/rutina`; el
+   * entrenador, a la ficha del alumno que está mirando.
+   */
+  revisionHref?: string;
+  /**
+   * Si se informa, el panel habla del alumno en tercera persona (vista del
+   * entrenador con asignación vigente) en lugar de en segunda.
+   */
+  nombreAlumno?: string;
 }
 
 function createIdempotencyKey(): string {
@@ -31,7 +41,7 @@ function isPendingRoutineConflict(error: unknown): boolean {
   );
 }
 
-function requestErrorMessage(error: unknown): string {
+function requestErrorMessage(error: unknown, esEntrenador = false): string {
   if (!(error instanceof ApiError)) {
     return 'No pudimos solicitar la rutina. Probá de nuevo.';
   }
@@ -53,9 +63,21 @@ function requestErrorMessage(error: unknown): string {
         : 'El pedido no se puede cumplir con los ejercicios compatibles disponibles. Reformulá las indicaciones.';
     }
     case 'empty_prefiltered_catalog':
-      return 'No hay ejercicios compatibles con el inventario del gimnasio.';
+    case 'empty_gym_catalog':
+      return 'El administrador debe habilitar ejercicios del gimnasio antes de generar una rutina.';
+    case 'generation_context_changed':
+      return 'Cambió tu perfil, el inventario o un ejercicio seleccionado. Iniciá una nueva solicitud.';
+    case 'generation_unable':
+      return error.body &&
+        typeof error.body === 'object' &&
+        'reason' in error.body &&
+        typeof error.body.reason === 'string'
+        ? error.body.reason
+        : 'La IA no pudo proponer una rutina con la información disponible.';
     case 'student_not_found':
-      return 'Tu perfil de alumno ya no está disponible.';
+      return esEntrenador
+        ? 'El perfil del alumno ya no está disponible.'
+        : 'Tu perfil de alumno ya no está disponible.';
     case 'forbidden_not_assigned':
     case 'forbidden_role':
       return 'No tenés permiso para generar esta rutina.';
@@ -64,7 +86,9 @@ function requestErrorMessage(error: unknown): string {
     case 'missing_generation_input':
       return 'Escribí al menos una indicación para la nueva rutina.';
     case 'proposed_routine_already_exists':
-      return 'Ya tenés una rutina propuesta pendiente de revisión.';
+      return esEntrenador
+        ? 'El alumno ya tiene una rutina propuesta pendiente de revisión.'
+        : 'Ya tenés una rutina propuesta pendiente de revisión.';
     case 'routine_regeneration_not_allowed':
       return 'La regeneración de prueba sólo está habilitada en el entorno local.';
     case 'invalid_generated_routine':
@@ -95,7 +119,10 @@ function statusLabel(status: RoutineGenerationStatus): string {
 
 export function RoutineGenerationPanel({
   studentId,
+  revisionHref = '/alumno/rutina',
+  nombreAlumno,
 }: RoutineGenerationPanelProps) {
+  const esEntrenador = nombreAlumno !== undefined;
   const [instructions, setInstructions] = useState('');
   const [tracking, setTracking] = useState<GenerationTracking | null>(() =>
     loadGenerationTracking(studentId),
@@ -231,8 +258,20 @@ export function RoutineGenerationPanel({
         {editingRegeneration ? 'Regenerar rutina' : 'Nueva rutina'}
       </h2>
       <p className="mt-2 max-w-2xl text-xs leading-5 text-[#77756d]">
-        Agregá indicaciones para complementar tu perfil, tus condiciones y el
-        equipamiento que el backend valida antes de crear la propuesta.
+        {esEntrenador ? (
+          <>
+            Agregá indicaciones para complementar el perfil de {nombreAlumno} y
+            su historial. La IA elegirá entre los ejercicios habilitados del
+            gimnasio y la propuesta quedará pendiente de tu revisión antes de
+            regir.
+          </>
+        ) : (
+          <>
+            Agregá indicaciones para complementar tu perfil y tu historial. La
+            IA elegirá entre los ejercicios habilitados del gimnasio y el
+            entrenador revisará la propuesta antes de ponerla en vigencia.
+          </>
+        )}
       </p>
 
       {!tracking?.requestId ? (
@@ -266,12 +305,12 @@ export function RoutineGenerationPanel({
           />
           {request.error ? (
             <p role="alert" className="text-coral-strong text-xs font-medium">
-              {requestErrorMessage(request.error)}
+              {requestErrorMessage(request.error, esEntrenador)}
             </p>
           ) : null}
           {isPendingRoutineConflict(request.error) ? (
             <Link
-              to="/alumno/rutina"
+              to={revisionHref}
               className="w-fit rounded-full bg-graphite px-4 py-2 text-xs font-bold text-white"
             >
               Ver rutina pendiente de revisión
@@ -352,14 +391,14 @@ export function RoutineGenerationPanel({
               actions={
                 pendingRoutineConflict ? (
                   <Link
-                    to="/alumno/rutina"
+                    to={revisionHref}
                     className="rounded-full bg-graphite px-3.5 py-1.5 text-xs font-bold text-white"
                   >
                     Ver rutina pendiente de revisión
                   </Link>
                 ) : snapshot.routineId || finalize.isSuccess ? (
                   <Link
-                    to="/alumno/rutina"
+                    to={revisionHref}
                     className="rounded-full bg-graphite px-3.5 py-1.5 text-xs font-bold text-white"
                   >
                     Ver rutina
@@ -386,10 +425,13 @@ export function RoutineGenerationPanel({
                           (snapshot.routineId || finalize.isSuccess)
                         ? 'La rutina propuesta quedó creada y está lista para revisión.'
                         : snapshot.status === 'COMPLETADA' && finalize.error
-                          ? requestErrorMessage(finalize.error)
+                          ? requestErrorMessage(finalize.error, esEntrenador)
                           : snapshot.status === 'CANCELADA'
                             ? 'La solicitud fue cancelada y no produjo una rutina.'
-                            : `No se pudo completar la generación${snapshot.error ? ` (${snapshot.error})` : ''}.`}
+                            : snapshot.error === 'context_capacity_exceeded'
+                              ? 'El contexto completo supera la capacidad configurada del modelo. El administrador debe revisar la configuración del servicio.'
+                              : (snapshot.reason ??
+                                'No se pudo completar la generación. Intentá con una nueva solicitud.')}
               </p>
               {snapshot.violaciones?.length ? (
                 <ul className="mt-2 list-disc pl-5">
