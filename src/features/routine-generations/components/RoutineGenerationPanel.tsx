@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { ApiError } from '../../../api/client';
 import type { RoutineGenerationStatus } from '../../../api/routineGenerations';
 import { Banner } from '../../../shared/components/Banner';
+import { useStudentRoutines } from '../../prescriptions/hooks/usePrescriptions';
 import { BentoCard } from '../../../shared/ui/BentoCard';
 import { requestErrorMessage } from '../lib/generationErrors';
 import { useRequestRoutineGeneration } from '../hooks/useRequestRoutineGeneration';
@@ -146,6 +147,29 @@ export function RoutineGenerationPanel({
       // la respuesta se perdió después de que backend aceptara la solicitud.
     }
   };
+
+  // Si la propuesta de esta solicitud ya se resolvió (el entrenador la
+  // rechazó o la aprobó), el seguimiento termina: vuelve el formulario.
+  const routines = useStudentRoutines(studentId);
+  const hasUnresolvedRoutine = routines.data?.some(
+    (routine) => routine.state === 'PROPUESTA' || routine.state === 'BLOQUEADA',
+  );
+  const finalized = Boolean(snapshot?.routineId) || finalize.isSuccess;
+  const proposalResolved =
+    finalized &&
+    routines.isSuccess &&
+    !routines.isFetching &&
+    hasUnresolvedRoutine === false;
+  useEffect(() => {
+    if (proposalResolved) {
+      clearGenerationTracking(studentId);
+      setTracking(null);
+      setInstructions('');
+      request.reset();
+      finalize.reset();
+    }
+    // Sólo cuando la propuesta pasa a resuelta.
+  }, [proposalResolved]);
 
   const startAnother = () => {
     clearGenerationTracking(studentId);

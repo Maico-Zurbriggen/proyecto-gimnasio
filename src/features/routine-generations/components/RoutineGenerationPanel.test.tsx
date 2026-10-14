@@ -539,4 +539,32 @@ describe('RoutineGenerationPanel', () => {
       }),
     ).toHaveAttribute('href', `/entrenador/alumnos/${STUDENT_ID}/rutina`);
   });
+
+  it('vuelve al formulario cuando la propuesta ya fue resuelta por el entrenador', async () => {
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({ idempotencyKey: 'key-1', requestId: REQUEST_ID }),
+    );
+    mockApi({
+      [`GET /students/${STUDENT_ID}/routine-generations/${REQUEST_ID}`]: {
+        body: {
+          requestId: REQUEST_ID,
+          status: 'COMPLETADA',
+          estructuraCandidata: { dias: [] },
+          violaciones: null,
+          error: null,
+          routineId: ROUTINE_ID,
+        },
+      },
+      // Sin rutina PROPUESTA ni BLOQUEADA: la anterior fue rechazada.
+      [`GET /students/${STUDENT_ID}/routines`]: { body: [] },
+    });
+    renderPanel();
+
+    expect(await screen.findByLabelText('Indicaciones')).toBeVisible();
+    expect(
+      screen.getByRole('button', { name: 'Generar nueva rutina' }),
+    ).toBeVisible();
+    expect(localStorage.getItem(STORAGE_KEY)).toBeNull();
+  });
 });
