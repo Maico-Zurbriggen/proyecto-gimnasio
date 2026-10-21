@@ -20,6 +20,13 @@ const STATE_FILTERS: { value: HistoryStateFilter; label: string }[] = [
   { value: 'BLOQUEADA', label: 'Bloqueadas' },
 ];
 
+const STATE_CHIPS: Record<string, string> = {
+  EN_CURSO: 'chip-warn shrink-0',
+  COMPLETADA: 'chip-ok shrink-0',
+  ABANDONADA: 'chip-danger shrink-0',
+  BLOQUEADA: 'chip-neutral shrink-0',
+};
+
 const STATE_LABELS: Record<string, string> = {
   EN_CURSO: 'En curso',
   COMPLETADA: 'Completada',
@@ -59,7 +66,7 @@ function SessionDetail({
             type="button"
             onClick={() => void detail.refetch()}
             disabled={detail.isFetching}
-            className="rounded-full bg-graphite px-3.5 py-1.5 text-xs font-bold text-white disabled:opacity-60"
+            className="btn-primary btn-sm"
           >
             Reintentar
           </button>
@@ -72,30 +79,27 @@ function SessionDetail({
 
   const completed = detail.data.setRecords.filter((r) => r.completed).length;
   return (
-    <div className="mt-3 border-t border-black/10 pt-3">
-      <p className="text-xs text-[#55534c]">
+    <div className="mt-4 border-t border-[#292823]/8 pt-4">
+      <p className="text-xs font-semibold text-[#68675f]">
         {completed} de {detail.data.setRecords.length} series completadas
         {detail.data.aptitudeWarning ? ' · aptitud observada al iniciar' : ''}
       </p>
-      <ul className="mt-2 flex flex-col gap-2">
+      <ul className="mt-3 grid gap-2 sm:grid-cols-2">
         {detail.data.setRecords.map((record) => (
-          <li
-            key={record.position}
-            className="rounded-lg bg-black/[0.03] p-2 text-xs"
-          >
+          <li key={record.position} className="surface-muted p-3 text-xs">
             <p className="font-semibold">
               Serie {record.position} ·{' '}
               {record.performedExerciseName ?? record.prescribedExerciseName}
               {record.completed ? ' ✓' : ''}
             </p>
-            <p className="mt-0.5 text-[#55534c]">
+            <p className="mt-0.5 text-[#68675f]">
               Prescripto: {record.prescribedMinRepetitions}–
               {record.prescribedMaxRepetitions} reps
               {record.prescribedLoad !== null
                 ? ` · ${record.prescribedLoad} kg`
                 : ''}
             </p>
-            <p className="mt-0.5 text-[#55534c]">
+            <p className="mt-0.5 text-[#68675f]">
               Ejecutado:{' '}
               {record.performedRepetitions !== null ||
               record.performedLoad !== null
@@ -138,12 +142,9 @@ export function TrainingHistoryPage({ studentId }: TrainingHistoryPageProps) {
         title="Tu entrenamiento, con contexto"
         description="Sesiones realizadas, con lo prescripto y lo ejecutado de cada una."
       />
-      <main className="flex flex-col gap-4 px-4 pb-10 sm:px-7 lg:px-9">
+      <main className="page-body flex flex-col gap-6">
         <BentoCard>
-          <label
-            htmlFor="history-state-filter"
-            className="text-xs font-semibold"
-          >
+          <label htmlFor="history-state-filter" className="field-label block">
             Filtrar por estado
           </label>
           <select
@@ -154,7 +155,7 @@ export function TrainingHistoryPage({ studentId }: TrainingHistoryPageProps) {
               setPage(1);
               setExpandedId(null);
             }}
-            className="mt-1 w-full rounded-lg border border-black/15 bg-white px-2 py-1.5 text-sm"
+            className="field mt-2 sm:max-w-xs"
           >
             {STATE_FILTERS.map((option) => (
               <option key={option.value} value={option.value}>
@@ -175,7 +176,7 @@ export function TrainingHistoryPage({ studentId }: TrainingHistoryPageProps) {
                 type="button"
                 onClick={() => void history.refetch()}
                 disabled={history.isFetching}
-                className="rounded-full bg-graphite px-3.5 py-1.5 text-xs font-bold text-white disabled:opacity-60"
+                className="btn-primary btn-sm"
               >
                 Reintentar
               </button>
@@ -194,15 +195,14 @@ export function TrainingHistoryPage({ studentId }: TrainingHistoryPageProps) {
         !history.isError &&
         history.data.items.length === 0 ? (
           <BentoCard>
-            <h2 className="text-sm font-semibold">Sin sesiones todavía</h2>
-            <p className="mt-2 text-sm text-[#55534c]">
+            <h2 className="font-display text-lg font-semibold tracking-tight">
+              Sin sesiones todavía
+            </h2>
+            <p className="mt-2 max-w-2xl text-sm leading-relaxed text-[#68675f]">
               Cuando completes tu primera sesión la vas a ver acá, con cada
               serie prescripta y ejecutada.
             </p>
-            <Link
-              to="/alumno/sesion"
-              className="mt-3 inline-block rounded-full bg-graphite px-4 py-2 text-xs font-bold text-white"
-            >
+            <Link to="/alumno/sesion" className="btn-primary mt-4">
               Ir a la sesión
             </Link>
           </BentoCard>
@@ -218,36 +218,40 @@ export function TrainingHistoryPage({ studentId }: TrainingHistoryPageProps) {
                 return (
                   <li
                     key={item.id}
-                    className="rounded-xl border border-black/10 p-3"
+                    className="row-interactive rounded-2xl border border-[#292823]/8 bg-white/70 p-4"
                   >
                     <div className="flex items-baseline justify-between gap-2">
-                      <h2 className="text-sm font-semibold">
+                      <h2 className="text-sm font-bold">
                         {formatOccurredOn(item.occurredOn)} ·{' '}
                         {item.routineDayName}
                       </h2>
-                      <span className="shrink-0 rounded-full bg-black/[0.06] px-2 py-0.5 text-[11px] font-bold">
+                      <span
+                        className={
+                          STATE_CHIPS[item.state] ?? 'chip-neutral shrink-0'
+                        }
+                      >
                         {STATE_LABELS[item.state] ?? item.state}
                       </span>
                     </div>
-                    <p className="mt-1 text-xs text-[#55534c]">
+                    <p className="mt-1 text-xs text-[#68675f]">
                       {item.completedSeries} de {item.totalSeries} series
                       {formatDuration(item.startedAt, item.completedAt)
                         ? ` · ${formatDuration(item.startedAt, item.completedAt)}`
                         : ''}
                     </p>
-                    <div className="mt-2 flex gap-2">
+                    <div className="mt-3 flex flex-wrap gap-2">
                       <button
                         type="button"
                         onClick={() => setExpandedId(expanded ? null : item.id)}
                         aria-expanded={expanded}
-                        className="rounded-full border border-black/20 px-3 py-1.5 text-xs font-bold"
+                        className="btn-secondary btn-sm"
                       >
                         {expanded ? 'Ocultar detalle' : 'Ver detalle'}
                       </button>
                       {item.state === 'EN_CURSO' ? (
                         <Link
                           to="/alumno/sesion"
-                          className="rounded-full bg-graphite px-3 py-1.5 text-xs font-bold text-white"
+                          className="btn-primary btn-sm"
                         >
                           Retomar
                         </Link>
@@ -263,16 +267,16 @@ export function TrainingHistoryPage({ studentId }: TrainingHistoryPageProps) {
                 );
               })}
             </ul>
-            <div className="mt-4 flex items-center justify-between">
+            <div className="mt-5 flex items-center justify-between gap-3">
               <button
                 type="button"
                 onClick={() => setPage((previous) => Math.max(1, previous - 1))}
                 disabled={page <= 1}
-                className="rounded-full border border-black/20 px-3 py-1.5 text-xs font-bold disabled:opacity-40"
+                className="btn-secondary btn-sm"
               >
                 Anterior
               </button>
-              <p className="text-xs text-[#77756d]" role="status">
+              <p className="text-center text-xs text-[#77756d]" role="status">
                 Página {history.data.page} de {totalPages} ·{' '}
                 {history.data.total} sesiones
               </p>
@@ -280,7 +284,7 @@ export function TrainingHistoryPage({ studentId }: TrainingHistoryPageProps) {
                 type="button"
                 onClick={() => setPage((previous) => previous + 1)}
                 disabled={page >= totalPages}
-                className="rounded-full border border-black/20 px-3 py-1.5 text-xs font-bold disabled:opacity-40"
+                className="btn-secondary btn-sm"
               >
                 Siguiente
               </button>
