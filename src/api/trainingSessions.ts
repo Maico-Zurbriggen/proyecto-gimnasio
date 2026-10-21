@@ -211,3 +211,46 @@ export async function fetchTrainingSession(
   );
   return trainingSessionSchema.parse(body);
 }
+
+/** Contrato de precarga de series (HU22-T2). */
+export const origenDePrecargaSchema = z.enum([
+  'ULTIMA_EJECUCION',
+  'CARGA_SUGERIDA',
+  'SIN_DATOS',
+]);
+
+export const seriePrecargadaSchema = z.object({
+  position: z.number().int(),
+  exerciseId: z.string(),
+  repeticionesMinimas: z.number().int(),
+  repeticionesMaximas: z.number().int(),
+  warmup: z.boolean(),
+  carga: z.number().nullable(),
+  repeticiones: z.number().int().nullable(),
+  origen: origenDePrecargaSchema,
+  antiguedadEnDias: z.number().int().nullable(),
+});
+
+export const setPreloadSchema = z.object({
+  studentId: z.string(),
+  routineDayId: z.string(),
+  series: z.array(seriePrecargadaSchema),
+  calculadoEl: z.string(),
+});
+
+export type OrigenDePrecarga = z.infer<typeof origenDePrecargaSchema>;
+export type SeriePrecargada = z.infer<typeof seriePrecargadaSchema>;
+export type SetPreload = z.infer<typeof setPreloadSchema>;
+
+/** Valores con los que se presenta cada serie del día (RF-030). */
+export async function fetchSetPreload(
+  studentId: string,
+  routineDayId: string,
+  signal?: AbortSignal,
+): Promise<SetPreload> {
+  const body = await apiGet(
+    `/students/${encodeURIComponent(studentId)}/routine-days/${encodeURIComponent(routineDayId)}/set-preload`,
+    { signal },
+  );
+  return setPreloadSchema.parse(body);
+}
