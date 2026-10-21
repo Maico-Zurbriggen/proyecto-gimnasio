@@ -53,18 +53,10 @@ export function PendingMeasurementsForm({
     return issue?.message;
   };
 
-  const inputClass = (invalid: boolean) =>
-    `rounded-xl border px-3.5 py-2.5 text-sm font-medium text-ink outline-none transition focus:border-graphite ${
-      invalid ? 'border-coral-strong' : 'border-[#292823]/15 bg-white'
-    }`;
-
   return (
-    <form
-      className="flex flex-col gap-4 sm:flex-row"
-      aria-label="Métricas adeudadas"
-    >
-      <label className="flex flex-1 flex-col gap-1.5">
-        <span className="eyebrow text-[#77756d]">Peso (kg)</span>
+    <form className="grid gap-4 sm:grid-cols-2" aria-label="Métricas adeudadas">
+      <label className="flex flex-col gap-1.5">
+        <span className="field-label">Peso (kg)</span>
         <input
           type="number"
           step="0.1"
@@ -80,17 +72,17 @@ export function PendingMeasurementsForm({
             setTouched((current) => ({ ...current, weightKg: true }))
           }
           aria-invalid={Boolean(fieldError('weightKg'))}
-          className={inputClass(Boolean(fieldError('weightKg')))}
+          className="field"
         />
         {fieldError('weightKg') ? (
-          <span className="text-xs font-medium text-coral-strong" role="alert">
+          <span className="field-error" role="alert">
             {fieldError('weightKg')}
           </span>
         ) : null}
       </label>
 
-      <label className="flex flex-1 flex-col gap-1.5">
-        <span className="eyebrow text-[#77756d]">Altura (cm)</span>
+      <label className="flex flex-col gap-1.5">
+        <span className="field-label">Altura (cm)</span>
         <input
           type="number"
           step="1"
@@ -106,10 +98,10 @@ export function PendingMeasurementsForm({
             setTouched((current) => ({ ...current, heightCm: true }))
           }
           aria-invalid={Boolean(fieldError('heightCm'))}
-          className={inputClass(Boolean(fieldError('heightCm')))}
+          className="field"
         />
         {fieldError('heightCm') ? (
-          <span className="text-xs font-medium text-coral-strong" role="alert">
+          <span className="field-error" role="alert">
             {fieldError('heightCm')}
           </span>
         ) : null}

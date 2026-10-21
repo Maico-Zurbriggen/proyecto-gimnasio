@@ -9,20 +9,14 @@ import { formatDate } from '../../../shared/lib/format';
 
 /** Criterio front 9: la severidad se lee como texto, además del color. */
 const SEVERIDAD: Record<Severity, { texto: string; clase: string }> = {
-  LEVE: { texto: 'Leve', clase: 'bg-[#fdf3e0] text-[#5a3d0c]' },
-  MODERADA: { texto: 'Moderada', clase: 'bg-[#fbe2d6] text-[#6b2f12]' },
-  SEVERA: { texto: 'Severa', clase: 'bg-[#fbe7e5] text-[#7a2a20]' },
+  LEVE: { texto: 'Leve', clase: 'chip-neutral' },
+  MODERADA: { texto: 'Moderada', clase: 'chip-warn' },
+  SEVERA: { texto: 'Severa', clase: 'chip-danger' },
 };
 
 export function SeverityChip({ severity }: { severity: Severity }) {
   const s = SEVERIDAD[severity];
-  return (
-    <span
-      className={`rounded-full px-2.5 py-1 text-[11px] font-bold whitespace-nowrap ${s.clase}`}
-    >
-      Severidad: {s.texto}
-    </span>
-  );
+  return <span className={s.clase}>Severidad: {s.texto}</span>;
 }
 
 /**
@@ -46,17 +40,25 @@ export function ConditionsList({
   return (
     <div className="flex flex-col gap-5">
       <section aria-labelledby="condiciones-vigentes">
-        <h3 id="condiciones-vigentes" className="eyebrow mb-2 text-[#5f5d55]">
+        <h3
+          id="condiciones-vigentes"
+          className="eyebrow mb-2 flex items-center gap-2 text-[#5f5d55]"
+        >
           Vigentes
+          <span className="chip-neutral tracking-normal">
+            {vigentes.length}
+          </span>
         </h3>
         {vigentes.length === 0 ? (
-          <p className="text-sm text-[#5f5d55]">No hay condiciones vigentes.</p>
+          <p className="surface-muted text-center text-sm text-[#68675f]">
+            No hay condiciones vigentes.
+          </p>
         ) : (
           <ul className="flex flex-col gap-2">
             {vigentes.map((c) => (
               <li
                 key={c.id}
-                className="flex flex-col gap-2 rounded-2xl border border-[#292823]/8 p-4"
+                className="card-interactive flex flex-col gap-2 rounded-2xl border border-[#292823]/8 bg-white/70 p-4 hover:bg-white"
               >
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <p className="text-sm font-bold">
@@ -64,11 +66,11 @@ export function ConditionsList({
                   </p>
                   <SeverityChip severity={c.severity} />
                 </div>
-                <p className="text-xs text-[#55534c]">
+                <p className="text-xs text-[#68675f]">
                   Desde el {formatDate(c.startsOn)}
                 </p>
                 {c.description ? (
-                  <p className="text-xs text-[#55534c]">{c.description}</p>
+                  <p className="text-xs text-[#68675f]">{c.description}</p>
                 ) : null}
                 {action ? action(c) : null}
               </li>
@@ -81,15 +83,18 @@ export function ConditionsList({
         <section aria-labelledby="condiciones-historial">
           <h3
             id="condiciones-historial"
-            className="eyebrow mb-2 text-[#5f5d55]"
+            className="eyebrow mb-2 flex items-center gap-2 text-[#5f5d55]"
           >
             Historial
+            <span className="chip-neutral tracking-normal">
+              {cerradas.length}
+            </span>
           </h3>
           <ul className="flex flex-col gap-2">
             {cerradas.map((c) => (
               <li
                 key={c.id}
-                className="flex flex-col gap-1 rounded-2xl border border-dashed border-[#292823]/15 p-4 text-[#55534c]"
+                className="surface-muted row-interactive flex flex-col gap-1 text-[#68675f]"
               >
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <p className="text-sm font-semibold">

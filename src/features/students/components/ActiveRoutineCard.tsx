@@ -47,13 +47,13 @@ export function ActiveRoutineCard({
   let content;
   if (!studentUserId) {
     content = (
-      <p className="mt-3 text-xs text-[#8c897f]">
+      <p className="mt-3 text-sm text-[#68675f]">
         Este alumno no tiene usuario en el backend.
       </p>
     );
   } else if (isPending) {
     content = (
-      <p role="status" className="mt-3 text-xs text-[#8c897f]">
+      <p role="status" className="mt-3 text-sm text-[#68675f]">
         Consultando la rutina vigente…
       </p>
     );
@@ -66,27 +66,25 @@ export function ActiveRoutineCard({
 
     if (sinRutina) {
       content = (
-        <h3 className="font-display mt-3 text-xl font-semibold tracking-[-0.05em]">
+        <h3 className="font-display mt-3 text-lg font-semibold tracking-tight">
           Sin rutina vigente
         </h3>
       );
     } else if (sinAsignacion) {
       content = (
-        <p className="mt-3 text-xs text-[#7a2a20]">
+        <p className="field-error mt-3">
           Este alumno no está asignado a tu cartera.
         </p>
       );
     } else {
       content = (
         <div className="mt-3 flex flex-col items-start gap-3">
-          <p className="text-xs text-[#7a2a20]">
-            No pudimos consultar la rutina vigente.
-          </p>
+          <p className="field-error">No pudimos consultar la rutina vigente.</p>
           <button
             type="button"
             onClick={() => void refetch()}
             disabled={isFetching}
-            className="rounded-full bg-graphite px-3.5 py-1.5 text-xs font-bold text-white transition hover:brightness-110 disabled:opacity-60"
+            className="btn-secondary btn-sm"
           >
             Reintentar
           </button>
@@ -96,22 +94,25 @@ export function ActiveRoutineCard({
   } else {
     content = (
       <>
-        <h3 className="font-display mt-3 text-xl font-semibold tracking-[-0.05em]">
+        <h3 className="font-display mt-3 text-lg font-semibold tracking-tight">
           {humanizeEnum(data.routineType)}
         </h3>
-        <p className="mt-1 text-xs text-[#77756d]">
+        <p className="mt-1 text-sm text-[#68675f]">
           {data.targetWeeklyFrequency} días por semana · ciclo de{' '}
           {data.duracionCicloDias} días
           {data.currentVersionNumber
             ? ` · versión ${data.currentVersionNumber}`
             : ''}
         </p>
-        <p className="mt-3 text-xs font-semibold">{formatRenewal(data)}</p>
+        <p className="surface-muted mt-4 text-sm font-semibold">
+          {formatRenewal(data)}
+        </p>
         <Link
           to={routineHref}
-          className="mt-6 inline-flex items-center gap-2 text-xs font-bold text-[#586d26]"
+          className="mt-5 inline-flex items-center gap-2 text-sm font-bold text-[#586d26] hover:underline"
         >
-          Ver rutina completa <ArrowUpRight className="size-3.5" />
+          Ver rutina completa{' '}
+          <ArrowUpRight className="size-4" aria-hidden="true" />
         </Link>
       </>
     );

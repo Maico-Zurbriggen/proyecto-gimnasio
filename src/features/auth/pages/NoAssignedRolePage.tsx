@@ -6,17 +6,17 @@ export function NoAssignedRolePage() {
 
   return (
     <main className="flex min-h-dvh items-center justify-center px-4 py-10">
-      <section className="w-full max-w-md rounded-2xl border border-[#292823]/10 bg-white p-6 text-center">
+      <section className="w-full max-w-md rounded-3xl border border-[#292823]/8 bg-white p-6 text-center sm:p-8">
         <p className="eyebrow text-[#77756d]">Acceso pendiente</p>
         <h1 className="mt-2 font-display text-2xl font-black text-graphite">
           Tu cuenta no tiene un rol asignado.
         </h1>
-        <p className="mt-3 text-sm text-[#6c6a62]">
+        <p className="mt-3 text-sm text-[#68675f]">
           Pedile a un administrador del gimnasio que revise tus permisos.
         </p>
         <button
           type="button"
-          className="mt-6 rounded-full bg-graphite px-4 py-2.5 text-sm font-bold text-white"
+          className="btn-primary mt-6 w-full"
           onClick={() => void logout()}
         >
           Cerrar sesión

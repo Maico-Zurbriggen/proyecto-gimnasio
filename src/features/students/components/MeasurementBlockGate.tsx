@@ -22,7 +22,7 @@ export function MeasurementBlockGate() {
           kicker="Estado de mediciones"
           title="No pudimos verificar tu acceso"
         />
-        <main className="px-4 pb-10 sm:px-7 lg:px-9">
+        <main className="page-body">
           <Banner
             variant="danger"
             title="No pudimos consultar el estado de tus mediciones."
@@ -30,7 +30,7 @@ export function MeasurementBlockGate() {
               <button
                 type="button"
                 onClick={() => void status.refetch()}
-                className="rounded-full bg-graphite px-3.5 py-1.5 text-xs font-bold text-white"
+                className="btn-primary btn-sm"
               >
                 Reintentar
               </button>
@@ -59,7 +59,7 @@ export function MeasurementBlockGate() {
         }
         description="Alcanzaste tres ciclos consecutivos sin confirmar peso y altura. Tu cuenta sigue activa, pero las demás funciones de alumno permanecen restringidas."
       />
-      <main className="px-4 pb-10 sm:px-7 lg:px-9">
+      <main className="page-body">
         <BentoCard className="max-w-2xl">
           {awaitingApproval ? (
             <Banner variant="info" title="Mediciones enviadas">
@@ -72,7 +72,7 @@ export function MeasurementBlockGate() {
             <div className="flex flex-col gap-5">
               <div>
                 <p className="eyebrow text-[#77756d]">Medición pendiente</p>
-                <p className="mt-2 text-sm text-[#5f5d56]">
+                <p className="mt-2 text-sm text-[#68675f]">
                   Cargá ambos valores. La operación no te desbloquea de forma
                   automática: después deberá aprobarla tu entrenador.
                 </p>

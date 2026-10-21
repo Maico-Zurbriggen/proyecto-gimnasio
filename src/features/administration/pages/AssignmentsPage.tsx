@@ -35,10 +35,10 @@ function FilaAlumno({
   const sinCambios = elegido === (student.trainer?.id ?? '');
 
   return (
-    <li className="flex flex-col gap-3 border-b border-[#292823]/7 px-4 py-4 last:border-b-0 lg:flex-row lg:items-center lg:justify-between">
+    <li className="flex flex-col gap-3 rounded-2xl border border-[#292823]/8 bg-white/70 p-4 hover:border-[#292823]/15 hover:bg-white lg:flex-row lg:items-center lg:justify-between">
       <div className="min-w-0">
         <p className="text-sm font-bold">{student.displayName}</p>
-        <p className="mt-0.5 text-xs break-all text-[#5f5d55]">
+        <p className="mt-0.5 text-xs break-all text-[#77756d]">
           {student.email}
         </p>
         <p className="mt-1 text-xs">
@@ -66,7 +66,7 @@ function FilaAlumno({
             id={`${ids}-entrenador`}
             value={elegido}
             onChange={(event) => setElegido(event.target.value)}
-            className="rounded-xl border border-[#292823]/15 bg-white px-3 py-2 text-sm font-medium"
+            className="field w-auto"
           >
             <option value="">Elegí un entrenador</option>
             {opciones.map((trainer) => (
@@ -81,7 +81,7 @@ function FilaAlumno({
             disabled={!elegido || sinCambios || asignar.isPending}
             aria-busy={asignar.isPending}
             onClick={() => asignar.mutate()}
-            className="bg-graphite rounded-full px-4 py-2 text-sm font-bold text-white transition hover:brightness-110 disabled:opacity-50"
+            className="btn-primary btn-sm"
           >
             {asignar.isPending
               ? 'Guardando…'
@@ -90,7 +90,7 @@ function FilaAlumno({
                 : 'Asignar'}
           </button>
         </div>
-        <p aria-live="polite" className="text-xs">
+        <p aria-live="polite" className="text-xs text-[#68675f]">
           {asignar.isSuccess
             ? `Asignado a ${asignar.data.trainer.displayName}.${asignar.data.unblockedRoutines > 0 ? ' Sus rutinas pendientes pasaron a la bandeja del entrenador.' : ''}`
             : asignar.isError
@@ -126,10 +126,10 @@ export function AssignmentsPage() {
         title="Entrenadores y alumnos."
         description="Cada alumno necesita un entrenador asignado para que sus rutinas se revisen y entren en vigencia."
       />
-      <main className="px-4 pb-10 sm:px-7 lg:px-9">
+      <main className="page-body">
         <BentoCard>
           {overview.isPending ? (
-            <p role="status" className="text-sm text-[#5f5d55]">
+            <p role="status" className="text-sm text-[#77756d]">
               Cargando alumnos…
             </p>
           ) : overview.isError ? (
@@ -138,32 +138,29 @@ export function AssignmentsPage() {
               <button
                 type="button"
                 onClick={() => void overview.refetch()}
-                className="bg-graphite rounded-full px-4 py-2 text-sm font-bold text-white"
+                className="btn-secondary btn-sm"
               >
                 Reintentar
               </button>
             </div>
           ) : alumnos.length === 0 ? (
-            <p className="text-sm text-[#5f5d55]">
+            <p className="text-sm text-[#77756d]">
               Todavía no hay alumnos en el gimnasio.
             </p>
           ) : (
             <>
-              <p className="eyebrow text-[#5f5d55]">
+              <p className="eyebrow text-[#77756d]">
                 {sinEntrenador === 0
                   ? 'Todos los alumnos tienen entrenador'
                   : `${String(sinEntrenador)} ${sinEntrenador === 1 ? 'alumno' : 'alumnos'} sin entrenador`}
               </p>
               {overview.data.trainers.length === 0 ? (
-                <p className="mt-3 text-sm text-[#5f5d55]">
+                <p className="mt-3 text-sm text-[#77756d]">
                   No hay entrenadores en el gimnasio. Invitá uno desde
                   Invitaciones.
                 </p>
               ) : null}
-              <ul
-                aria-label="Alumnos"
-                className="mt-4 overflow-hidden rounded-2xl border border-[#292823]/8"
-              >
+              <ul aria-label="Alumnos" className="mt-4 flex flex-col gap-3">
                 {alumnos.map((student) => (
                   <FilaAlumno
                     key={student.studentId}

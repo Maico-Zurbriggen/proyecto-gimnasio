@@ -1,13 +1,14 @@
 import { useTrainerStudents } from '../hooks/useTrainerStudents';
+import { matchesStudentName } from '../lib/matchesStudentName';
 import { StudentRow } from './StudentRow';
 
 /** Cartera del entrenador desde `GET /trainers/me/students`, con carga, vacío y error. */
-export function StudentList() {
+export function StudentList({ query = '' }: { query?: string }) {
   const { data, error, isPending, isFetching, refetch } = useTrainerStudents();
 
   if (isPending) {
     return (
-      <p role="status" className="text-xs text-[#8c897f]">
+      <p role="status" className="text-sm text-[#68675f]">
         Cargando alumnos…
       </p>
     );
@@ -16,12 +17,12 @@ export function StudentList() {
   if (error) {
     return (
       <div className="flex flex-col items-start gap-3">
-        <p className="text-xs text-[#7a2a20]">No pudimos cargar tu cartera.</p>
+        <p className="field-error">No pudimos cargar tu cartera.</p>
         <button
           type="button"
           onClick={() => void refetch()}
           disabled={isFetching}
-          className="rounded-full bg-graphite px-3.5 py-1.5 text-xs font-bold text-white transition hover:brightness-110 disabled:opacity-60"
+          className="btn-secondary btn-sm"
         >
           Reintentar
         </button>
@@ -31,15 +32,29 @@ export function StudentList() {
 
   if (data.length === 0) {
     return (
-      <p className="text-xs text-[#8c897f]">
+      <p className="surface-muted py-10 text-center text-sm text-[#68675f]">
         Todavía no tenés alumnos asignados.
       </p>
     );
   }
 
+  const visibles = data.filter((student) =>
+    matchesStudentName(student.displayName, query),
+  );
+  if (visibles.length === 0) {
+    return (
+      <p
+        role="status"
+        className="surface-muted py-10 text-center text-sm text-[#68675f]"
+      >
+        Ningún alumno coincide con «{query.trim()}».
+      </p>
+    );
+  }
+
   return (
-    <div className="space-y-2">
-      {data.map((student) => (
+    <div className="space-y-3">
+      {visibles.map((student) => (
         <StudentRow key={student.studentId} student={student} />
       ))}
     </div>

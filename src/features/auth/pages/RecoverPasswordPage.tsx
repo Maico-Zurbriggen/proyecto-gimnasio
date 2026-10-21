@@ -21,9 +21,7 @@ import {
 } from '../components/NewPasswordFields';
 
 const FORMATO_CORREO = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const BOTON =
-  'bg-graphite rounded-full px-4 py-2.5 text-sm font-bold text-white transition hover:brightness-110 disabled:opacity-60';
-
+const BOTON = 'btn-primary';
 function Marco({
   subtitulo,
   children,
@@ -33,7 +31,7 @@ function Marco({
 }) {
   return (
     <main className="flex min-h-dvh items-center justify-center px-4 py-10">
-      <div className="w-full max-w-sm">
+      <div className="w-full max-w-md">
         <div className="mb-7 flex items-center gap-3">
           <span className="bg-lime text-graphite font-display flex size-9 shrink-0 items-center justify-center rounded-[11px] text-sm font-black">
             P
@@ -47,7 +45,7 @@ function Marco({
             </p>
           </div>
         </div>
-        <div className="flex flex-col gap-4 rounded-2xl border border-[#292823]/10 bg-white p-6">
+        <div className="flex flex-col gap-4 rounded-3xl border border-[#292823]/8 bg-white p-6 sm:p-8">
           {children}
         </div>
       </div>
@@ -114,7 +112,7 @@ function PedirEnlace() {
             pedirlo hasta dos veces por día.
           </p>
           <div className="flex flex-col gap-1.5">
-            <label htmlFor={`${ids}-correo`} className="eyebrow text-[#5f5d55]">
+            <label htmlFor={`${ids}-correo`} className="field-label">
               Correo <span aria-hidden="true">*</span>
             </label>
             <input
@@ -127,7 +125,7 @@ function PedirEnlace() {
               aria-describedby={error ? `${ids}-correo-error` : undefined}
               value={email}
               onChange={(event) => setEmail(event.target.value)}
-              className={`focus:border-graphite w-full rounded-xl border bg-white px-3.5 py-2.5 text-sm font-medium outline-none ${error ? 'border-coral-strong' : 'border-[#292823]/15'}`}
+              className="field"
             />
             {error ? (
               <p
@@ -154,7 +152,7 @@ function PedirEnlace() {
             type="submit"
             disabled={pedir.isPending}
             aria-busy={pedir.isPending}
-            className={BOTON}
+            className={`${BOTON} w-full`}
           >
             {pedir.isPending ? 'Enviando…' : 'Recuperar contraseña'}
           </button>
@@ -214,7 +212,7 @@ function ElegirContrasena({
         <p role="status" className="text-sm text-[#3d3c36]">
           Tu contraseña cambió y cerramos las sesiones que tenías abiertas.
         </p>
-        <Link to="/ingresar" className={`${BOTON} self-start`}>
+        <Link to="/ingresar" className={`${BOTON} w-full`}>
           Iniciar sesión
         </Link>
       </Marco>
@@ -232,11 +230,7 @@ function ElegirContrasena({
           Puede que haya vencido (dura 2 horas), que ya se haya usado o que
           hayas pedido uno más nuevo. Pedí otro enlace para continuar.
         </p>
-        <button
-          type="button"
-          onClick={onNewLink}
-          className={`${BOTON} self-start`}
-        >
+        <button type="button" onClick={onNewLink} className={`${BOTON} w-full`}>
           Pedir un enlace nuevo
         </button>
       </Marco>
@@ -270,7 +264,7 @@ function ElegirContrasena({
           type="submit"
           disabled={restablecer.isPending}
           aria-busy={restablecer.isPending}
-          className={BOTON}
+          className={`${BOTON} w-full`}
         >
           {restablecer.isPending ? 'Guardando…' : 'Guardar contraseña'}
         </button>

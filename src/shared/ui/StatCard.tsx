@@ -23,17 +23,25 @@ export function StatCard({
   const isDarkTone = tone === 'graphite';
   return (
     <BentoCard tone={tone} className={className}>
-      <div className="flex items-start justify-between">
-        <p className={`eyebrow ${isDarkTone ? 'text-lime' : 'opacity-60'}`}>
+      <div className="flex items-start justify-between gap-3">
+        <p
+          className={`eyebrow ${isDarkTone ? 'text-lime' : 'text-current/65'}`}
+        >
           {label}
         </p>
-        <Icon className="size-4" />
+        <span
+          className={`flex size-9 shrink-0 items-center justify-center rounded-xl ${
+            isDarkTone ? 'bg-white/10 text-lime' : 'bg-current/7'
+          }`}
+        >
+          <Icon className="size-4" />
+        </span>
       </div>
-      <p className="font-display mt-8 text-4xl font-semibold tracking-[-0.08em]">
+      <p className="font-display mt-6 text-3xl font-bold tracking-tight sm:text-4xl">
         {value}
       </p>
       <p
-        className={`mt-2 text-xs ${isDarkTone ? 'text-white/60' : 'opacity-70'}`}
+        className={`mt-2 text-xs leading-5 ${isDarkTone ? 'text-white/65' : 'text-current/70'}`}
       >
         {detail}
       </p>

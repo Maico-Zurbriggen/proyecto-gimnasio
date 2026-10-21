@@ -1,3 +1,5 @@
+import { Check, Circle } from 'lucide-react';
+
 import { evaluatePasswordRequirements } from '../lib/passwordStrength';
 
 export interface PasswordRequirementsListProps {
@@ -28,16 +30,11 @@ export function PasswordRequirementsList({
             requirement.passed ? 'text-[#4a6b1f]' : 'text-[#77756d]'
           }`}
         >
-          <span
-            aria-hidden="true"
-            className={`flex size-4 shrink-0 items-center justify-center rounded-full text-[10px] font-black ${
-              requirement.passed
-                ? 'bg-lime-soft text-[#4a6b1f]'
-                : 'bg-[#292823]/8 text-[#77756d]'
-            }`}
-          >
-            {requirement.passed ? '✓' : '·'}
-          </span>
+          {requirement.passed ? (
+            <Check aria-hidden="true" className="size-4 shrink-0" />
+          ) : (
+            <Circle aria-hidden="true" className="size-4 shrink-0" />
+          )}
           <span>{requirement.label}</span>
         </li>
       ))}

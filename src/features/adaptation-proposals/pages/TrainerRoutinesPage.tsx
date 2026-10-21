@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { ArrowUpRight } from 'lucide-react';
+import { ArrowUpRight, CheckCircle2 } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 
 import { fetchTrainerStudents } from '../../../api/students';
@@ -15,14 +15,12 @@ import { useTrainerProposals } from '../hooks/useTrainerProposals';
 function LoadError({ onRetry, busy }: { onRetry: () => void; busy: boolean }) {
   return (
     <div className="mt-5 flex flex-col items-start gap-3">
-      <p className="text-xs text-[#7a2a20]">
-        No pudimos cargar la información.
-      </p>
+      <p className="field-error">No pudimos cargar la información.</p>
       <button
         type="button"
         onClick={onRetry}
         disabled={busy}
-        className="rounded-full bg-graphite px-3.5 py-1.5 text-xs font-bold text-white transition hover:brightness-110 disabled:opacity-60"
+        className="btn-secondary btn-sm"
       >
         Reintentar
       </button>
@@ -57,40 +55,47 @@ function PendingRoutineReviews() {
       ) : error ? (
         <LoadError onRetry={() => void refetch()} busy={isFetching} />
       ) : data.length === 0 ? (
-        <p className="mt-5 text-xs text-[#5f5d55]">
+        <p className="surface-muted mt-5 flex items-center gap-2 text-sm text-[#68675f]">
+          <CheckCircle2
+            aria-hidden="true"
+            className="size-4 shrink-0 text-[#586d26]"
+          />
           No hay rutinas nuevas esperando tu revisión.
         </p>
       ) : (
-        <ul aria-label="Rutinas por aprobar" className="mt-5 space-y-2">
+        <ul
+          aria-label="Rutinas por aprobar"
+          className="mt-5 grid gap-3 xl:grid-cols-2"
+        >
           {data.map((item) => (
             <li key={item.routineId}>
               <Link
                 to={`/entrenador/rutinas/propuestas/${item.studentId}/${item.routineId}`}
-                className="flex items-center justify-between gap-3 rounded-2xl border border-[#292823]/8 p-4 transition hover:bg-[#faf9f4]"
+                className="flex h-full items-center justify-between gap-3 rounded-2xl border border-[#292823]/8 bg-white/70 p-4 transition hover:border-[#292823]/15 hover:bg-white"
               >
                 <div className="min-w-0">
-                  <p className="text-xs font-bold">{item.studentName}</p>
-                  <p className="mt-1 text-[11px] text-[#5f5d55]">
+                  <p className="text-sm font-bold">{item.studentName}</p>
+                  <p className="mt-1 text-xs text-[#68675f]">
                     {humanizeEnum(item.routineType)} · {String(item.dayCount)}{' '}
                     días · {String(item.exerciseCount)} ejercicios
                   </p>
-                  <p className="mt-1 text-[11px] text-[#5f5d55]">
+                  <p className="mt-1 text-xs text-[#68675f]">
                     {originLabel(item)} · {formatDate(item.requestedAt)}
                   </p>
-                  <div className="mt-1.5 flex flex-wrap gap-1.5">
+                  <div className="mt-2 flex flex-wrap gap-1.5">
                     {item.goalMismatch ? (
-                      <span className="rounded-full bg-[#fdf3e0] px-2 py-0.5 text-[10px] font-bold text-[#5a3d0c]">
+                      <span className="chip-warn">
                         <span aria-hidden="true">! </span>No coincide con el
                         objetivo
                       </span>
                     ) : null}
                     {sinMediciones.has(item.studentId) ? (
-                      <span className="text-coral-text rounded-full bg-[#fbe7e5] px-2 py-0.5 text-[10px] font-bold">
+                      <span className="chip-danger">
                         Sin mediciones registradas
                       </span>
                     ) : null}
                     {item.replacesActiveRoutine ? (
-                      <span className="rounded-full bg-[#f4f3ee] px-2 py-0.5 text-[10px] font-bold text-[#3d3c36]">
+                      <span className="chip-neutral">
                         <span aria-hidden="true">↻ </span>Reemplaza la vigente
                       </span>
                     ) : null}
@@ -123,22 +128,26 @@ function PendingAdaptationProposals() {
       ) : error ? (
         <LoadError onRetry={() => void refetch()} busy={isFetching} />
       ) : data.length === 0 ? (
-        <p className="mt-5 text-xs text-[#8c897f]">
+        <p className="surface-muted mt-5 flex items-center gap-2 text-sm text-[#68675f]">
+          <CheckCircle2
+            aria-hidden="true"
+            className="size-4 shrink-0 text-[#586d26]"
+          />
           No hay propuestas de adaptación esperando tu revisión.
         </p>
       ) : (
-        <div className="mt-5 space-y-2">
+        <div className="mt-5 grid gap-3 xl:grid-cols-2">
           {data.map((proposal) => (
             <Link
               key={proposal.id}
               to={`/entrenador/rutinas/revisar/${proposal.id}`}
-              className="flex items-center justify-between gap-3 rounded-2xl border border-[#292823]/8 p-4 transition hover:bg-[#faf9f4]"
+              className="flex items-center justify-between gap-3 rounded-2xl border border-[#292823]/8 bg-white/70 p-4 transition hover:border-[#292823]/15 hover:bg-white"
             >
               <div>
-                <p className="text-xs font-bold">
+                <p className="text-sm font-bold">
                   {proposal.student.displayName}
                 </p>
-                <p className="mt-1 text-[10px] text-[#77756d]">
+                <p className="mt-1 text-xs text-[#68675f]">
                   {humanizeEnum(proposal.globalSituation)} ·{' '}
                   {proposal.adjustmentsCount}{' '}
                   {proposal.adjustmentsCount === 1 ? 'ajuste' : 'ajustes'} ·{' '}
@@ -189,14 +198,12 @@ function AssignedRoutines() {
                 className="flex items-center justify-between gap-3 border-b border-[#292823]/7 px-4 py-4 last:border-b-0 hover:bg-[#faf9f4]"
               >
                 <div>
-                  <p className="text-xs font-bold">{student.displayName}</p>
-                  <p className="text-[10px] text-[#77756d]">
+                  <p className="text-sm font-bold">{student.displayName}</p>
+                  <p className="text-xs text-[#68675f]">
                     {humanizeEnum(routine.routineType)}
                   </p>
                 </div>
-                <span
-                  className={`rounded-full px-2.5 py-1 text-[10px] font-bold ${vencida ? 'bg-[#fbe7e5] text-coral-text' : 'bg-lime-soft text-[#4a5b27]'}`}
-                >
+                <span className={vencida ? 'chip-danger' : 'chip-ok'}>
                   {vencida
                     ? 'Ciclo vencido'
                     : routine.estadoAviso === 'cerrado hoy'
@@ -224,7 +231,7 @@ export function TrainerRoutinesPage() {
         title="Prescripción por alumno."
         description="Las ediciones sobre una rutina asignada no modifican la plantilla de origen ni el historial de sesiones."
       />
-      <main className="px-4 pb-10 sm:px-7 lg:px-9">
+      <main className="page-body">
         <SectionTabs
           tabs={[
             { label: 'Asignadas', to: '/entrenador/rutinas', end: true },

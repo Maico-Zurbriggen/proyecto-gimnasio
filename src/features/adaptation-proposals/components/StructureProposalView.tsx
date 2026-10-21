@@ -84,15 +84,15 @@ export function StructureProposalView({
 
   return (
     <section className="mt-4 space-y-4" aria-label="Planilla de renovación">
-      <h3 className="font-display text-lg font-bold">
+      <h3 className="font-display text-lg font-semibold tracking-tight">
         Planilla propuesta por IA
       </h3>
-      <p className="text-xs text-[#77756d]">
+      <p className="text-sm text-[#68675f]">
         {humanizeEnum(candidate.data.routineType)} ·{' '}
         {candidate.data.targetWeeklyFrequency} días por semana.
       </p>
       {settings ? (
-        <p className="rounded-xl bg-[#f0efe8] p-3 text-xs">
+        <p className="surface-muted text-xs">
           Parámetros del gimnasio usados: {settings.minExercisesPerDay}–
           {settings.maxExercisesPerDay} ejercicios por día ·{' '}
           {settings.minWorkSetsPerExercise}–{settings.maxWorkSetsPerExercise}{' '}
@@ -134,7 +134,7 @@ export function StructureProposalView({
       ) : null}
       <RoutineContentView routine={candidate.data} />
       {measurements ? (
-        <section className="rounded-xl bg-[#f0efe8] p-4 text-xs">
+        <section className="surface-muted text-xs">
           <h3 className="font-semibold">
             Mediciones que sustentan la renovación
           </h3>

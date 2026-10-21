@@ -34,12 +34,17 @@ function StudentRoutineSection({
   return (
     <section aria-labelledby={headingId} className="flex flex-col gap-4">
       <div>
-        <h2
-          id={headingId}
-          className="font-display text-xl font-semibold tracking-[-0.04em]"
-        >
-          {pendiente ? 'Rutina pendiente de revisión' : 'Rutina vigente'}
-        </h2>
+        <div className="flex flex-wrap items-center gap-3">
+          <h2
+            id={headingId}
+            className="font-display text-xl font-semibold tracking-[-0.04em]"
+          >
+            {pendiente ? 'Rutina pendiente de revisión' : 'Rutina vigente'}
+          </h2>
+          <span className={pendiente ? 'chip-warn' : 'chip-ok'}>
+            {pendiente ? 'Propuesta' : 'Activa'}
+          </span>
+        </div>
         <p className="mt-2 text-sm text-[#55534c]">
           {TIPOS[routine.routineType] ?? routine.routineType} ·{' '}
           {routine.targetWeeklyFrequency} días por semana · versión{' '}
@@ -90,7 +95,7 @@ function StudentRoutineSection({
               type="button"
               onClick={() => void contenido.refetch()}
               disabled={contenido.isFetching}
-              className="w-fit rounded-full bg-graphite px-3.5 py-1.5 text-xs font-bold text-white disabled:opacity-60"
+              className="btn-secondary btn-sm w-fit"
             >
               Reintentar
             </button>
@@ -136,7 +141,7 @@ export function StudentRoutinePage({
         title="Mi rutina"
         description="Consultá los días, ejercicios y series de tus rutinas."
       />
-      <main className="flex flex-col gap-8 px-4 pb-10 sm:px-7 lg:px-9">
+      <main className="page-body flex flex-col gap-6">
         {generationPanel}
         {routines.isLoading ? (
           <p role="status" className="text-sm text-[#77756d]">

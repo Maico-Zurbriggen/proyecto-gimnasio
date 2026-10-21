@@ -34,35 +34,19 @@ const ESTADO: Record<
   InvitationStatus,
   { texto: string; icono: string; clase: string }
 > = {
-  VIGENTE: {
-    texto: 'Vigente',
-    icono: '◷',
-    clase: 'bg-[#fdf3e0] text-[#5a3d0c]',
-  },
-  USADA: { texto: 'Usada', icono: '✓', clase: 'bg-lime-soft text-[#3b4d14]' },
-  REVOCADA: {
-    texto: 'Revocada',
-    icono: '✕',
-    clase: 'bg-[#fbe7e5] text-[#7a2a20]',
-  },
-  CADUCADA: {
-    texto: 'Caducada',
-    icono: '!',
-    clase: 'bg-[#efede6] text-[#3d3c36]',
-  },
+  VIGENTE: { texto: 'Vigente', icono: '◷', clase: 'chip-ok' },
+  USADA: { texto: 'Usada', icono: '✓', clase: 'chip-neutral' },
+  REVOCADA: { texto: 'Revocada', icono: '✕', clase: 'chip-danger' },
+  CADUCADA: { texto: 'Caducada', icono: '!', clase: 'chip-warn' },
 };
 
 const FORMATO_CORREO = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const BOTON_SECUNDARIO =
-  'rounded-full border border-[#292823]/15 bg-white px-3 py-1.5 text-xs font-bold transition hover:bg-[#faf9f4] disabled:opacity-60';
 
 function EstadoChip({ status }: { status: InvitationStatus }) {
   const estado = ESTADO[status];
   return (
-    <span
-      className={`inline-block rounded-full px-2.5 py-1 text-[11px] font-bold whitespace-nowrap ${estado.clase}`}
-    >
-      <span aria-hidden="true">{estado.icono} </span>
+    <span className={estado.clase}>
+      <span aria-hidden="true">{estado.icono}</span>
       {estado.texto}
     </span>
   );
@@ -112,7 +96,7 @@ function AccionesInvitacion({ invitation }: { invitation: ListedInvitation }) {
 
   if (invitation.status !== 'VIGENTE') {
     return revocar.isError ? (
-      <p role="alert" className="text-coral-text text-xs font-semibold">
+      <p role="alert" className="field-error">
         {motivoDeRechazo(revocar.error)}
       </p>
     ) : null;
@@ -124,7 +108,7 @@ function AccionesInvitacion({ invitation }: { invitation: ListedInvitation }) {
         <div
           role="alertdialog"
           aria-label={`Confirmar revocación de ${invitation.email}`}
-          className="flex flex-col gap-2 rounded-xl bg-[#fbe7e5] p-3 text-xs text-[#7a2a20]"
+          className="flex flex-col gap-2 rounded-xl bg-[#fbe7e5] p-3 text-xs text-[#8e2f22]"
         >
           <p className="font-semibold">
             El enlace va a dejar de funcionar. ¿Revocar la invitación?
@@ -134,14 +118,14 @@ function AccionesInvitacion({ invitation }: { invitation: ListedInvitation }) {
               type="button"
               disabled={revocar.isPending}
               onClick={() => revocar.mutate()}
-              className="bg-graphite rounded-full px-3 py-1.5 font-bold text-white disabled:opacity-60"
+              className="btn-danger btn-sm"
             >
               {revocar.isPending ? 'Revocando…' : 'Sí, revocar'}
             </button>
             <button
               type="button"
               onClick={() => setConfirmando(false)}
-              className={BOTON_SECUNDARIO}
+              className="btn-secondary btn-sm"
             >
               Cancelar
             </button>
@@ -154,14 +138,14 @@ function AccionesInvitacion({ invitation }: { invitation: ListedInvitation }) {
             disabled={reenviar.isPending}
             aria-busy={reenviar.isPending}
             onClick={() => reenviar.mutate()}
-            className={BOTON_SECUNDARIO}
+            className="btn-secondary btn-sm"
           >
             {reenviar.isPending ? 'Reenviando…' : 'Reenviar'}
           </button>
           <button
             type="button"
             onClick={() => setConfirmando(true)}
-            className={BOTON_SECUNDARIO}
+            className="btn-secondary btn-sm"
           >
             Revocar
           </button>
@@ -253,9 +237,11 @@ export function InvitationsPage({
             : 'Le llega un enlace por correo para crear su cuenta, y queda asignado a vos como su profesor. Vence a los 14 días.'
         }
       />
-      <main className="grid gap-4 px-4 pb-10 sm:px-7 lg:grid-cols-12 lg:px-9">
-        <BentoCard className="lg:col-span-4">
-          <h2 className="eyebrow text-[#5f5d55]">Nueva invitación</h2>
+      <main className="page-body grid gap-5 lg:grid-cols-12">
+        <BentoCard className="self-start lg:col-span-4 xl:col-span-3">
+          <h2 className="font-display text-lg font-semibold tracking-tight">
+            Nueva invitación
+          </h2>
 
           {emitir.isSuccess ? (
             <div className="mt-4">
@@ -278,10 +264,7 @@ export function InvitationsPage({
             </div>
           ) : null}
           {errorGeneral ? (
-            <p
-              role="alert"
-              className="text-coral-text mt-4 text-sm font-semibold"
-            >
+            <p role="alert" className="field-error mt-4 text-sm">
               {apiMessage(emitir.error) ??
                 'No pudimos crear la invitación. Revisá tu conexión e intentá de nuevo.'}
             </p>
@@ -295,7 +278,7 @@ export function InvitationsPage({
             className="mt-4 flex flex-col gap-4"
           >
             <div className="flex flex-col gap-1.5">
-              <label htmlFor={idCorreo} className="eyebrow text-[#5f5d55]">
+              <label htmlFor={idCorreo} className="field-label">
                 Correo <span aria-hidden="true">*</span>
               </label>
               <input
@@ -311,13 +294,10 @@ export function InvitationsPage({
                 }
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
-                className={`focus:border-graphite w-full rounded-xl border bg-white px-3.5 py-2.5 text-sm font-medium outline-none ${errores.email ? 'border-coral-strong' : 'border-[#292823]/15'}`}
+                className="field"
               />
               {errores.email ? (
-                <p
-                  id={`${idCorreo}-error`}
-                  className="text-coral-text text-xs font-semibold"
-                >
+                <p id={`${idCorreo}-error`} className="field-error">
                   <span aria-hidden="true">✕ </span>
                   {errores.email.join(' ')}
                 </p>
@@ -326,17 +306,17 @@ export function InvitationsPage({
 
             {canChooseRoles ? (
               <fieldset className="flex flex-col gap-2">
-                <legend className="eyebrow mb-1 text-[#5f5d55]">
+                <legend className="field-label mb-1">
                   Roles <span aria-hidden="true">*</span>
                 </legend>
                 {ROLES.map((rol) => (
                   <label
                     key={rol.value}
-                    className="flex items-center gap-2 text-sm font-medium"
+                    className="surface-muted flex cursor-pointer items-center gap-3 px-4 py-2.5 text-sm font-medium"
                   >
                     <input
                       type="checkbox"
-                      className="size-4"
+                      className="check"
                       checked={roles.includes(rol.value)}
                       onChange={(event) =>
                         setRoles((actuales) =>
@@ -350,7 +330,7 @@ export function InvitationsPage({
                   </label>
                 ))}
                 {errores.roles ? (
-                  <p className="text-coral-text text-xs font-semibold">
+                  <p className="field-error">
                     <span aria-hidden="true">✕ </span>
                     {errores.roles.join(' ')}
                   </p>
@@ -358,7 +338,7 @@ export function InvitationsPage({
               </fieldset>
             ) : (
               <div className="flex flex-col gap-1.5">
-                <label htmlFor={idRol} className="eyebrow text-[#5f5d55]">
+                <label htmlFor={idRol} className="field-label">
                   Rol
                 </label>
                 {/* Criterio front 8: el entrenador sólo puede invitar alumnos. */}
@@ -367,11 +347,11 @@ export function InvitationsPage({
                   value="ALUMNO"
                   disabled
                   aria-describedby={`${idRol}-ayuda`}
-                  className="rounded-xl border border-[#292823]/15 bg-[#f4f3ee] px-3.5 py-2.5 text-sm font-medium"
+                  className="field"
                 >
                   <option value="ALUMNO">Alumno</option>
                 </select>
-                <p id={`${idRol}-ayuda`} className="text-xs text-[#5f5d55]">
+                <p id={`${idRol}-ayuda`} className="field-hint">
                   Como entrenador podés invitar sólo alumnos.
                 </p>
               </div>
@@ -381,15 +361,17 @@ export function InvitationsPage({
               type="submit"
               disabled={emitir.isPending}
               aria-busy={emitir.isPending}
-              className="bg-graphite self-start rounded-full px-4 py-2.5 text-sm font-bold text-white transition hover:brightness-110 disabled:opacity-60"
+              className="btn-primary self-start"
             >
               {emitir.isPending ? 'Enviando…' : 'Enviar invitación'}
             </button>
           </form>
         </BentoCard>
 
-        <BentoCard className="lg:col-span-8">
-          <h2 className="eyebrow text-[#5f5d55]">Invitaciones enviadas</h2>
+        <BentoCard className="lg:col-span-8 xl:col-span-9">
+          <h2 className="font-display text-lg font-semibold tracking-tight">
+            Invitaciones enviadas
+          </h2>
           {invitations.isPending ? (
             <p role="status" className="mt-4 text-sm text-[#5f5d55]">
               Cargando invitaciones…
@@ -401,23 +383,23 @@ export function InvitationsPage({
                 type="button"
                 disabled={invitations.isFetching}
                 onClick={() => void invitations.refetch()}
-                className="bg-graphite rounded-full px-4 py-2 text-sm font-bold text-white disabled:opacity-60"
+                className="btn-secondary btn-sm"
               >
                 Reintentar
               </button>
             </div>
           ) : lista.length === 0 ? (
-            <div className="mt-4 flex flex-col items-start gap-3">
+            <div className="surface-muted mt-4 flex flex-col items-center gap-3 py-10 text-center">
               <p className="text-sm font-semibold">
                 Todavía no enviaste invitaciones.
               </p>
-              <p className="text-sm text-[#5f5d55]">
+              <p className="text-sm text-[#68675f]">
                 Cada persona recibe un enlace por correo para crear su cuenta.
               </p>
               <button
                 type="button"
                 onClick={() => correoRef.current?.focus()}
-                className="bg-graphite rounded-full px-4 py-2 text-sm font-bold text-white"
+                className="btn-primary btn-sm"
               >
                 Crear la primera invitación
               </button>
@@ -428,27 +410,21 @@ export function InvitationsPage({
               <div className="mt-4 hidden overflow-x-auto md:block">
                 <table className="w-full text-left text-sm">
                   <caption className="sr-only">Invitaciones enviadas</caption>
-                  <thead className="text-xs text-[#5f5d55]">
+                  <thead className="text-xs text-[#68675f]">
                     <tr>
-                      <th scope="col" className="py-2 pr-3 font-semibold">
-                        Correo
+                      <th scope="col" className="py-2 pr-4 font-semibold">
+                        Correo y roles
                       </th>
-                      <th scope="col" className="py-2 pr-3 font-semibold">
-                        Roles
-                      </th>
-                      <th scope="col" className="py-2 pr-3 font-semibold">
+                      <th scope="col" className="py-2 pr-4 font-semibold">
                         Emisor
                       </th>
-                      <th scope="col" className="py-2 pr-3 font-semibold">
-                        Emisión
-                      </th>
-                      <th scope="col" className="py-2 pr-3 font-semibold">
+                      <th scope="col" className="py-2 pr-4 font-semibold">
                         Vence
                       </th>
-                      <th scope="col" className="py-2 pr-3 font-semibold">
+                      <th scope="col" className="py-2 pr-4 font-semibold">
                         Estado
                       </th>
-                      <th scope="col" className="py-2 font-semibold">
+                      <th scope="col" className="py-2 text-right font-semibold">
                         Acciones
                       </th>
                     </tr>
@@ -457,28 +433,32 @@ export function InvitationsPage({
                     {lista.map((item) => (
                       <tr
                         key={item.id}
-                        className="border-t border-[#292823]/8 align-top"
+                        className="border-t border-[#292823]/8 align-middle"
                       >
-                        <td className="py-3 pr-3 font-semibold break-all">
-                          {item.email}
+                        <td className="py-3.5 pr-4">
+                          <p className="font-semibold [overflow-wrap:anywhere]">
+                            {item.email}
+                          </p>
+                          <p className="mt-0.5 text-xs text-[#77756d]">
+                            {item.roles.map((r) => ETIQUETA_ROL[r]).join(', ')}
+                          </p>
                         </td>
-                        <td className="py-3 pr-3">
-                          {item.roles.map((r) => ETIQUETA_ROL[r]).join(', ')}
+                        <td className="py-3.5 pr-4">
+                          <p>{item.issuedByName ?? '—'}</p>
+                          <p className="mt-0.5 text-xs whitespace-nowrap text-[#77756d]">
+                            Emitida el {formatDate(item.issuedAt)}
+                          </p>
                         </td>
-                        <td className="py-3 pr-3">
-                          {item.issuedByName ?? '—'}
-                        </td>
-                        <td className="py-3 pr-3 whitespace-nowrap">
-                          {formatDate(item.issuedAt)}
-                        </td>
-                        <td className="py-3 pr-3 whitespace-nowrap">
+                        <td className="py-3.5 pr-4 whitespace-nowrap">
                           {formatDate(item.expiresAt)}
                         </td>
-                        <td className="py-3 pr-3">
+                        <td className="py-3.5 pr-4">
                           <EstadoChip status={item.status} />
                         </td>
-                        <td className="py-3">
-                          <AccionesInvitacion invitation={item} />
+                        <td className="py-3.5">
+                          <div className="flex justify-end">
+                            <AccionesInvitacion invitation={item} />
+                          </div>
                         </td>
                       </tr>
                     ))}
@@ -494,7 +474,7 @@ export function InvitationsPage({
                 {lista.map((item) => (
                   <li
                     key={item.id}
-                    className="flex flex-col gap-2 rounded-2xl border border-[#292823]/8 p-4"
+                    className="flex flex-col gap-3 rounded-2xl border border-[#292823]/8 bg-white/70 p-4"
                   >
                     <div className="flex items-start justify-between gap-2">
                       <p className="text-sm font-bold break-all">

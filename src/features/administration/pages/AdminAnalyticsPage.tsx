@@ -14,7 +14,7 @@ export function AdminAnalyticsPage() {
         title="La salud de la comunidad."
         description="Indicadores agregados para anticipar deserción y acompañar la operación del gimnasio."
       />
-      <main className="px-4 pb-10 sm:px-7 lg:px-9">
+      <main className="page-body">
         <GymSetupChecklist />
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <StatCard
@@ -40,7 +40,7 @@ export function AdminAnalyticsPage() {
           />
           <BentoCard className="sm:col-span-3">
             <p className="eyebrow text-[#77756d]">Nota</p>
-            <p className="mt-3 text-sm leading-6 text-[#706e65]">
+            <p className="mt-3 text-sm leading-6 text-[#68675f]">
               Este panel es de referencia visual. Sin funcionalidad real en este
               sprint.
             </p>

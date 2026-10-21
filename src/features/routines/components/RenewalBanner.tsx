@@ -47,7 +47,7 @@ export function RenewalBanner({
           <button
             type="button"
             onClick={onCargarMedicion}
-            className="rounded-full bg-graphite px-3.5 py-1.5 text-xs font-bold text-white transition hover:brightness-110"
+            className="btn-primary btn-sm"
           >
             Cargar medidas
           </button>
