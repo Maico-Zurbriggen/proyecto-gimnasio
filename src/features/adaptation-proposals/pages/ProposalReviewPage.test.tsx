@@ -32,10 +32,14 @@ function review(overrides: Record<string, unknown> = {}) {
         type: 'CARGA',
         routineExerciseId: 're-1',
         exerciseName: 'Sentadilla con barra',
-        criterion: 'Estancamiento de la carga máxima estimada.',
+        criterion:
+          'Estancamiento: variación de carga máxima estimada +0,8% < +2,5% (RN-79a).',
         previousValue: { carga_sugerida: 60 },
         proposedValue: { carga_sugerida: 62.5 },
-        supportingData: {},
+        supportingData: {
+          sesionesConsideradas: 6,
+          variacionE1RM: 0.8,
+        },
         state: 'PENDIENTE',
       },
       {
@@ -43,10 +47,14 @@ function review(overrides: Record<string, unknown> = {}) {
         type: 'ESQUEMA',
         routineExerciseId: 're-2',
         exerciseName: 'Press de banca plano',
-        criterion: 'Cumplimiento en el tope del rango.',
+        criterion:
+          'Estímulo insuficiente: tope del rango en las últimas 2 sesiones con esfuerzo ≤ 5 (RN-79a).',
         previousValue: { min_repetitions: 3, max_repetitions: 6 },
         proposedValue: { min_repetitions: 4, max_repetitions: 6 },
-        supportingData: {},
+        supportingData: {
+          sesionesConsideradas: 4,
+          cumplimientoTopes: true,
+        },
         state: 'PENDIENTE',
       },
     ],
@@ -157,6 +165,13 @@ describe('ProposalReviewPage (HU04)', () => {
     ).toBeVisible();
     expect(screen.getByText('Carga · Sentadilla con barra')).toBeVisible();
     expect(screen.getByText('62,5 kg')).toBeVisible();
+    // T3 (RF-090, FL-10): cada ajuste muestra su criterio y el dato que lo sustenta.
+    expect(
+      screen.getByText(/variación de carga máxima estimada/i),
+    ).toBeVisible();
+    expect(
+      screen.getAllByText(/Sesiones consideradas:/).length,
+    ).toBeGreaterThan(0);
     expect(screen.getByRole('button', { name: 'Aprobar' })).toBeEnabled();
     expect(
       screen.getByRole('button', { name: 'Aprobar parcialmente' }),

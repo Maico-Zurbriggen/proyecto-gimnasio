@@ -65,3 +65,47 @@ export function requestErrorMessage(
       return 'No pudimos solicitar la rutina. Probá de nuevo.';
   }
 }
+
+type ChangeRequestSnapshot = {
+  status?: string;
+  reason?: string | null;
+  error?: string | null;
+  violaciones?: string[] | null;
+};
+
+/**
+ * Mensaje del pedido de cambios (HITL) a partir del polling.
+ * Antes solo leía `reason` (solo existe en UNABLE) e ignoraba `error`,
+ * por eso un fallo técnico mostraba siempre el genérico
+ * "La IA no pudo cumplir el pedido".
+ */
+export function changeRequestStatusMessage(
+  snapshot: ChangeRequestSnapshot | undefined | null,
+): string {
+  if (!snapshot) {
+    return 'La IA no pudo cumplir el pedido. Reformulalo y probá de nuevo.';
+  }
+  if (snapshot.violaciones && snapshot.violaciones.length > 0) {
+    return 'El pedido no superó las validaciones. Reformulalo y probá de nuevo.';
+  }
+  if (snapshot.reason) return snapshot.reason;
+  switch (snapshot.error) {
+    case 'invalid_generated_routine':
+      return 'La salida no superó las validaciones de seguridad del backend.';
+    case 'generation_unable':
+      return 'La IA no pudo proponer una rutina con la información disponible.';
+    case 'llm_timeout':
+    case 'AGOTADO_POR_TIEMPO':
+    case 'llm_request_failed':
+    case 'unknown_generation_task':
+    case 'worker_interrupted':
+    case 'context_capacity_exceeded':
+      return 'La generación está temporalmente no disponible. La propuesta actual sigue vigente; podés seguir con una plantilla manual del entrenador.';
+    default:
+      return snapshot.error
+        ? 'No se pudo completar el pedido (' +
+            snapshot.error +
+            '). Probá de nuevo.'
+        : 'La IA no pudo cumplir el pedido. Reformulalo y probá de nuevo.';
+  }
+}

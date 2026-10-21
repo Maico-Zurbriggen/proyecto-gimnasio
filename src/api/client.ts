@@ -119,6 +119,30 @@ export function fieldErrors(error: unknown): Record<string, string[]> {
   return {};
 }
 
+/**
+ * Detalle de validación Zod que devuelve el backend (`details` con
+ * `fieldErrors` y `formErrors`). Lo que antes se mostraba como un seco
+ * `invalid_request_body` ahora nombra el campo y el rango esperado.
+ */
+export function validationMessages(error: unknown): string[] {
+  if (!(error instanceof ApiError)) return [];
+  if (typeof error.body !== 'object' || error.body === null) return [];
+  if (!('details' in error.body)) return [];
+  const details = (error.body as { details?: unknown }).details;
+  if (typeof details !== 'object' || details === null) return [];
+  const { fieldErrors: fields, formErrors } = details as {
+    fieldErrors?: Record<string, string[]>;
+    formErrors?: string[];
+  };
+  const messages = [...(formErrors ?? [])];
+  for (const [field, errors] of Object.entries(fields ?? {})) {
+    for (const message of errors) {
+      messages.push(`${field}: ${message}`);
+    }
+  }
+  return messages;
+}
+
 /** Mensaje legible del backend, si lo trae. */
 export function apiMessage(error: unknown): string | null {
   if (
