@@ -7,6 +7,7 @@ import { Banner } from '../../../shared/components/Banner';
 import { formatDate, humanizeEnum } from '../../../shared/lib/format';
 import { BentoCard } from '../../../shared/ui/BentoCard';
 import { PageHeader } from '../../../shared/ui/PageHeader';
+import { AdjustmentEvidence } from '../components/AdjustmentEvidence';
 import { OutdatedDataWarning } from '../components/OutdatedDataWarning';
 import { StructureProposalView } from '../components/StructureProposalView';
 import { useProposalReview } from '../hooks/useProposalReview';
@@ -255,9 +256,11 @@ export function ProposalReviewPage() {
                             )}
                           </strong>
                         </p>
-                        <p className="mt-1 text-[11px] text-[#77756d]">
-                          {adjustment.criterion}
-                        </p>
+                        <AdjustmentEvidence
+                          type={adjustment.type}
+                          criterion={adjustment.criterion}
+                          supportingData={adjustment.supportingData}
+                        />
                         {adjustment.type === 'ESTRUCTURA' ? (
                           <StructureProposalView
                             value={adjustment.proposedValue}

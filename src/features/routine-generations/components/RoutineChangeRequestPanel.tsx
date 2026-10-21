@@ -6,7 +6,10 @@ import { useInvalidateRoutines } from '../../prescriptions/hooks/usePrescription
 import { useFinalizeRoutineGeneration } from '../hooks/useFinalizeRoutineGeneration';
 import { useRequestRoutineGeneration } from '../hooks/useRequestRoutineGeneration';
 import { useRoutineGeneration } from '../hooks/useRoutineGeneration';
-import { requestErrorMessage } from '../lib/generationErrors';
+import {
+  changeRequestStatusMessage,
+  requestErrorMessage,
+} from '../lib/generationErrors';
 
 export interface RoutineChangeRequestPanelProps {
   /** Alumno dueño de la rutina propuesta. */
@@ -185,8 +188,7 @@ export function RoutineChangeRequestPanel({
               <p>
                 {finalize.error
                   ? requestErrorMessage(finalize.error, esEntrenador)
-                  : (snapshot?.reason ??
-                    'La IA no pudo cumplir el pedido. Reformulalo y probá de nuevo.')}
+                  : changeRequestStatusMessage(snapshot)}
               </p>
               {snapshot?.violaciones?.length ? (
                 <ul className="mt-2 list-disc pl-5">

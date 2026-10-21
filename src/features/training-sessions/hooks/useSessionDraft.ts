@@ -11,7 +11,7 @@ import {
   seriesPendientes,
   type EntradaDeSerie,
   type SerieEnBorrador,
-  type SessionDraft,
+  type SyncSessionDraft,
 } from '../lib/sessionDraft';
 
 /** Envía una serie al backend. Resuelve si quedó registrada. */
@@ -25,7 +25,7 @@ export interface UseSessionDraftOptions {
 }
 
 export interface UseSessionDraftResult {
-  draft: SessionDraft;
+  draft: SyncSessionDraft;
   /** Registra o corrige una serie y dispara el envío. */
   registrar: (entrada: EntradaDeSerie) => void;
   /** Reintenta la cola pendiente. Se llama solo al recuperar la conexión. */
@@ -58,7 +58,7 @@ export function useSessionDraft({
   enviarSerie,
   ahora = () => new Date(),
 }: UseSessionDraftOptions): UseSessionDraftResult {
-  const [draft, setDraft] = useState<SessionDraft>(
+  const [draft, setDraft] = useState<SyncSessionDraft>(
     () => loadSessionDraft(sessionId) ?? emptyDraft(sessionId, ahora()),
   );
   const [respaldoLocalActivo, setRespaldoLocalActivo] = useState(true);
@@ -81,7 +81,7 @@ export function useSessionDraft({
   }, [enviarSerie, ahora]);
 
   const actualizar = useCallback(
-    (siguiente: SessionDraft) => {
+    (siguiente: SyncSessionDraft) => {
       draftRef.current = siguiente;
       setDraft(siguiente);
       setRespaldoLocalActivo(saveSessionDraft(siguiente));
