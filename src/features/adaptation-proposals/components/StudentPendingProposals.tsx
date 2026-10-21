@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { formatDate } from '../../../shared/lib/format';
 import { BentoCard } from '../../../shared/ui/BentoCard';
 import { useTrainerProposals } from '../hooks/useTrainerProposals';
+import { adjustmentEvidenceSummary } from './AdjustmentEvidence';
 
 export function StudentPendingProposals({ studentId }: { studentId: string }) {
   const proposals = useTrainerProposals();
@@ -47,6 +48,14 @@ export function StudentPendingProposals({ studentId }: { studentId: string }) {
               {proposal.advertenciaDatos.sinDatosActualizados
                 ? ' · generada sin datos actualizados'
                 : ' · con datos actualizados'}
+              {(proposal.adjustments ?? []).slice(0, 2).map((adjustment) => (
+                <span
+                  key={adjustment.id}
+                  className="mt-1 block text-[11px] font-normal text-[#3d3c36]"
+                >
+                  {adjustmentEvidenceSummary(adjustment)}
+                </span>
+              ))}
             </Link>
           </li>
         ))}
