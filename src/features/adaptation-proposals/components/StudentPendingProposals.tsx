@@ -19,7 +19,7 @@ export function StudentPendingProposals({ studentId }: { studentId: string }) {
         <button
           type="button"
           onClick={() => void proposals.refetch()}
-          className="underline"
+          className="btn-secondary btn-sm"
         >
           Reintentar
         </button>
@@ -27,11 +27,11 @@ export function StudentPendingProposals({ studentId }: { studentId: string }) {
     );
   if (!pending.length) return null;
   return (
-    <BentoCard className="mt-4">
-      <h2 className="font-display text-xl font-semibold">
+    <BentoCard>
+      <h2 className="font-display text-lg font-semibold tracking-tight">
         Propuestas de adaptación pendientes
       </h2>
-      <p className="mt-2 text-xs text-[#77756d]">
+      <p className="mt-2 text-sm text-[#68675f]">
         Abrí la propuesta para ver la planilla y los datos que la sustentan
         antes de aprobar.
       </p>
@@ -40,7 +40,7 @@ export function StudentPendingProposals({ studentId }: { studentId: string }) {
           <li key={proposal.id}>
             <Link
               to={`/entrenador/rutinas/revisar/${proposal.id}`}
-              className="block rounded-xl border border-[#292823]/10 p-3 text-sm font-semibold hover:bg-[#faf9f4]"
+              className="block rounded-2xl border border-[#292823]/8 bg-white/70 p-4 text-sm font-semibold transition hover:border-[#292823]/15 hover:bg-white"
             >
               Ver propuesta del {formatDate(proposal.createdAt)} ·{' '}
               {proposal.adjustmentsCount} ajuste

@@ -26,10 +26,12 @@ export function TrainerConditionsCard({ studentId }: { studentId: string }) {
   });
 
   return (
-    <BentoCard className="mt-4">
-      <h2 className="eyebrow text-[#5f5d55]">Condiciones físicas</h2>
+    <BentoCard>
+      <h2 className="font-display text-lg font-semibold tracking-tight">
+        Condiciones físicas
+      </h2>
       {status.isPending ? (
-        <p role="status" className="mt-4 text-sm text-[#5f5d55]">
+        <p role="status" className="mt-4 text-sm text-[#68675f]">
           Cargando…
         </p>
       ) : status.isError ? (
@@ -38,18 +40,18 @@ export function TrainerConditionsCard({ studentId }: { studentId: string }) {
           <button
             type="button"
             onClick={() => void status.refetch()}
-            className="bg-graphite rounded-full px-4 py-2 text-sm font-bold text-white"
+            className="btn-secondary btn-sm"
           >
             Reintentar
           </button>
         </div>
       ) : !status.data.healthDataConsent ? (
-        <p className="mt-4 text-sm text-[#5f5d55]">
+        <p className="mt-4 text-sm text-[#68675f]">
           El alumno todavía no dio su consentimiento para datos de salud: no se
           pueden ver ni declarar condiciones.
         </p>
       ) : conditions.isPending ? (
-        <p role="status" className="mt-4 text-sm text-[#5f5d55]">
+        <p role="status" className="mt-4 text-sm text-[#68675f]">
           Cargando condiciones…
         </p>
       ) : conditions.isError ? (
@@ -58,13 +60,13 @@ export function TrainerConditionsCard({ studentId }: { studentId: string }) {
           <button
             type="button"
             onClick={() => void conditions.refetch()}
-            className="bg-graphite rounded-full px-4 py-2 text-sm font-bold text-white"
+            className="btn-secondary btn-sm"
           >
             Reintentar
           </button>
         </div>
       ) : conditions.data.length === 0 ? (
-        <p className="mt-4 text-sm text-[#5f5d55]">
+        <p className="mt-4 text-sm text-[#68675f]">
           {status.data.declaredNone
             ? `Declaró no tener ninguna condición física${status.data.declaredNoneAt ? ` (${formatDate(status.data.declaredNoneAt)})` : ''}.`
             : 'Todavía no respondió si tiene condiciones físicas.'}

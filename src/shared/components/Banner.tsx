@@ -1,3 +1,4 @@
+import { AlertTriangle, Info, OctagonAlert } from 'lucide-react';
 import type { ReactNode } from 'react';
 
 import { cn } from '../lib/cn';
@@ -21,6 +22,12 @@ const VARIANT_CLASS: Record<BannerVariant, string> = {
   danger: 'border-coral-strong/30 bg-[#fbe7e5] text-[#7a2a20]',
 };
 
+const VARIANT_ICON = {
+  info: Info,
+  warning: AlertTriangle,
+  danger: OctagonAlert,
+} as const;
+
 const DISMISS_CLASS: Record<BannerVariant, string> = {
   info: 'border-graphite/20',
   warning: 'border-[#b8790c]/40',
@@ -36,40 +43,44 @@ export function Banner({
   onDismiss,
   dismissLabel = 'Descartar',
 }: BannerProps) {
+  const Icon = VARIANT_ICON[variant];
   return (
     <div
       role="alert"
       className={cn(
-        'flex flex-col gap-3 rounded-2xl border p-4 sm:p-5',
+        'flex gap-3 rounded-2xl border p-4 sm:p-5',
         VARIANT_CLASS[variant],
       )}
     >
-      <div className="flex flex-col gap-1.5">
-        <p className="font-display text-sm font-semibold">{title}</p>
-        {children ? (
-          <div className="space-y-2 text-sm leading-6 [&_p]:m-0">
-            {children}
+      <Icon aria-hidden="true" className="mt-0.5 size-4 shrink-0 opacity-80" />
+      <div className="flex min-w-0 flex-1 flex-col gap-3">
+        <div className="flex flex-col gap-1.5">
+          <p className="font-display text-sm font-semibold">{title}</p>
+          {children ? (
+            <div className="space-y-2 text-sm leading-6 [&_p]:m-0">
+              {children}
+            </div>
+          ) : null}
+        </div>
+        {actions || onDismiss ? (
+          <div className="flex flex-wrap items-center gap-2">
+            {actions}
+            {onDismiss ? (
+              <button
+                type="button"
+                onClick={onDismiss}
+                aria-label={dismissLabel}
+                className={cn(
+                  'btn btn-sm border bg-transparent hover:bg-black/5',
+                  DISMISS_CLASS[variant],
+                )}
+              >
+                {dismissLabel}
+              </button>
+            ) : null}
           </div>
         ) : null}
       </div>
-      {actions || onDismiss ? (
-        <div className="flex flex-wrap items-center gap-2">
-          {actions}
-          {onDismiss ? (
-            <button
-              type="button"
-              onClick={onDismiss}
-              aria-label={dismissLabel}
-              className={cn(
-                'rounded-full border bg-transparent px-3.5 py-1.5 text-xs font-bold transition hover:bg-black/5',
-                DISMISS_CLASS[variant],
-              )}
-            >
-              {dismissLabel}
-            </button>
-          ) : null}
-        </div>
-      ) : null}
     </div>
   );
 }

@@ -93,7 +93,7 @@ export function RoutineChangeRequestPanel({
   return (
     <BentoCard>
       <p className="eyebrow text-[#77756d]">Pedir cambios</p>
-      <p className="mt-2 text-xs leading-5 text-[#77756d]">
+      <p className="mt-2 text-sm leading-6 text-[#68675f]">
         {esEntrenador
           ? 'Escribí qué querés distinto y la IA ajusta esta propuesta. La nueva versión la reemplaza y sigue pendiente de tu revisión.'
           : 'Escribí qué querés distinto y la IA ajusta esta propuesta. La nueva versión la reemplaza y tu entrenador la revisa antes de ponerla en vigencia.'}
@@ -105,31 +105,28 @@ export function RoutineChangeRequestPanel({
           aria-label="Pedir cambios"
           className="mt-4 flex flex-col gap-3"
         >
-          <label
-            htmlFor="routine-change-request"
-            className="eyebrow text-[#77756d]"
-          >
+          <label htmlFor="routine-change-request" className="field-label">
             Cambios
           </label>
           <textarea
             id="routine-change-request"
             value={changes}
             onChange={(event) => setChanges(event.target.value)}
-            rows={3}
+            rows={4}
             maxLength={2000}
             required
             placeholder="Por ejemplo: sumá un día de piernas y sacá el press militar."
-            className="rounded-xl border border-[#292823]/15 bg-white px-3.5 py-3 text-sm font-medium text-ink outline-none transition focus:border-graphite"
+            className="field min-h-28"
           />
           {request.error ? (
-            <p role="alert" className="text-coral-strong text-xs font-medium">
+            <p role="alert" className="field-error">
               {requestErrorMessage(request.error, esEntrenador)}
             </p>
           ) : null}
           <button
             type="submit"
             disabled={request.isPending || changes.trim().length === 0}
-            className="w-fit rounded-full bg-graphite px-4 py-2.5 text-xs font-bold text-white transition hover:brightness-110 disabled:opacity-60"
+            className="btn-accent w-fit"
           >
             {request.isPending ? 'Enviando…' : 'Pedir cambios'}
           </button>
@@ -144,7 +141,7 @@ export function RoutineChangeRequestPanel({
                 <button
                   type="button"
                   onClick={() => void generation.refetch()}
-                  className="rounded-full bg-graphite px-3.5 py-1.5 text-xs font-bold text-white"
+                  className="btn-primary btn-sm"
                 >
                   Reintentar
                 </button>
@@ -152,12 +149,18 @@ export function RoutineChangeRequestPanel({
             />
           ) : null}
           {isActive || (!snapshot && !generation.error) ? (
-            <p role="status" className="text-xs font-semibold text-[#77756d]">
+            <p
+              role="status"
+              className="surface-muted text-sm font-semibold text-[#68675f]"
+            >
               La IA está aplicando los cambios. Podés esperar en esta pantalla.
             </p>
           ) : null}
           {snapshot?.status === 'COMPLETADA' && finalize.isPending ? (
-            <p role="status" className="text-xs font-semibold text-[#77756d]">
+            <p
+              role="status"
+              className="surface-muted text-sm font-semibold text-[#68675f]"
+            >
               Validando la nueva propuesta…
             </p>
           ) : null}
@@ -176,7 +179,7 @@ export function RoutineChangeRequestPanel({
                 <button
                   type="button"
                   onClick={reset}
-                  className="rounded-full bg-graphite px-3.5 py-1.5 text-xs font-bold text-white"
+                  className="btn-primary btn-sm"
                 >
                   Probar de nuevo
                 </button>

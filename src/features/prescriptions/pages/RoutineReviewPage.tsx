@@ -48,7 +48,7 @@ export function RoutineReviewPage() {
     return (
       <div>
         <PageHeader kicker="Bandeja de rutinas" title="Decisión registrada." />
-        <main className="flex max-w-2xl flex-col gap-4 px-4 pb-10 sm:px-7 lg:px-9">
+        <main className="page-body flex max-w-2xl flex-col gap-4">
           <Banner
             variant="info"
             title={aprobada ? 'Rutina aprobada' : 'Rutina rechazada'}
@@ -62,10 +62,7 @@ export function RoutineReviewPage() {
                 : ''}
             </p>
           </Banner>
-          <Link
-            to={VOLVER}
-            className="bg-graphite self-start rounded-full px-4 py-2.5 text-sm font-bold text-white"
-          >
+          <Link to={VOLVER} className="btn-primary self-start">
             Volver a la bandeja
           </Link>
         </main>
@@ -84,8 +81,8 @@ export function RoutineReviewPage() {
             : undefined
         }
       />
-      <main className="grid gap-4 px-4 pb-10 sm:px-7 lg:grid-cols-12 lg:px-9">
-        <BentoCard className="lg:col-span-7">
+      <main className="page-body grid gap-6 lg:grid-cols-[minmax(0,1fr)_22rem]">
+        <BentoCard>
           <p className="eyebrow text-[#5f5d55]">Contenido</p>
           {content.isPending ? (
             <p role="status" className="mt-4 text-sm text-[#5f5d55]">
@@ -102,7 +99,7 @@ export function RoutineReviewPage() {
               <button
                 type="button"
                 onClick={() => void content.refetch()}
-                className="bg-graphite rounded-full px-4 py-2 text-sm font-bold text-white"
+                className="btn-secondary btn-sm"
               >
                 Reintentar
               </button>
@@ -110,7 +107,7 @@ export function RoutineReviewPage() {
           ) : (
             <div className="mt-4">
               {content.data.generationPrompt ? (
-                <p className="mb-3 rounded-xl bg-[#f4f3ee] p-3 text-xs text-[#55534c]">
+                <p className="mb-3 surface-muted text-xs text-[#55534c]">
                   <span className="font-bold">Pedido original: </span>
                   {content.data.generationPrompt}
                 </p>
@@ -120,7 +117,7 @@ export function RoutineReviewPage() {
           )}
         </BentoCard>
 
-        <div className="flex flex-col gap-4 lg:col-span-5">
+        <div className="flex flex-col gap-4 lg:sticky lg:top-24 lg:self-start">
           <BentoCard className="flex flex-col gap-4">
             <div>
               <p className="eyebrow text-[#5f5d55]">Decisión</p>
@@ -154,10 +151,7 @@ export function RoutineReviewPage() {
               />
             ) : null}
 
-            <Link
-              to={VOLVER}
-              className="text-sm font-bold text-[#3d3c36] underline underline-offset-2"
-            >
+            <Link to={VOLVER} className="btn-ghost btn-sm self-start">
               Volver a la bandeja
             </Link>
           </BentoCard>

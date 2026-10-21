@@ -26,22 +26,22 @@ const ESTADO_INVITACION: Record<
   PENDIENTE: {
     texto: 'Invitación pendiente',
     icono: '◷',
-    clase: 'bg-[#fdf3e0] text-[#5a3d0c]',
+    clase: 'chip-warn',
   },
   USADA: {
     texto: 'Administrador activo',
     icono: '✓',
-    clase: 'bg-lime-soft text-[#3b4d14]',
+    clase: 'chip-ok',
   },
   VENCIDA: {
     texto: 'Invitación vencida',
     icono: '!',
-    clase: 'bg-[#fbe7e5] text-[#7a2a20]',
+    clase: 'chip-danger',
   },
   REVOCADA: {
     texto: 'Invitación revocada',
     icono: '✕',
-    clase: 'bg-[#fbe7e5] text-[#7a2a20]',
+    clase: 'chip-danger',
   },
 };
 
@@ -53,13 +53,13 @@ function ReenviarInvitacion({ gym }: { gym: GymSummary }) {
   });
 
   return (
-    <div className="flex flex-col items-start gap-1">
+    <div className="flex flex-col items-start gap-1 sm:items-end">
       <button
         type="button"
         disabled={reenviar.isPending}
         aria-busy={reenviar.isPending}
         onClick={() => reenviar.mutate()}
-        className="rounded-full border border-[#292823]/15 bg-white px-3 py-1.5 text-xs font-bold transition hover:bg-[#faf9f4] disabled:opacity-60"
+        className="btn-secondary btn-sm"
       >
         {reenviar.isPending ? 'Reenviando…' : 'Reenviar invitación'}
       </button>
@@ -77,8 +77,7 @@ function ReenviarInvitacion({ gym }: { gym: GymSummary }) {
   );
 }
 
-const BOTON_SECUNDARIO =
-  'rounded-full border border-[#292823]/15 bg-white px-3 py-1.5 text-xs font-bold transition hover:bg-[#faf9f4] disabled:opacity-60';
+const BOTON_SECUNDARIO = 'btn-secondary btn-sm';
 
 /**
  * Edición del gimnasio (HU13 - criterios 22 y 23). Si cambia la zona horaria y
@@ -132,10 +131,10 @@ function EditarGimnasio({
       noValidate
       onSubmit={handleSubmit}
       aria-label={`Editar ${gym.name}`}
-      className="mt-3 flex w-full flex-col gap-3 rounded-xl border border-[#292823]/10 bg-white p-3"
+      className="surface-muted mt-3 flex w-full flex-col gap-3"
     >
       <div className="flex flex-col gap-1">
-        <label htmlFor={`${ids}-nombre`} className="eyebrow text-[#5f5d55]">
+        <label htmlFor={`${ids}-nombre`} className="field-label">
           Nombre
         </label>
         <input
@@ -144,7 +143,7 @@ function EditarGimnasio({
           maxLength={120}
           aria-invalid={errores.nombre || !nombre.trim() ? true : undefined}
           onChange={(event) => setNombre(event.target.value)}
-          className="rounded-xl border border-[#292823]/15 px-3 py-2 text-sm"
+          className="field"
         />
         {!nombre.trim() ? (
           <p className="text-coral-text text-xs font-semibold">
@@ -158,7 +157,7 @@ function EditarGimnasio({
         ) : null}
       </div>
       <div className="flex flex-col gap-1">
-        <label htmlFor={`${ids}-zona`} className="eyebrow text-[#5f5d55]">
+        <label htmlFor={`${ids}-zona`} className="field-label">
           Zona horaria
         </label>
         <select
@@ -168,7 +167,7 @@ function EditarGimnasio({
             setZona(event.target.value);
             setConfirmado(false);
           }}
-          className="rounded-xl border border-[#292823]/15 px-3 py-2 text-sm"
+          className="field"
         >
           {(timezones.data ?? [gym.timezone]).map((tz) => (
             <option key={tz} value={tz}>
@@ -191,7 +190,7 @@ function EditarGimnasio({
           <label className="mt-2 flex items-start gap-2 font-medium">
             <input
               type="checkbox"
-              className="mt-0.5 size-4"
+              className="check mt-0.5"
               checked={confirmado}
               onChange={(event) => setConfirmado(event.target.checked)}
             />
@@ -216,7 +215,7 @@ function EditarGimnasio({
             !nombre.trim() ||
             (pideConfirmacion && !confirmado)
           }
-          className="bg-graphite rounded-full px-3 py-1.5 text-xs font-bold text-white disabled:opacity-60"
+          className="btn-primary btn-sm"
         >
           {guardar.isPending ? 'Guardando…' : 'Guardar cambios'}
         </button>
@@ -268,7 +267,7 @@ function CambiarEstado({ gym }: { gym: GymSummary }) {
           type="button"
           disabled={cambiar.isPending}
           onClick={() => cambiar.mutate()}
-          className="bg-graphite rounded-full px-3 py-1.5 font-bold text-white disabled:opacity-60"
+          className="btn-danger btn-sm"
         >
           {cambiar.isPending
             ? 'Guardando…'
@@ -295,44 +294,42 @@ function FilaGimnasio({ gym }: { gym: GymSummary }) {
   const estado = invitacion ? ESTADO_INVITACION[invitacion.status] : null;
 
   return (
-    <li className="flex flex-col flex-wrap gap-3 border-b border-[#292823]/7 px-4 py-4 last:border-b-0 sm:flex-row sm:items-center sm:justify-between">
+    <li className="card-interactive flex flex-col flex-wrap gap-3 rounded-2xl border border-[#292823]/8 bg-white/70 p-4 hover:bg-white sm:flex-row sm:items-center sm:justify-between">
       <div className="min-w-0">
         <p className="text-sm font-bold break-words">{gym.name}</p>
-        <p className="mt-1 text-xs text-[#5f5d55] break-words">
+        <p className="mt-1 text-xs text-[#77756d] break-words">
           {gym.timezone} · alta {formatDate(gym.createdAt)} ·{' '}
           {gym.status === 'ACTIVO' ? (
-            'Activo'
+            <span className="chip-ok">Activo</span>
           ) : (
-            <strong className="text-coral-text">
+            <strong className="chip-danger">
               <span aria-hidden="true">⏸ </span>Suspendido
             </strong>
           )}
         </p>
         {invitacion ? (
-          <p className="mt-1 text-xs break-all text-[#5f5d55]">
+          <p className="mt-1 text-xs break-all text-[#77756d]">
             Primer administrador: {invitacion.email}
           </p>
         ) : null}
       </div>
       <div className="flex flex-col items-start gap-2 sm:items-end">
         {estado ? (
-          <span
-            className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${estado.clase}`}
-          >
+          <span className={estado.clase}>
             <span aria-hidden="true">{estado.icono} </span>
             {estado.texto}
           </span>
         ) : (
-          <span className="text-[11px] text-[#5f5d55]">
+          <span className="text-[11px] text-[#77756d]">
             {gym.administratorCount > 0
               ? 'Administrador activo'
               : 'Sin invitación de arranque'}
           </span>
         )}
-        {invitacion && invitacion.status !== 'USADA' ? (
-          <ReenviarInvitacion gym={gym} />
-        ) : null}
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap items-start gap-2 sm:justify-end">
+          {invitacion && invitacion.status !== 'USADA' ? (
+            <ReenviarInvitacion gym={gym} />
+          ) : null}
           {editando ? null : (
             <button
               type="button"
@@ -369,18 +366,15 @@ export function GymsPage() {
         kicker="Plataforma"
         title="Gimnasios afiliados."
         actions={
-          <Link
-            to="/superadmin/gimnasios/nuevo"
-            className="bg-graphite rounded-full px-4 py-2.5 text-sm font-bold text-white transition hover:brightness-110"
-          >
+          <Link to="/superadmin/gimnasios/nuevo" className="btn-primary">
             Dar de alta un gimnasio
           </Link>
         }
       />
-      <main className="px-4 pb-10 sm:px-7 lg:px-9">
+      <main className="page-body">
         <BentoCard>
           {gyms.isPending ? (
-            <p role="status" className="text-sm text-[#5f5d55]">
+            <p role="status" className="text-sm text-[#77756d]">
               Cargando gimnasios…
             </p>
           ) : gyms.isError ? (
@@ -390,26 +384,23 @@ export function GymsPage() {
                 type="button"
                 disabled={gyms.isFetching}
                 onClick={() => void gyms.refetch()}
-                className="bg-graphite rounded-full px-4 py-2 text-sm font-bold text-white disabled:opacity-60"
+                className="btn-secondary btn-sm"
               >
                 Reintentar
               </button>
             </div>
           ) : gyms.data.length === 0 ? (
-            <div className="flex flex-col items-start gap-2">
+            <div className="surface-muted flex flex-col items-center gap-2 py-10 text-center">
               <p className="text-sm font-semibold">
                 Todavía no hay gimnasios afiliados.
               </p>
-              <p className="text-sm text-[#5f5d55]">
+              <p className="text-sm text-[#77756d]">
                 Cuando des de alta el primero, vas a ver acá su estado y el de
                 la invitación a su administrador.
               </p>
             </div>
           ) : (
-            <ul
-              aria-label="Gimnasios"
-              className="overflow-hidden rounded-2xl border border-[#292823]/8"
-            >
+            <ul aria-label="Gimnasios" className="flex flex-col gap-3">
               {gyms.data.map((gym) => (
                 <FilaGimnasio key={gym.id} gym={gym} />
               ))}

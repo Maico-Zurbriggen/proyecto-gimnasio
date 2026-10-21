@@ -48,8 +48,8 @@ export function ChangePasswordPage() {
   return (
     <div>
       <PageHeader kicker="Mi cuenta" title="Cambiar contraseña." />
-      <main className="px-4 pb-10 sm:px-7 lg:px-9">
-        <BentoCard className="max-w-md">
+      <main className="page-body">
+        <BentoCard className="max-w-md p-5 sm:p-6">
           {cambiar.isSuccess ? (
             <div className="mb-4">
               <Banner variant="info" title="Contraseña actualizada">
@@ -82,7 +82,7 @@ export function ChangePasswordPage() {
               type="submit"
               disabled={cambiar.isPending}
               aria-busy={cambiar.isPending}
-              className="bg-graphite self-start rounded-full px-4 py-2.5 text-sm font-bold text-white transition hover:brightness-110 disabled:opacity-60"
+              className="btn-primary w-full"
             >
               {cambiar.isPending ? 'Guardando…' : 'Cambiar contraseña'}
             </button>

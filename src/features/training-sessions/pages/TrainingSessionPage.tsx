@@ -218,22 +218,22 @@ function SeriesRow({
   if (!record) return null;
 
   return (
-    <li className="rounded-xl border border-black/10 p-3">
+    <li className="row-interactive rounded-2xl border border-[#292823]/8 bg-white/70 p-4">
       <div className="flex items-baseline justify-between gap-2">
-        <h3 className="text-sm font-semibold">
+        <h3 className="text-sm font-bold">
           Serie {record.position} · {record.prescribedExerciseName}
         </h3>
         {record.warmup ? (
-          <span className="text-xs text-[#77756d]">Entrada en calor</span>
+          <span className="chip-neutral">Entrada en calor</span>
         ) : null}
       </div>
-      <p className="mt-1 text-xs text-[#55534c]">
+      <p className="mt-1 text-xs text-[#68675f]">
         Prescripto: {record.prescribedMinRepetitions}–
         {record.prescribedMaxRepetitions} reps
         {record.prescribedLoad !== null ? ` · ${record.prescribedLoad} kg` : ''}
       </p>
-      <div className="mt-2 grid grid-cols-3 gap-2">
-        <label className="flex flex-col gap-1 text-xs">
+      <div className="mt-3 grid grid-cols-3 gap-2.5">
+        <label className="flex flex-col gap-1.5 text-xs font-semibold text-[#68675f]">
           Carga (kg)
           <input
             type="number"
@@ -250,20 +250,20 @@ function SeriesRow({
                 ? `serie-${record.position}-load-error`
                 : undefined
             }
-            className="rounded-lg border border-black/15 px-2 py-1.5"
+            className="field mt-auto px-3 py-2 tabular-nums"
             aria-label={`Carga de la serie ${record.position}`}
           />
           {localErrors.load ? (
             <span
               id={`serie-${record.position}-load-error`}
               role="alert"
-              className="text-red-700"
+              className="field-error"
             >
               {localErrors.load}
             </span>
           ) : null}
         </label>
-        <label className="flex flex-col gap-1 text-xs">
+        <label className="flex flex-col gap-1.5 text-xs font-semibold text-[#68675f]">
           Reps
           <input
             type="number"
@@ -279,20 +279,20 @@ function SeriesRow({
                 ? `serie-${record.position}-reps-error`
                 : undefined
             }
-            className="rounded-lg border border-black/15 px-2 py-1.5"
+            className="field mt-auto px-3 py-2 tabular-nums"
             aria-label={`Repeticiones de la serie ${record.position}`}
           />
           {localErrors.reps ? (
             <span
               id={`serie-${record.position}-reps-error`}
               role="alert"
-              className="text-red-700"
+              className="field-error"
             >
               {localErrors.reps}
             </span>
           ) : null}
         </label>
-        <label className="flex flex-col gap-1 text-xs">
+        <label className="flex flex-col gap-1.5 text-xs font-semibold text-[#68675f]">
           Esfuerzo (1–10)
           <input
             type="number"
@@ -308,14 +308,14 @@ function SeriesRow({
                 ? `serie-${record.position}-effort-error`
                 : undefined
             }
-            className="rounded-lg border border-black/15 px-2 py-1.5"
+            className="field mt-auto px-3 py-2 tabular-nums"
             aria-label={`Esfuerzo percibido de la serie ${record.position}`}
           />
           {localErrors.effort ? (
             <span
               id={`serie-${record.position}-effort-error`}
               role="alert"
-              className="text-red-700"
+              className="field-error"
             >
               {localErrors.effort}
             </span>
@@ -323,17 +323,17 @@ function SeriesRow({
         </label>
       </div>
       {update.isError && !update.isPending ? (
-        <p role="alert" className="mt-2 text-xs text-red-700">
+        <p role="alert" className="field-error mt-2">
           {errorMessage(update.error)}
         </p>
       ) : null}
-      <div className="mt-2 flex items-center gap-2">
+      <div className="mt-3 flex flex-wrap items-center gap-2 empty:hidden">
         {update.isPending ? (
           <p role="status" className="text-xs text-[#77756d]">
             Guardando…
           </p>
         ) : savedAt && !dirty ? (
-          <p role="status" className="text-xs text-[#55534c]">
+          <p role="status" className="text-xs font-semibold text-[#3b4d14]">
             Guardado ✓
           </p>
         ) : null}
@@ -345,7 +345,7 @@ function SeriesRow({
           <button
             type="button"
             onClick={() => saveNow(true)}
-            className="rounded-full border border-black/20 px-3 py-1.5 text-xs font-bold"
+            className="btn-secondary btn-sm"
           >
             Confirmar valor atípico
           </button>
@@ -443,7 +443,7 @@ export function TrainingSessionPage({ studentId }: TrainingSessionPageProps) {
           title="Tu entrenamiento"
           description="Registro de series, cargas y repeticiones de la sesión activa."
         />
-        <main className="flex flex-col gap-4 px-4 pb-10 sm:px-7 lg:px-9">
+        <main className="page-body flex flex-col gap-6">
           <p role="status">Buscando tu sesión en curso…</p>
         </main>
       </div>
@@ -461,7 +461,7 @@ export function TrainingSessionPage({ studentId }: TrainingSessionPageProps) {
             title="Tu entrenamiento"
             description="Registro de series, cargas y repeticiones de la sesión activa."
           />
-          <main className="flex flex-col gap-4 px-4 pb-10 sm:px-7 lg:px-9">
+          <main className="page-body flex flex-col gap-6">
             <Banner
               variant="danger"
               title="No pudimos consultar tu sesión"
@@ -470,7 +470,7 @@ export function TrainingSessionPage({ studentId }: TrainingSessionPageProps) {
                   type="button"
                   onClick={() => void active.refetch()}
                   disabled={active.isFetching}
-                  className="rounded-full bg-graphite px-3.5 py-1.5 text-xs font-bold text-white disabled:opacity-60"
+                  className="btn-primary btn-sm"
                 >
                   Reintentar
                 </button>
@@ -492,21 +492,23 @@ export function TrainingSessionPage({ studentId }: TrainingSessionPageProps) {
           title="Tu entrenamiento"
           description="Iniciá, pausá, reanudá y cerrá tu sesión sin perder el hilo."
         />
-        <main className="flex flex-col gap-4 px-4 pb-10 sm:px-7 lg:px-9">
+        <main className="page-body flex flex-col gap-6">
           {closedMessage ? (
             <Banner variant="info" title="Sesión cerrada">
               <p>{closedMessage}</p>
             </Banner>
           ) : null}
           <BentoCard>
-            <h2 className="text-sm font-semibold">Sin sesión en curso</h2>
-            <p className="mt-2 text-sm text-[#55534c]">
+            <h2 className="font-display text-lg font-semibold tracking-tight">
+              Sin sesión en curso
+            </h2>
+            <p className="mt-2 max-w-2xl text-sm leading-relaxed text-[#68675f]">
               Iniciá sobre el siguiente día de tu rutina vigente. Si te
               interrumpen, la sesión queda en curso y la retomás acá mismo.
               Pasadas 8 h sin actividad se cierra sola como abandonada.
             </p>
             {start.isError ? (
-              <p role="alert" className="mt-2 text-sm text-red-700">
+              <p role="alert" className="field-error mt-3">
                 {errorMessage(start.error)}
               </p>
             ) : null}
@@ -527,7 +529,7 @@ export function TrainingSessionPage({ studentId }: TrainingSessionPageProps) {
                 )
               }
               disabled={start.isPending}
-              className="mt-3 rounded-full bg-graphite px-4 py-2 text-xs font-bold text-white disabled:opacity-60"
+              className="btn-primary mt-4"
             >
               {start.isPending ? 'Iniciando…' : 'Iniciar sesión'}
             </button>
@@ -544,15 +546,7 @@ export function TrainingSessionPage({ studentId }: TrainingSessionPageProps) {
         title={`${session.routineDayName} · Día ${session.routineDayPosition}`}
         description="Registro de series, cargas y repeticiones de la sesión activa."
       />
-      <main className="flex flex-col gap-4 px-4 pb-10 sm:px-7 lg:px-9">
-        <p
-          role="timer"
-          aria-live="off"
-          aria-label="Tiempo transcurrido de la sesión"
-          className="text-sm font-semibold tabular-nums text-[#55534c]"
-        >
-          ⏱ {elapsed}
-        </p>
+      <main className="page-body flex flex-col gap-6">
         {closedMessage ? (
           <Banner variant="info" title="Sesión cerrada">
             <p>{closedMessage}</p>
@@ -594,62 +588,77 @@ export function TrainingSessionPage({ studentId }: TrainingSessionPageProps) {
         ) : null}
 
         <BentoCard>
-          <div className="flex flex-wrap items-center gap-2">
-            <button
-              type="button"
-              onClick={togglePause}
-              aria-pressed={paused}
-              className="rounded-full border border-black/20 px-4 py-2 text-xs font-bold"
-            >
-              {paused ? 'Reanudar' : 'Pausar'}
-            </button>
-            <button
-              type="button"
-              onClick={() =>
-                finish.mutate(undefined, {
-                  onSuccess: (next) => {
-                    clearSessionDraft(studentId, next.id);
-                    setClosedMessage(
-                      'Sesión completada. Ya suma para tus indicadores.',
-                    );
-                  },
-                })
-              }
-              disabled={finish.isPending}
-              className="rounded-full bg-graphite px-4 py-2 text-xs font-bold text-white disabled:opacity-60"
-            >
-              {finish.isPending ? 'Cerrando…' : 'Finalizar'}
-            </button>
-            <button
-              type="button"
-              onClick={() =>
-                abandon.mutate(undefined, {
-                  onSuccess: (next) => {
-                    clearSessionDraft(studentId, next.id);
-                    setClosedMessage(
-                      'Sesión abandonada. Conservamos lo registrado.',
-                    );
-                  },
-                })
-              }
-              disabled={abandon.isPending}
-              className="rounded-full border border-black/20 px-4 py-2 text-xs font-bold"
-            >
-              Descartar
-            </button>
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="eyebrow text-[#77756d]">
+                {paused ? 'En pausa' : 'Tiempo transcurrido'}
+              </p>
+              <p
+                role="timer"
+                aria-live="off"
+                aria-label="Tiempo transcurrido de la sesión"
+                className="mt-1 font-display text-4xl font-semibold tracking-tight text-ink tabular-nums"
+              >
+                ⏱ {elapsed}
+              </p>
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                onClick={togglePause}
+                aria-pressed={paused}
+                className="btn-secondary"
+              >
+                {paused ? 'Reanudar' : 'Pausar'}
+              </button>
+              <button
+                type="button"
+                onClick={() =>
+                  finish.mutate(undefined, {
+                    onSuccess: (next) => {
+                      clearSessionDraft(studentId, next.id);
+                      setClosedMessage(
+                        'Sesión completada. Ya suma para tus indicadores.',
+                      );
+                    },
+                  })
+                }
+                disabled={finish.isPending}
+                className="btn-primary"
+              >
+                {finish.isPending ? 'Cerrando…' : 'Finalizar'}
+              </button>
+              <button
+                type="button"
+                onClick={() =>
+                  abandon.mutate(undefined, {
+                    onSuccess: (next) => {
+                      clearSessionDraft(studentId, next.id);
+                      setClosedMessage(
+                        'Sesión abandonada. Conservamos lo registrado.',
+                      );
+                    },
+                  })
+                }
+                disabled={abandon.isPending}
+                className="btn-ghost"
+              >
+                Descartar
+              </button>
+            </div>
           </div>
           {(finish.isError || abandon.isError) && (
-            <p role="alert" className="mt-2 text-sm text-red-700">
+            <p role="alert" className="field-error mt-3">
               {errorMessage(finish.error ?? abandon.error)}
             </p>
           )}
         </BentoCard>
 
         <BentoCard>
-          <h2 className="text-sm font-semibold">
+          <h2 className="font-display text-lg font-semibold tracking-tight">
             Series ({session.setRecords.length})
           </h2>
-          <ul className="mt-3 flex flex-col gap-3">
+          <ul className="mt-4 grid gap-3 lg:grid-cols-2">
             {session.setRecords.map((record) => (
               <SeriesRow
                 key={record.position}

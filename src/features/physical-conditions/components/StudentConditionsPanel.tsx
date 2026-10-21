@@ -24,13 +24,6 @@ import { formatDate } from '../../../shared/lib/format';
 import { BentoCard } from '../../../shared/ui/BentoCard';
 import { ConditionsList } from './ConditionsList';
 
-const BOTON =
-  'bg-graphite rounded-full px-4 py-2.5 text-sm font-bold text-white transition hover:brightness-110 disabled:opacity-60';
-const BOTON_SECUNDARIO =
-  'rounded-full border border-[#292823]/15 bg-white px-3 py-1.5 text-xs font-bold transition hover:bg-[#faf9f4] disabled:opacity-60';
-const CAMPO =
-  'focus:border-graphite w-full rounded-xl border bg-white px-3.5 py-2.5 text-sm font-medium outline-none';
-
 function hoy(): string {
   const d = new Date();
   const pad = (n: number) => String(n).padStart(2, '0');
@@ -66,7 +59,7 @@ function CerrarCondicion({
   // una condición que empezó hoy recién se puede cerrar mañana.
   if (condition.startsOn >= new Date().toISOString().slice(0, 10)) {
     return (
-      <p className="text-xs text-[#5f5d55]">
+      <p className="field-hint">
         La declaraste hoy: podés cerrarla desde mañana.
       </p>
     );
@@ -77,7 +70,7 @@ function CerrarCondicion({
       <button
         type="button"
         onClick={() => setConfirmando(true)}
-        className={`${BOTON_SECUNDARIO} self-start`}
+        className="btn-secondary btn-sm self-start"
       >
         Cerrar condición
       </button>
@@ -87,7 +80,7 @@ function CerrarCondicion({
     <div
       role="alertdialog"
       aria-label="Confirmar cierre de la condición"
-      className="flex flex-col gap-2 rounded-xl bg-[#faf9f4] p-3 text-xs"
+      className="surface-muted flex flex-col gap-2 text-xs"
     >
       <p className="font-semibold">
         La condición deja de restringir tu entrenamiento desde hoy. Queda en tu
@@ -98,20 +91,20 @@ function CerrarCondicion({
           type="button"
           disabled={cerrar.isPending}
           onClick={() => cerrar.mutate()}
-          className="bg-graphite rounded-full px-3 py-1.5 font-bold text-white disabled:opacity-60"
+          className="btn-primary btn-sm"
         >
           {cerrar.isPending ? 'Cerrando…' : 'Sí, cerrar'}
         </button>
         <button
           type="button"
           onClick={() => setConfirmando(false)}
-          className={BOTON_SECUNDARIO}
+          className="btn-secondary btn-sm"
         >
           Cancelar
         </button>
       </div>
       {cerrar.isError ? (
-        <p role="alert" className="text-coral-text font-semibold">
+        <p role="alert" className="field-error">
           {apiMessage(cerrar.error) ?? 'No se pudo cerrar. Probá de nuevo.'}
         </p>
       ) : null}
@@ -174,7 +167,7 @@ function DeclararCondicion({
       className="flex flex-col gap-4"
     >
       <div className="flex flex-col gap-1.5">
-        <label htmlFor={idZona} className="eyebrow text-[#5f5d55]">
+        <label htmlFor={idZona} className="field-label">
           Zona corporal <span aria-hidden="true">*</span>
         </label>
         <select
@@ -185,7 +178,7 @@ function DeclararCondicion({
           aria-describedby={errores.zona ? `${idZona}-error` : undefined}
           value={zona}
           onChange={(event) => setZona(event.target.value)}
-          className={`${CAMPO} ${errores.zona ? 'border-coral-strong' : 'border-[#292823]/15'}`}
+          className="field"
         >
           <option value="">Elegí una zona</option>
           <optgroup label="Músculos">
@@ -204,10 +197,7 @@ function DeclararCondicion({
           </optgroup>
         </select>
         {errores.zona ? (
-          <p
-            id={`${idZona}-error`}
-            className="text-coral-text text-xs font-semibold"
-          >
+          <p id={`${idZona}-error`} className="field-error">
             <span aria-hidden="true">✕ </span>
             {errores.zona}
           </p>
@@ -215,7 +205,7 @@ function DeclararCondicion({
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <label htmlFor={idSeveridad} className="eyebrow text-[#5f5d55]">
+        <label htmlFor={idSeveridad} className="field-label">
           Severidad <span aria-hidden="true">*</span>
         </label>
         <select
@@ -226,7 +216,7 @@ function DeclararCondicion({
           aria-describedby={`${idSeveridad}-ayuda${errores.severidad ? ` ${idSeveridad}-error` : ''}`}
           value={severidad}
           onChange={(event) => setSeveridad(event.target.value)}
-          className={`${CAMPO} ${errores.severidad ? 'border-coral-strong' : 'border-[#292823]/15'}`}
+          className="field"
         >
           <option value="">Elegí la severidad</option>
           {SEVERITIES.map(([code, label]) => (
@@ -235,15 +225,12 @@ function DeclararCondicion({
             </option>
           ))}
         </select>
-        <p id={`${idSeveridad}-ayuda`} className="text-xs text-[#5f5d55]">
+        <p id={`${idSeveridad}-ayuda`} className="field-hint">
           Leve: se señala en la rutina. Moderada o severa: impide los ejercicios
           que comprometen esa zona.
         </p>
         {errores.severidad ? (
-          <p
-            id={`${idSeveridad}-error`}
-            className="text-coral-text text-xs font-semibold"
-          >
+          <p id={`${idSeveridad}-error`} className="field-error">
             <span aria-hidden="true">✕ </span>
             {errores.severidad}
           </p>
@@ -251,7 +238,7 @@ function DeclararCondicion({
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <label htmlFor={`${ids}-desde`} className="eyebrow text-[#5f5d55]">
+        <label htmlFor={`${ids}-desde`} className="field-label">
           Desde
         </label>
         <input
@@ -260,15 +247,12 @@ function DeclararCondicion({
           max={hoy()}
           value={desde}
           onChange={(event) => setDesde(event.target.value)}
-          className={`${CAMPO} border-[#292823]/15`}
+          className="field"
         />
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <label
-          htmlFor={`${ids}-descripcion`}
-          className="eyebrow text-[#5f5d55]"
-        >
+        <label htmlFor={`${ids}-descripcion`} className="field-label">
           Descripción (opcional)
         </label>
         <textarea
@@ -277,7 +261,7 @@ function DeclararCondicion({
           maxLength={500}
           value={descripcion}
           onChange={(event) => setDescripcion(event.target.value)}
-          className={`${CAMPO} border-[#292823]/15`}
+          className="field"
         />
       </div>
 
@@ -285,7 +269,7 @@ function DeclararCondicion({
         <div
           role="alertdialog"
           aria-label="Confirmar declaración"
-          className="flex flex-col gap-2 rounded-xl border border-[#b8790c]/30 bg-[#fdf3e0] p-3 text-xs text-[#5a3d0c]"
+          className="surface-muted flex flex-col gap-2 text-xs text-[#5a3d0c]"
         >
           {/* Criterio front 7: informar el efecto antes de confirmar. */}
           <p className="font-semibold">
@@ -298,33 +282,33 @@ function DeclararCondicion({
               disabled={declarar.isPending}
               aria-busy={declarar.isPending}
               onClick={() => declarar.mutate()}
-              className="bg-graphite rounded-full px-3 py-1.5 font-bold text-white disabled:opacity-60"
+              className="btn-primary btn-sm"
             >
               {declarar.isPending ? 'Guardando…' : 'Confirmar declaración'}
             </button>
             <button
               type="button"
               onClick={() => setConfirmando(false)}
-              className={BOTON_SECUNDARIO}
+              className="btn-secondary btn-sm"
             >
               Volver
             </button>
           </div>
         </div>
       ) : (
-        <button type="submit" className={`${BOTON} self-start`}>
+        <button type="submit" className="btn-primary self-start">
           Declarar condición
         </button>
       )}
       {declarar.isError ? (
         <div role="alert" className="flex flex-wrap items-center gap-2 text-xs">
-          <span className="text-coral-text font-semibold">
+          <span className="field-error">
             {apiMessage(declarar.error) ?? 'No se pudo guardar la condición.'}
           </span>
           <button
             type="button"
             onClick={() => declarar.mutate()}
-            className={BOTON_SECUNDARIO}
+            className="btn-secondary btn-sm"
           >
             Reintentar
           </button>
@@ -378,13 +362,15 @@ export function StudentConditionsPanel({ studentId }: { studentId: string }) {
 
   return (
     <BentoCard>
-      <h2 className="eyebrow text-[#5f5d55]">Condiciones físicas</h2>
-      <p className="mt-2 text-sm text-[#55534c]">
+      <h2 className="font-display text-lg font-semibold tracking-tight">
+        Condiciones físicas
+      </h2>
+      <p className="mt-2 text-sm text-[#68675f]">
         Lesiones o molestias que tu entrenador tiene que tener en cuenta.
       </p>
 
       {status.isPending ? (
-        <p role="status" className="mt-4 text-sm text-[#5f5d55]">
+        <p role="status" className="mt-4 text-sm text-[#68675f]">
           Cargando…
         </p>
       ) : status.isError ? (
@@ -393,14 +379,14 @@ export function StudentConditionsPanel({ studentId }: { studentId: string }) {
           <button
             type="button"
             onClick={() => void status.refetch()}
-            className={BOTON}
+            className="btn-primary"
           >
             Reintentar
           </button>
         </div>
       ) : !status.data.healthDataConsent ? (
         // Criterio front 3: sin consentimiento el formulario no se habilita.
-        <div className="mt-4 flex flex-col items-start gap-3 rounded-xl border border-[#b8790c]/30 bg-[#fdf3e0] p-4 text-sm text-[#5a3d0c]">
+        <div className="surface-muted mt-4 flex flex-col items-start gap-3 text-sm text-[#5a3d0c]">
           <p className="font-semibold">
             Para declarar condiciones necesitamos tu consentimiento para tratar
             datos de salud.
@@ -413,12 +399,12 @@ export function StudentConditionsPanel({ studentId }: { studentId: string }) {
             type="button"
             disabled={consentir.isPending}
             onClick={() => consentir.mutate()}
-            className={BOTON}
+            className="btn-primary"
           >
             {consentir.isPending ? 'Guardando…' : 'Dar mi consentimiento'}
           </button>
           {consentir.isError ? (
-            <p role="alert" className="text-coral-text font-semibold">
+            <p role="alert" className="field-error">
               No se pudo registrar. Probá de nuevo.
             </p>
           ) : null}
@@ -426,7 +412,7 @@ export function StudentConditionsPanel({ studentId }: { studentId: string }) {
       ) : (
         <div className="mt-4 flex flex-col gap-6">
           {conditions.isPending ? (
-            <p role="status" className="text-sm text-[#5f5d55]">
+            <p role="status" className="text-sm text-[#68675f]">
               Cargando condiciones…
             </p>
           ) : conditions.isError ? (
@@ -435,7 +421,7 @@ export function StudentConditionsPanel({ studentId }: { studentId: string }) {
               <button
                 type="button"
                 onClick={() => void conditions.refetch()}
-                className={BOTON}
+                className="btn-primary"
               >
                 Reintentar
               </button>
@@ -454,7 +440,7 @@ export function StudentConditionsPanel({ studentId }: { studentId: string }) {
                     .
                   </p>
                 ) : (
-                  <p className="text-sm text-[#5f5d55]">
+                  <p className="surface-muted py-10 text-center text-sm text-[#68675f]">
                     Todavía no respondiste. Si no tenés ninguna, indicalo para
                     que tu entrenador lo sepa.
                   </p>
@@ -475,17 +461,14 @@ export function StudentConditionsPanel({ studentId }: { studentId: string }) {
                     type="button"
                     disabled={ninguna.isPending}
                     onClick={() => ninguna.mutate()}
-                    className={BOTON_SECUNDARIO}
+                    className="btn-secondary btn-sm"
                   >
                     {ninguna.isPending
                       ? 'Guardando…'
                       : 'No tengo ninguna condición física'}
                   </button>
                   {ninguna.isError ? (
-                    <p
-                      role="alert"
-                      className="text-coral-text text-xs font-semibold"
-                    >
+                    <p role="alert" className="field-error">
                       {ninguna.error instanceof ApiError
                         ? (apiMessage(ninguna.error) ?? 'No se pudo guardar.')
                         : 'No se pudo guardar.'}
@@ -495,7 +478,7 @@ export function StudentConditionsPanel({ studentId }: { studentId: string }) {
               ) : null}
 
               <div className="border-t border-[#292823]/8 pt-5">
-                <h3 className="eyebrow mb-3 text-[#5f5d55]">
+                <h3 className="eyebrow mb-3 text-[#68675f]">
                   Declarar una condición
                 </h3>
                 <DeclararCondicion
