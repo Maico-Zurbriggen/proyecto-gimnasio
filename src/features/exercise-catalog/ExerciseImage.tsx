@@ -14,7 +14,7 @@ export function ExerciseImage({
   if (!url || failedUrl === url)
     return (
       fallback ?? (
-        <p className="flex min-h-32 items-center justify-center rounded-xl bg-[#eeeede] px-4 text-center text-sm text-[#706e65]">
+        <p className="flex min-h-32 items-center justify-center rounded-xl surface-muted px-4 text-center text-sm text-[#68675f]">
           Imagen del ejercicio no disponible.
         </p>
       )

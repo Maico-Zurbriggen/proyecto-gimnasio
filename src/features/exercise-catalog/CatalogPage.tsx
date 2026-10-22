@@ -51,12 +51,12 @@ function InventoryPanel({
     onSuccess: (result) => onSaved(result.relatedExercises),
   });
   return (
-    <details className="rounded-2xl border border-[#d7d5ca] bg-white p-4">
+    <details className="rounded-2xl border border-[#292823]/8 bg-white p-4 sm:p-5">
       <summary className="cursor-pointer font-semibold">
         Equipamiento del gimnasio
       </summary>
       <div className="mt-4 space-y-4">
-        <p className="text-sm text-[#706e65]">
+        <p className="text-sm text-[#68675f]">
           El inventario aporta contexto a la IA. Cambiarlo requiere revisar los
           ejercicios relacionados. Las habilitaciones se guardan desde el
           catálogo.
@@ -69,7 +69,7 @@ function InventoryPanel({
           value={equipment}
           onChange={setEquipment}
         />
-        <p className="text-xs text-[#706e65]">
+        <p className="text-xs text-[#68675f]">
           El peso corporal siempre está disponible como contexto.
         </p>
         <button
@@ -80,9 +80,13 @@ function InventoryPanel({
           {mutation.isPending ? 'Guardando…' : 'Guardar inventario'}
         </button>
         {mutation.error && (
-          <p role="alert" className="text-sm text-red-800">
+          <p role="alert" className="field-error">
             {catalogError(mutation.error)}{' '}
-            <button type="button" className="underline" onClick={onReload}>
+            <button
+              type="button"
+              className="btn-secondary btn-sm"
+              onClick={onReload}
+            >
               Recargar inventario
             </button>
           </p>
@@ -156,18 +160,21 @@ function ExerciseDetail({
     <dialog
       ref={dialog}
       onCancel={onClose}
-      className="fixed inset-0 m-auto max-h-[90dvh] w-[calc(100%-2rem)] max-w-3xl overflow-auto rounded-2xl bg-[#f7f6ef] p-5 text-[#252720] shadow-xl backdrop:bg-black/50"
+      className="fixed inset-0 m-auto max-h-[90dvh] w-[calc(100%-2rem)] max-w-3xl overflow-auto rounded-3xl bg-[#f7f6ef] p-5 text-[#252720] shadow-xl backdrop:bg-black/50 backdrop:backdrop-blur-sm sm:p-6"
       aria-labelledby="exercise-detail-title"
     >
       <div className="flex items-start justify-between gap-3">
-        <h2 id="exercise-detail-title" className="text-xl font-semibold">
+        <h2
+          id="exercise-detail-title"
+          className="font-display text-xl font-semibold tracking-tight"
+        >
           {item.name}
         </h2>
         <button
           autoFocus
           type="button"
           onClick={onClose}
-          className="rounded-lg px-3 py-1 text-sm underline"
+          className="btn-secondary btn-sm"
         >
           Cerrar
         </button>
@@ -196,7 +203,7 @@ function ExerciseDetail({
             </figure>
           ))}
           {item.media.length === 0 && (
-            <p className="col-span-2 py-6 text-sm text-[#706e65]">
+            <p className="surface-muted col-span-2 py-6 text-center text-sm text-[#68675f]">
               Esta ficha todavía no tiene imágenes del ejercicio.
             </p>
           )}
@@ -254,7 +261,7 @@ function ExerciseDetail({
         ))}
       </dl>
       {item.reviewObservation && (
-        <p className="mb-4 rounded-xl bg-white p-3 text-sm">
+        <p className="surface-muted mb-4 text-sm">
           Revisión: {item.reviewObservation}
         </p>
       )}
@@ -264,7 +271,7 @@ function ExerciseDetail({
         </button>
       )}
       {admin && item.origin === 'GIMNASIO' && (
-        <section className="mt-5 space-y-3 border-t border-[#d7d5ca] pt-4">
+        <section className="mt-5 space-y-3 border-t border-[#292823]/8 pt-4">
           <h3 className="font-semibold">Revisión de la ficha propia</h3>
           <label className="block text-sm">
             Observación
@@ -281,7 +288,7 @@ function ExerciseDetail({
                 type="checkbox"
                 checked={enableOnApproval}
                 onChange={(event) => setEnableOnApproval(event.target.checked)}
-                className="accent-[#567322]"
+                className="check"
               />
               Habilitar en el gimnasio al aprobar
             </label>
@@ -301,7 +308,7 @@ function ExerciseDetail({
               <button
                 type="button"
                 disabled={mutation.isPending}
-                className="rounded-xl border border-red-800 px-4 py-2 text-sm text-red-800"
+                className="btn-danger"
                 onClick={() => review('RECHAZADO')}
               >
                 Rechazar
@@ -311,19 +318,19 @@ function ExerciseDetail({
               <button
                 type="button"
                 disabled={mutation.isPending}
-                className="rounded-xl border border-red-800 px-4 py-2 text-sm text-red-800"
+                className="btn-danger"
                 onClick={() => review('DESACTIVADO')}
               >
                 Retirar ficha
               </button>
             )}
           </div>
-          <p className="text-xs text-[#706e65]">
+          <p className="text-xs text-[#68675f]">
             La habilitación al aprobar requiere seleccionar la opción anterior.
             Retirar la ficha la deshabilita y conserva sus usos anteriores.
           </p>
           {(localError || mutation.error) && (
-            <p role="alert" className="text-sm text-red-800">
+            <p role="alert" className="field-error">
               {localError || catalogError(mutation.error)}
             </p>
           )}
@@ -475,9 +482,12 @@ function CatalogContent({ manage }: { manage: boolean }) {
             : 'Técnica, músculos y equipamiento de los ejercicios disponibles.'
         }
       />
-      <main className="space-y-5 px-4 pb-10 sm:px-7 lg:px-9">
+      <main className="page-body space-y-5">
         {message && (
-          <p role="status" className="rounded-xl bg-[#e9efd8] p-3 text-sm">
+          <p
+            role="status"
+            className="rounded-2xl bg-lime-soft p-3 text-sm font-medium"
+          >
             {message}
           </p>
         )}
@@ -497,7 +507,7 @@ function CatalogContent({ manage }: { manage: boolean }) {
           />
         )}
         {relatedExercises.length > 0 && (
-          <section className="rounded-xl border border-[#d7d5ca] p-4">
+          <section className="rounded-2xl border border-[#292823]/8 bg-white p-4 sm:p-5">
             <h2 className="font-semibold">
               Ejercicios relacionados con el inventario
             </h2>
@@ -507,7 +517,7 @@ function CatalogContent({ manage }: { manage: boolean }) {
                   <button
                     type="button"
                     disabled={detailQuery.isPending}
-                    className="text-sm underline"
+                    className="text-sm font-semibold underline underline-offset-2"
                     onClick={() => detailQuery.mutate(item.id)}
                   >
                     {item.name}
@@ -517,7 +527,7 @@ function CatalogContent({ manage }: { manage: boolean }) {
             </ul>
             <button
               type="button"
-              className="mt-3 text-sm underline"
+              className="btn-secondary btn-sm mt-3"
               onClick={() => setRelatedExercises([])}
             >
               Cerrar lista
@@ -525,16 +535,16 @@ function CatalogContent({ manage }: { manage: boolean }) {
           </section>
         )}
         {detailQuery.error && (
-          <p role="alert" className="text-sm text-red-800">
+          <p role="alert" className="field-error">
             {catalogError(detailQuery.error)}
           </p>
         )}
         {inventory.error && (
-          <p role="alert" className="text-sm text-red-800">
+          <p role="alert" className="field-error">
             No pudimos cargar el inventario.{' '}
             <button
               type="button"
-              className="underline"
+              className="btn-secondary btn-sm"
               onClick={() => void inventory.refetch()}
             >
               Reintentar
@@ -572,12 +582,12 @@ function CatalogContent({ manage }: { manage: boolean }) {
           />
         )}
         {save.error && (
-          <p role="alert" className="text-sm text-red-800">
+          <p role="alert" className="field-error">
             {catalogError(save.error)}
           </p>
         )}
         <section
-          className="space-y-4 rounded-2xl bg-[#f7f6ef] p-4"
+          className="space-y-4 rounded-3xl border border-[#292823]/8 bg-white p-4 sm:p-5"
           aria-label="Buscar y filtrar ejercicios"
         >
           <form
@@ -585,9 +595,9 @@ function CatalogContent({ manage }: { manage: boolean }) {
               event.preventDefault();
               filter('search', search.trim() || undefined);
             }}
-            className="flex items-end gap-2"
+            className="flex flex-col items-stretch gap-3 sm:flex-row sm:items-end"
           >
-            <label className="min-w-0 flex-1 text-sm font-medium">
+            <label className="field-label min-w-0 flex-1">
               Buscar por nombre
               <input
                 className={fieldClass}
@@ -602,7 +612,7 @@ function CatalogContent({ manage }: { manage: boolean }) {
             </button>
           </form>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            <label className="text-sm">
+            <label className="field-label">
               Disponibilidad
               <select
                 className={fieldClass}
@@ -621,7 +631,7 @@ function CatalogContent({ manage }: { manage: boolean }) {
                 <option value="false">No habilitados</option>
               </select>
             </label>
-            <label className="text-sm">
+            <label className="field-label">
               Origen
               <select
                 className={fieldClass}
@@ -641,7 +651,7 @@ function CatalogContent({ manage }: { manage: boolean }) {
               </select>
             </label>
             {(['muscle', 'equipment'] as const).map((key) => (
-              <label key={key} className="text-sm">
+              <label key={key} className="field-label">
                 {key === 'muscle' ? 'Músculo' : 'Equipamiento'}
                 <select
                   className={fieldClass}
@@ -662,7 +672,7 @@ function CatalogContent({ manage }: { manage: boolean }) {
                 </select>
               </label>
             ))}
-            <label className="text-sm">
+            <label className="field-label">
               Patrón
               <select
                 className={fieldClass}
@@ -684,7 +694,7 @@ function CatalogContent({ manage }: { manage: boolean }) {
                 ))}
               </select>
             </label>
-            <label className="text-sm">
+            <label className="field-label">
               Dificultad
               <select
                 className={fieldClass}
@@ -705,7 +715,7 @@ function CatalogContent({ manage }: { manage: boolean }) {
               </select>
             </label>
             {(admin || trainer) && (
-              <label className="text-sm">
+              <label className="field-label">
                 Estado de la ficha
                 <select
                   className={fieldClass}
@@ -731,10 +741,10 @@ function CatalogContent({ manage }: { manage: boolean }) {
           </div>
         </section>
         {taxonomies.error && (
-          <p role="alert" className="text-sm text-red-800">
+          <p role="alert" className="field-error">
             No pudimos cargar las clasificaciones.{' '}
             <button
-              className="underline"
+              className="btn-secondary btn-sm"
               onClick={() => void taxonomies.refetch()}
             >
               Reintentar
@@ -744,7 +754,7 @@ function CatalogContent({ manage }: { manage: boolean }) {
         {admin && Object.keys(changes).length > 0 && (
           <section
             aria-label="Cambios pendientes"
-            className="sticky top-2 z-10 flex flex-wrap items-center gap-3 rounded-xl bg-[#e0e8c9] p-3 shadow"
+            className="sticky top-2 z-10 flex flex-wrap items-center gap-3 rounded-2xl border border-[#292823]/15 bg-lime-soft p-3 shadow"
           >
             <p className="text-sm">
               {Object.keys(changes).length} cambios sin guardar
@@ -760,7 +770,7 @@ function CatalogContent({ manage }: { manage: boolean }) {
             <button
               type="button"
               disabled={availability.isPending}
-              className="text-sm underline"
+              className="btn-secondary btn-sm"
               onClick={() => {
                 setChanges({});
                 availability.reset();
@@ -771,11 +781,11 @@ function CatalogContent({ manage }: { manage: boolean }) {
           </section>
         )}
         {availability.error && (
-          <p role="alert" className="text-sm text-red-800">
+          <p role="alert" className="field-error">
             {catalogError(availability.error)}{' '}
             <button
               type="button"
-              className="underline"
+              className="btn-secondary btn-sm"
               onClick={() => {
                 setChanges({});
                 availability.reset();
@@ -787,15 +797,18 @@ function CatalogContent({ manage }: { manage: boolean }) {
           </p>
         )}
         {catalog.isLoading && (
-          <p role="status" className="py-10 text-center">
+          <p
+            role="status"
+            className="surface-muted py-10 text-center text-sm text-[#68675f]"
+          >
             Cargando ejercicios…
           </p>
         )}
         {catalog.error && (
-          <p role="alert" className="rounded-xl bg-white p-5">
+          <p role="alert" className="surface-muted">
             {catalogError(catalog.error)}{' '}
             <button
-              className="underline"
+              className="btn-secondary btn-sm"
               onClick={() => void catalog.refetch()}
             >
               Reintentar
@@ -804,16 +817,16 @@ function CatalogContent({ manage }: { manage: boolean }) {
         )}
         {catalog.data && (
           <>
-            <p className="text-sm text-[#706e65]">
+            <p className="text-sm text-[#68675f]">
               {catalog.data.total} ejercicios
               {catalog.isFetching ? ' · actualizando…' : ''}
             </p>
             {catalog.data.items.length === 0 ? (
-              <div className="rounded-2xl border border-dashed border-[#c5c7b8] p-8 text-center">
+              <div className="surface-muted py-10 text-center">
                 <h2 className="font-semibold">
                   No hay ejercicios para esta selección
                 </h2>
-                <p className="mt-2 text-sm text-[#706e65]">
+                <p className="mt-2 text-sm text-[#68675f]">
                   {query.enabled === 'true'
                     ? 'El administrador debe habilitar ejercicios para que puedan usarse al generar una rutina.'
                     : 'Probá otros filtros o un nombre distinto.'}
@@ -824,13 +837,13 @@ function CatalogContent({ manage }: { manage: boolean }) {
                 {catalog.data.items.map((item) => (
                   <article
                     key={item.id}
-                    className="overflow-hidden rounded-2xl border border-[#d7d5ca] bg-white p-4"
+                    className="card-interactive flex flex-col overflow-hidden rounded-2xl border border-[#292823]/8 bg-white/70 p-4 hover:bg-white"
                   >
                     <button
                       type="button"
                       onClick={() => setSelected(item)}
                       disabled={!taxonomies.data}
-                      className="block w-full text-left focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#567322]"
+                      className="mb-4 block w-full text-left focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#567322]"
                     >
                       <ExerciseImage
                         url={item.media[0]?.url ?? ''}
@@ -844,10 +857,10 @@ function CatalogContent({ manage }: { manage: boolean }) {
                           />
                         }
                       />
-                      <h2 className="mt-3 text-lg font-semibold">
+                      <h2 className="font-display mt-3 text-lg font-semibold tracking-tight">
                         {item.name}
                       </h2>
-                      <p className="mt-1 text-sm text-[#706e65]">
+                      <p className="mt-1 text-sm text-[#68675f]">
                         {label(item.difficultyLevel)} ·{' '}
                         {label(item.movementPattern)}
                       </p>
@@ -872,7 +885,7 @@ function CatalogContent({ manage }: { manage: boolean }) {
                       </p>
                     </button>
                     {admin && (
-                      <label className="mt-4 flex items-center gap-2 border-t border-[#eeeede] pt-3 text-sm">
+                      <label className="mt-auto flex items-center gap-2 border-t border-[#292823]/8 pt-3 text-sm">
                         <input
                           type="checkbox"
                           checked={changes[item.id]?.enabled ?? item.enabled}
@@ -882,7 +895,7 @@ function CatalogContent({ manage }: { manage: boolean }) {
                           onChange={(event) =>
                             toggle(item, event.target.checked)
                           }
-                          className="accent-[#567322]"
+                          className="check"
                         />
                         Disponible en el gimnasio
                       </label>
@@ -897,7 +910,7 @@ function CatalogContent({ manage }: { manage: boolean }) {
             >
               <button
                 type="button"
-                className={buttonClass}
+                className="btn-secondary btn-sm"
                 disabled={catalog.data.page <= 1}
                 onClick={() =>
                   setQuery((current) => ({
@@ -908,7 +921,7 @@ function CatalogContent({ manage }: { manage: boolean }) {
               >
                 Anterior
               </button>
-              <span className="text-sm">
+              <span className="text-sm font-semibold text-[#68675f] tabular-nums">
                 {catalog.data.page} /{' '}
                 {Math.max(
                   1,
@@ -917,7 +930,7 @@ function CatalogContent({ manage }: { manage: boolean }) {
               </span>
               <button
                 type="button"
-                className={buttonClass}
+                className="btn-secondary btn-sm"
                 disabled={
                   catalog.data.page * catalog.data.pageSize >=
                   catalog.data.total
@@ -934,7 +947,7 @@ function CatalogContent({ manage }: { manage: boolean }) {
             </nav>
           </>
         )}
-        <p className="text-xs text-[#706e65]">
+        <p className="text-xs text-[#68675f]">
           Exercise data by RepDB (
           <a
             href="https://repdb.co"

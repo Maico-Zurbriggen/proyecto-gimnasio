@@ -26,13 +26,10 @@ import { PageHeader } from '../../../shared/ui/PageHeader';
 
 type Campo = keyof StudentContextInput | 'goal' | 'consent';
 
-const INPUT_CLASS =
-  'w-full rounded-xl border bg-white px-3.5 py-2.5 text-sm font-medium text-ink outline-none transition focus:border-graphite';
-
 function Errores({ id, mensajes }: { id: string; mensajes?: string[] }) {
   if (!mensajes?.length) return null;
   return (
-    <p id={id} className="text-coral-text text-xs font-semibold">
+    <p id={id} className="field-error">
       <span aria-hidden="true">✕ </span>
       {mensajes.join(' ')}
     </p>
@@ -153,14 +150,14 @@ export function StudentOnboardingPage({ studentId }: { studentId: string }) {
     const conError = Boolean(errores[nombre]?.length);
     return (
       <div className="flex flex-col gap-1.5">
-        <label htmlFor={id} className="eyebrow text-[#5f5d55]">
+        <label htmlFor={id} className="field-label">
           {etiqueta} <span aria-hidden="true">*</span>
         </label>
         {control({
           id,
           'aria-invalid': conError || undefined,
           'aria-describedby': conError ? `${id}-error` : undefined,
-          className: `${INPUT_CLASS} ${conError ? 'border-coral-strong' : 'border-[#292823]/15'}`,
+          className: 'field',
         })}
         <Errores id={`${id}-error`} mensajes={errores[nombre]} />
       </div>
@@ -174,8 +171,8 @@ export function StudentOnboardingPage({ studentId }: { studentId: string }) {
         title="Contanos cómo entrenás."
         description="Con estos datos tu entrenador y el sistema arman una rutina a tu medida."
       />
-      <main className="px-4 pb-10 sm:px-7 lg:px-9">
-        <BentoCard className="max-w-xl">
+      <main className="page-body">
+        <BentoCard className="max-w-2xl">
           {context.isPending ? (
             <p role="status" className="text-sm text-[#5f5d55]">
               Cargando tu perfil…
@@ -186,7 +183,7 @@ export function StudentOnboardingPage({ studentId }: { studentId: string }) {
               <button
                 type="button"
                 onClick={() => void context.refetch()}
-                className="bg-graphite rounded-full px-4 py-2 text-sm font-bold text-white"
+                className="btn-secondary btn-sm"
               >
                 Reintentar
               </button>
@@ -315,7 +312,7 @@ export function StudentOnboardingPage({ studentId }: { studentId: string }) {
                 ))}
 
                 {yaConsintio ? null : (
-                  <fieldset className="rounded-xl border border-[#292823]/10 bg-[#faf9f4] p-3 sm:col-span-2">
+                  <fieldset className="surface-muted sm:col-span-2">
                     <legend className="eyebrow px-1 text-[#5f5d55]">
                       Consentimiento para datos de salud{' '}
                       <span aria-hidden="true">*</span>
@@ -323,7 +320,7 @@ export function StudentOnboardingPage({ studentId }: { studentId: string }) {
                     <label className="flex items-start gap-2 text-xs font-medium text-[#3d3c36]">
                       <input
                         type="checkbox"
-                        className="mt-0.5 size-4 shrink-0"
+                        className="check mt-0.5 shrink-0"
                         checked={consiente}
                         aria-invalid={errores.consent ? true : undefined}
                         aria-describedby={
@@ -341,10 +338,7 @@ export function StudentOnboardingPage({ studentId }: { studentId: string }) {
                 )}
 
                 {guardar.isError && Object.keys(errores).length === 0 ? (
-                  <p
-                    role="alert"
-                    className="text-coral-text text-xs font-semibold sm:col-span-2"
-                  >
+                  <p role="alert" className="field-error sm:col-span-2">
                     No pudimos guardar tus datos. Intentá de nuevo.
                   </p>
                 ) : null}
@@ -353,13 +347,13 @@ export function StudentOnboardingPage({ studentId }: { studentId: string }) {
                   <button
                     type="submit"
                     disabled={guardar.isPending}
-                    className="bg-graphite rounded-full px-4 py-2.5 text-sm font-bold text-white transition hover:brightness-110 disabled:opacity-60"
+                    className="btn-accent"
                   >
                     {guardar.isPending ? 'Guardando…' : 'Guardar y continuar'}
                   </button>
                   <Link
                     to="/alumno"
-                    className="text-sm font-bold text-[#3d3c36] underline underline-offset-2"
+                    className="btn-ghost btn-sm underline underline-offset-2"
                   >
                     Completar más tarde
                   </Link>

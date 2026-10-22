@@ -78,4 +78,49 @@ describe('TrainerRoutinesPage', () => {
       ),
     ).toBeVisible();
   });
+
+  it('T2: la bandeja de adaptaciones muestra criterio y dato sin abrir el detalle', async () => {
+    mockApi({
+      'GET /trainers/me/students': { body: [] },
+      'GET /trainers/me/proposals': {
+        body: [
+          {
+            id: '66000000-0000-4000-8000-000000000005',
+            createdAt: '2026-09-14T12:00:00.000Z',
+            student: { id: STUDENT, displayName: 'Sofía Medina' },
+            globalSituation: 'ESTANCAMIENTO',
+            adjustmentsCount: 1,
+            adjustments: [
+              {
+                id: '67000000-0000-4000-8000-000000000051',
+                type: 'CARGA',
+                routineExerciseId: 're-1',
+                exerciseName: 'Sentadilla con barra',
+                criterion: 'Estancamiento: variación +0,8% < +2,5% (RN-79a).',
+                previousValue: { carga_sugerida: 60 },
+                proposedValue: { carga_sugerida: 62.5 },
+                supportingData: { sesionesConsideradas: 6 },
+                state: 'PENDIENTE',
+              },
+            ],
+            advertenciaDatos: {
+              sinDatosActualizados: false,
+              faltasConsecutivas: 0,
+              alcanzoTopeDeFaltas: false,
+            },
+          },
+        ],
+      },
+      'GET /trainers/me/routine-reviews': { body: [] },
+    });
+
+    renderRoute(
+      '/entrenador/rutinas/revisar',
+      '/entrenador/rutinas/revisar',
+      <TrainerRoutinesPage />,
+    );
+
+    expect(await screen.findByText('Sofía Medina')).toBeVisible();
+    expect(screen.getByText(/Estancamiento: variación/)).toBeVisible();
+  });
 });

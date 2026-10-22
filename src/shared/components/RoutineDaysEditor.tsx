@@ -7,13 +7,6 @@ import {
   type RoutineDayForm,
 } from '../lib/routine-days';
 
-const INPUT_CLASS =
-  'w-full rounded-xl border border-[#292823]/15 bg-white px-3 py-2 text-sm text-ink outline-none transition focus:border-graphite';
-const SMALL_BUTTON =
-  'rounded-full border border-[#292823]/15 bg-white px-3 py-1 text-xs font-bold transition hover:brightness-95 disabled:opacity-60';
-const DANGER_BUTTON =
-  'rounded-full border border-red-800/30 bg-white px-3 py-1 text-xs font-bold text-red-900 transition hover:brightness-95 disabled:opacity-60';
-
 function ExercisePicker({
   dayKey,
   onAdd,
@@ -51,14 +44,14 @@ function ExercisePicker({
   }
 
   return (
-    <div className="rounded-xl bg-[#292823]/5 p-3">
+    <div className="rounded-2xl border border-[#292823]/8 bg-white/70 p-3">
       <div className="flex gap-2">
         <label className="sr-only" htmlFor={`buscar-${dayKey}`}>
           Buscar ejercicio habilitado
         </label>
         <input
           id={`buscar-${dayKey}`}
-          className={INPUT_CLASS}
+          className="field"
           value={search}
           onChange={(event) => setSearch(event.target.value)}
           onKeyDown={(event) => {
@@ -71,7 +64,7 @@ function ExercisePicker({
         />
         <button
           type="button"
-          className={SMALL_BUTTON}
+          className="btn-secondary btn-sm"
           disabled={searching || search.trim().length < 2}
           onClick={buscar}
         >
@@ -93,7 +86,7 @@ function ExercisePicker({
               <span className="font-medium">{item.name}</span>
               <button
                 type="button"
-                className={SMALL_BUTTON}
+                className="btn-secondary btn-sm"
                 onClick={() => onAdd(dayKey, item)}
                 aria-label={`Agregar ${item.name}`}
               >
@@ -147,18 +140,23 @@ export function RoutineDaysEditor({ days, onChange }: RoutineDaysEditorProps) {
   return (
     <div className="space-y-4">
       {days.map((day, dayIndex) => (
-        <fieldset
-          key={day.key}
-          className="space-y-3 rounded-2xl border border-[#292823]/10 bg-white p-3"
-        >
-          <legend className="px-1 text-sm font-bold">Día {dayIndex + 1}</legend>
+        <fieldset key={day.key} className="surface-muted space-y-3">
+          <legend className="font-display float-left mb-1 flex w-full items-center gap-2 text-base font-semibold tracking-tight">
+            <span
+              aria-hidden="true"
+              className="flex size-7 items-center justify-center rounded-lg bg-graphite text-xs font-bold text-lime"
+            >
+              {dayIndex + 1}
+            </span>
+            Día {dayIndex + 1}
+          </legend>
           <div className="flex gap-2">
             <label className="sr-only" htmlFor={`dia-${day.key}`}>
               Nombre del día {dayIndex + 1}
             </label>
             <input
               id={`dia-${day.key}`}
-              className={INPUT_CLASS}
+              className="field"
               value={day.name}
               onChange={(event) =>
                 update((current) =>
@@ -174,7 +172,7 @@ export function RoutineDaysEditor({ days, onChange }: RoutineDaysEditorProps) {
             />
             <button
               type="button"
-              className={DANGER_BUTTON}
+              className="btn-danger btn-sm"
               disabled={days.length <= 1}
               onClick={() =>
                 update((current) =>
@@ -190,13 +188,13 @@ export function RoutineDaysEditor({ days, onChange }: RoutineDaysEditorProps) {
           {day.exercises.map((exercise) => (
             <div
               key={exercise.key}
-              className="space-y-2 rounded-xl border border-[#292823]/10 p-2"
+              className="space-y-2 rounded-2xl border border-[#292823]/8 bg-white p-3"
             >
               <div className="flex items-center justify-between gap-2">
                 <p className="text-sm font-bold">{exercise.exerciseName}</p>
                 <button
                   type="button"
-                  className={DANGER_BUTTON}
+                  className="btn-danger btn-sm"
                   onClick={() =>
                     update((current) =>
                       current.map((item) =>
@@ -216,15 +214,12 @@ export function RoutineDaysEditor({ days, onChange }: RoutineDaysEditorProps) {
                   Quitar
                 </button>
               </div>
-              <label
-                className="block text-xs font-bold"
-                htmlFor={`nota-${exercise.key}`}
-              >
+              <label className="field-label" htmlFor={`nota-${exercise.key}`}>
                 Nota (opcional)
               </label>
               <input
                 id={`nota-${exercise.key}`}
-                className={INPUT_CLASS}
+                className="field"
                 value={exercise.note}
                 onChange={(event) =>
                   update((current) =>
@@ -248,15 +243,15 @@ export function RoutineDaysEditor({ days, onChange }: RoutineDaysEditorProps) {
               {exercise.sets.map((set, setIndex) => (
                 <div
                   key={set.key}
-                  className="grid grid-cols-2 gap-2 rounded-lg bg-[#292823]/5 p-2 sm:grid-cols-6"
+                  className="surface-muted grid grid-cols-2 gap-2 p-3 sm:grid-cols-6"
                 >
                   <span className="col-span-2 text-xs font-bold sm:col-span-6">
                     Serie {setIndex + 1}
                   </span>
-                  <label className="text-xs">
+                  <label className="field-label">
                     Mín. reps
                     <input
-                      className={INPUT_CLASS}
+                      className="field"
                       inputMode="numeric"
                       value={set.minRepetitions}
                       onChange={(event) =>
@@ -288,10 +283,10 @@ export function RoutineDaysEditor({ days, onChange }: RoutineDaysEditorProps) {
                       }
                     />
                   </label>
-                  <label className="text-xs">
+                  <label className="field-label">
                     Máx. reps
                     <input
-                      className={INPUT_CLASS}
+                      className="field"
                       inputMode="numeric"
                       value={set.maxRepetitions}
                       onChange={(event) =>
@@ -323,10 +318,10 @@ export function RoutineDaysEditor({ days, onChange }: RoutineDaysEditorProps) {
                       }
                     />
                   </label>
-                  <label className="text-xs">
+                  <label className="field-label">
                     Carga (kg)
                     <input
-                      className={INPUT_CLASS}
+                      className="field"
                       inputMode="decimal"
                       placeholder="—"
                       value={set.suggestedLoad}
@@ -359,10 +354,10 @@ export function RoutineDaysEditor({ days, onChange }: RoutineDaysEditorProps) {
                       }
                     />
                   </label>
-                  <label className="text-xs">
+                  <label className="field-label">
                     Descanso (s)
                     <input
-                      className={INPUT_CLASS}
+                      className="field"
                       inputMode="numeric"
                       value={set.restSeconds}
                       onChange={(event) =>
@@ -394,9 +389,10 @@ export function RoutineDaysEditor({ days, onChange }: RoutineDaysEditorProps) {
                       }
                     />
                   </label>
-                  <label className="flex items-end gap-1 pb-2 text-xs">
+                  <label className="field-label flex items-end gap-2 pb-2">
                     <input
                       type="checkbox"
+                      className="check"
                       checked={set.warmup}
                       onChange={(event) =>
                         update((current) =>
@@ -429,7 +425,7 @@ export function RoutineDaysEditor({ days, onChange }: RoutineDaysEditorProps) {
                   </label>
                   <button
                     type="button"
-                    className={`${DANGER_BUTTON} col-span-2 self-end sm:col-span-1`}
+                    className="btn-danger btn-sm col-span-2 self-end sm:col-span-1"
                     disabled={exercise.sets.length <= 1}
                     onClick={() =>
                       update((current) =>
@@ -460,7 +456,7 @@ export function RoutineDaysEditor({ days, onChange }: RoutineDaysEditorProps) {
               ))}
               <button
                 type="button"
-                className={SMALL_BUTTON}
+                className="btn-secondary btn-sm"
                 disabled={exercise.sets.length >= 10}
                 onClick={() =>
                   update((current) =>
@@ -493,7 +489,7 @@ export function RoutineDaysEditor({ days, onChange }: RoutineDaysEditorProps) {
 
       <button
         type="button"
-        className={SMALL_BUTTON}
+        className="btn-secondary btn-sm"
         disabled={days.length >= 7}
         onClick={() => onChange([...days, blankDayForm()])}
       >

@@ -1,11 +1,13 @@
-import { Search, SlidersHorizontal } from 'lucide-react';
+import { ArrowDownWideNarrow, Search } from 'lucide-react';
+import { useState } from 'react';
 
 import { BentoCard } from '../../../shared/ui/BentoCard';
 import { PageHeader } from '../../../shared/ui/PageHeader';
 import { StudentList } from '../components/StudentList';
 
-/** Listado completo de la cartera. La búsqueda/filtro son de referencia visual. */
+/** Listado completo de la cartera, filtrable por nombre (el backend ya la ordena por urgencia). */
 export function TrainerStudentsListPage() {
+  const [query, setQuery] = useState('');
   return (
     <div>
       <PageHeader
@@ -13,22 +15,29 @@ export function TrainerStudentsListPage() {
         title="Cartera completa."
         description="Una vista consolidada para detectar dónde intervenir y abrir la ficha de cada alumno."
       />
-      <main className="px-4 pb-10 sm:px-7 lg:px-9">
+      <main className="page-body">
         <div className="mb-4 flex flex-col gap-3 sm:flex-row">
-          <div className="flex flex-1 items-center gap-2 rounded-xl border border-[#292823]/10 bg-white px-4 py-3">
-            <Search className="size-4 text-[#858278]" />
-            <span className="text-xs text-[#89867d]">Buscar alumno…</span>
+          <div className="relative flex-1">
+            <Search
+              className="pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2 text-[#858278]"
+              aria-hidden="true"
+            />
+            <input
+              type="search"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="Buscar alumno…"
+              aria-label="Buscar alumno por nombre"
+              className="field pl-10"
+            />
           </div>
-          <button
-            type="button"
-            className="flex items-center justify-center gap-2 rounded-xl border border-[#292823]/10 bg-white px-4 py-3 text-xs font-bold"
-          >
-            <SlidersHorizontal className="size-4" />
-            Orden: urgencia
-          </button>
+          <span className="chip-neutral self-start px-3.5 py-2 sm:self-center">
+            <ArrowDownWideNarrow className="size-3.5" aria-hidden="true" />
+            Ordenados por urgencia
+          </span>
         </div>
         <BentoCard>
-          <StudentList />
+          <StudentList query={query} />
         </BentoCard>
       </main>
     </div>

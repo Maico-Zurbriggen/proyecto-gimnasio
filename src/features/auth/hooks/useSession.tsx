@@ -9,6 +9,7 @@ import {
   type AuthenticatedUser,
   type LoginInput,
 } from '../../../api/auth';
+import { forgetIdentity, rememberIdentity } from '../identity';
 
 export const sessionQueryKey = ['session'] as const;
 
@@ -23,7 +24,10 @@ export interface SessionContextValue {
    * desde una invitación (HU06). La cookie ya está puesta; esto sólo pone al día
    * la identidad cacheada para no tener que volver a pedir `GET /auth/me`.
    */
-  adoptSession: (user: AuthenticatedUser) => void;
+  adoptSession: (
+    user: AuthenticatedUser,
+    identity?: { email?: string; name?: string },
+  ) => void;
 }
 
 const SessionContext = createContext<SessionContextValue | null>(null);
@@ -50,6 +54,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   const login = useCallback(
     async (input: LoginInput) => {
       const result = await loginRequest(input);
+      rememberIdentity({ userId: result.user.id, email: input.email.trim() });
       queryClient.setQueryData(sessionQueryKey, result.user);
       return result.user;
     },
@@ -57,7 +62,8 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   );
 
   const adoptSession = useCallback(
-    (user: AuthenticatedUser) => {
+    (user: AuthenticatedUser, identity?: { email?: string; name?: string }) => {
+      if (identity) rememberIdentity({ userId: user.id, ...identity });
       queryClient.setQueryData(sessionQueryKey, user);
     },
     [queryClient],
@@ -71,6 +77,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       // "adentro" tras pedir salir es peor que un cierre no registrado.
       queryClient.setQueryData(sessionQueryKey, null);
       queryClient.clear();
+      forgetIdentity();
     }
   }, [queryClient]);
 

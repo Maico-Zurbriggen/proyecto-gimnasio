@@ -20,11 +20,6 @@ import {
 } from './ManualRoutineForm';
 import { RoutineReviewForm } from './RoutineReviewForm';
 
-const SELECT_CLASS =
-  'rounded-xl border border-[#292823]/15 bg-white px-3 py-2 text-sm font-medium text-ink outline-none transition focus:border-graphite';
-const PRIMARY_BUTTON =
-  'bg-graphite rounded-full px-4 py-2 text-sm font-bold text-white transition hover:brightness-110 disabled:opacity-60';
-
 function errorMessage(error: unknown): string {
   if (error instanceof ApiError) {
     switch (error.code) {
@@ -86,13 +81,13 @@ export function RoutinePrescriptionPanel({
 
   return (
     <>
-      <BentoCard className="mt-4 flex flex-col gap-4">
+      <BentoCard className="flex flex-col gap-4">
         <div>
           <p className="eyebrow text-[#77756d]">Prescripción</p>
-          <h2 className="font-display mt-2 text-2xl font-semibold tracking-[-0.06em]">
+          <h2 className="font-display mt-2 text-lg font-semibold tracking-tight">
             Rutina del alumno
           </h2>
-          <p className="mt-2 text-xs text-[#77756d]">
+          <p className="mt-2 text-sm text-[#68675f]">
             {vigente
               ? `Rutina vigente: ${vigente.routineType.toLowerCase()} · ${String(vigente.targetWeeklyFrequency)} días por semana.`
               : 'El alumno todavía no tiene una rutina vigente.'}
@@ -100,11 +95,11 @@ export function RoutinePrescriptionPanel({
         </div>
 
         {error ? (
-          <p role="alert" className="text-coral-strong text-xs font-medium">
+          <p role="alert" className="field-error">
             {errorMessage(error)}
             <button
               type="button"
-              className="ml-2 underline"
+              className="btn-secondary btn-sm ml-2"
               onClick={() => {
                 void contenido.refetch();
                 review.reset();
@@ -136,11 +131,9 @@ export function RoutinePrescriptionPanel({
         ) : null}
 
         {propuesta ? (
-          <section className="flex flex-col gap-3">
+          <section className="flex flex-col gap-4">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="eyebrow rounded-full bg-[#fdf3e0] px-2.5 py-1 text-[#5a3d0c]">
-                Propuesta sin resolver
-              </span>
+              <span className="chip-warn">Propuesta sin resolver</span>
               <span className="text-xs font-medium text-[#77756d]">
                 {propuesta.routineType.toLowerCase()} ·{' '}
                 {String(propuesta.targetWeeklyFrequency)} días · versión{' '}
@@ -176,16 +169,14 @@ export function RoutinePrescriptionPanel({
             />
           </section>
         ) : (
-          <section className="flex flex-col gap-3">
+          <section className="surface-muted flex flex-col gap-3">
             <label className="flex flex-col gap-1.5">
-              <span className="eyebrow text-[#77756d]">
-                Plantilla para asignar
-              </span>
+              <span className="field-label">Plantilla para asignar</span>
               <select
                 value={seleccion}
                 disabled={templates.isLoading || operando}
                 onChange={(event) => setTemplateId(event.target.value)}
-                className={SELECT_CLASS}
+                className="field"
               >
                 {(templates.data ?? []).map((template) => (
                   <option key={template.id} value={template.id}>
@@ -205,7 +196,7 @@ export function RoutinePrescriptionPanel({
             <button
               type="button"
               disabled={!seleccion || operando}
-              className={`${PRIMARY_BUTTON} self-start`}
+              className="btn-primary self-start"
               onClick={() => {
                 assign.mutate(seleccion);
               }}
@@ -227,10 +218,10 @@ export function RoutinePrescriptionPanel({
             revisionHref={`/entrenador/alumnos/${studentId}/rutina`}
             nombreAlumno={nombreAlumno ?? 'el alumno'}
           />
-          <BentoCard className="mt-4 flex flex-col gap-4">
+          <BentoCard className="flex flex-col gap-4">
             <div>
               <p className="eyebrow text-[#77756d]">Rutina manual</p>
-              <h3 className="font-display mt-2 text-xl font-semibold tracking-[-0.06em]">
+              <h3 className="font-display mt-2 text-lg font-semibold tracking-tight">
                 Armar la rutina a mano
               </h3>
               <p className="mt-2 text-xs text-[#77756d]">
@@ -239,7 +230,7 @@ export function RoutinePrescriptionPanel({
               </p>
             </div>
             {manual.isError ? (
-              <p role="alert" className="text-coral-strong text-xs font-medium">
+              <p role="alert" className="field-error">
                 {manualRoutineErrorMessage(manual.error)}
               </p>
             ) : null}

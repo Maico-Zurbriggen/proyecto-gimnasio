@@ -26,6 +26,8 @@ import { RoutineGenerationPanel } from '../../features/routine-generations/compo
 import { ProposalReviewPage } from '../../features/adaptation-proposals/pages/ProposalReviewPage';
 import { TrainerRoutinesPage } from '../../features/adaptation-proposals/pages/TrainerRoutinesPage';
 import { StudentOverviewPage } from '../../features/routines/pages/StudentOverviewPage';
+import { TrainingHistoryPage } from '../../features/training-sessions/pages/TrainingHistoryPage';
+import { TrainingSessionPage } from '../../features/training-sessions/pages/TrainingSessionPage';
 import { StudentDetailPage } from '../../features/students/pages/StudentDetailPage';
 import { MeasurementBlockGate } from '../../features/students/components/MeasurementBlockGate';
 import { TrainerPortfolioPage } from '../../features/students/pages/TrainerPortfolioPage';
@@ -64,6 +66,16 @@ function StudentRoutineRoute() {
   ) : null;
 }
 
+function StudentSessionRoute() {
+  const { user } = useSession();
+  return user ? <TrainingSessionPage studentId={user.id} /> : null;
+}
+
+function StudentHistoryRoute() {
+  const { user } = useSession();
+  return user ? <TrainingHistoryPage studentId={user.id} /> : null;
+}
+
 /** Rutas protegidas por sesión, rol y bloqueo de mediciones cuando corresponde. */
 export function AppRouter() {
   return (
@@ -93,16 +105,7 @@ export function AppRouter() {
             <Route element={<MeasurementBlockGate />}>
               <Route path="/alumno" element={<StudentOverviewRoute />} />
               <Route path="/alumno/rutina" element={<StudentRoutineRoute />} />
-              <Route
-                path="/alumno/sesion"
-                element={
-                  <PlaceholderPage
-                    kicker="Sesión en curso"
-                    title="Espalda & Bíceps"
-                    description="Registro de series, cargas y repeticiones de la sesión activa."
-                  />
-                }
-              />
+              <Route path="/alumno/sesion" element={<StudentSessionRoute />} />
               <Route
                 path="/alumno/progreso"
                 element={
@@ -115,13 +118,7 @@ export function AppRouter() {
               />
               <Route
                 path="/alumno/historial"
-                element={
-                  <PlaceholderPage
-                    kicker="Historial"
-                    title="Tu entrenamiento, con contexto."
-                    description="Sesiones realizadas, récords y rutinas archivadas."
-                  />
-                }
+                element={<StudentHistoryRoute />}
               />
               <Route path="/alumno/catalogo" element={<CatalogPage />} />
               {/* HU11 - T3: condiciones físicas declaradas por el alumno. */}

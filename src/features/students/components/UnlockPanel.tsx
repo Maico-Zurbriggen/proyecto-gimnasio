@@ -29,9 +29,9 @@ export function UnlockPanel({
       <BlockedStudentBanner student={student} />
 
       {readyForApproval ? (
-        <div>
+        <div className="surface-muted">
           <p className="eyebrow text-[#77756d]">Regularización presentada</p>
-          <p className="mt-2 text-sm text-[#5f5d56]">
+          <p className="mt-2 text-sm text-[#68675f]">
             El alumno ya cargó peso y altura
             {student.submittedAt
               ? ` el ${formatDate(student.submittedAt.slice(0, 10))}`
@@ -40,21 +40,19 @@ export function UnlockPanel({
           </p>
         </div>
       ) : (
-        <p className="text-sm text-[#5f5d56]">
+        <p className="text-sm text-[#68675f]">
           El alumno todavía debe cargar personalmente el peso y la altura
           pendientes. La aprobación se habilitará después de esa carga.
         </p>
       )}
 
-      {errorMessage ? (
-        <p className="text-xs font-semibold text-[#7a2a20]">{errorMessage}</p>
-      ) : null}
+      {errorMessage ? <p className="field-error">{errorMessage}</p> : null}
 
       <button
         type="button"
         disabled={!readyForApproval || submitting}
         onClick={() => onUnlock()}
-        className="self-start rounded-full bg-lime px-4 py-2.5 text-xs font-bold text-graphite transition hover:brightness-105 disabled:cursor-not-allowed disabled:bg-[#e4e2d8] disabled:text-[#9a988e] disabled:hover:brightness-100"
+        className="btn-accent self-start"
       >
         {submitting ? 'Aprobando…' : 'Aprobar desbloqueo'}
       </button>

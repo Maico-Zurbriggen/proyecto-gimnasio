@@ -40,7 +40,8 @@ body {
 
 /* RNF-34: foco visible en toda navegación por teclado, con contraste AA sobre
    fondos claros y oscuros. */
-:focus-visible {
+/* Los campos .field ya marcan el foco con borde y anillo lima. */
+:focus-visible:not(.field) {
   outline: 2px solid var(--color-graphite);
   outline-offset: 2px;
 }
@@ -54,21 +55,15 @@ aside :focus-visible {
     font-family: var(--font-display);
   }
 
-  .eyebrow {
-    font-family: var(--font-display);
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    font-size: 0.64rem;
-    font-weight: 700;
-  }
-
   .bento-card {
     position: relative;
     overflow: hidden;
-    border: 1px solid rgb(41 40 35 / 10%);
-    background: rgb(255 254 250 / 78%);
-    box-shadow: 0 16px 45px -34px rgb(18 18 16 / 35%);
-    border-radius: 1.65rem;
+    border: 1px solid rgb(41 40 35 / 8%);
+    background: rgb(255 254 250 / 86%);
+    box-shadow:
+      0 1px 2px rgb(20 20 18 / 4%),
+      0 12px 32px -18px rgb(20 20 18 / 14%);
+    border-radius: 1.5rem;
     padding: 1.5rem;
   }
 
@@ -81,6 +76,115 @@ aside :focus-visible {
     height: 3px;
     background: var(--color-lime);
   }
+}
+
+/* Kicker tipográfico; también se compone con @apply en .field-label. */
+@utility eyebrow {
+  font-family: var(--font-display);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  font-size: 0.64rem;
+  font-weight: 700;
+}
+
+/* Contenedor de cuerpo de página: mismo gutter que PageHeader. */
+@utility page-body {
+  @apply mx-auto w-full max-w-7xl px-4 pb-12 sm:px-7 lg:px-9;
+}
+
+/* Tarjeta que reacciona al cursor; el cursor lo pone el link si lo hay. */
+@utility card-interactive {
+  @apply transition duration-200 hover:-translate-y-0.5 hover:border-[#292823]/20 hover:shadow-[0_14px_30px_-20px_rgb(20_20_18/0.35)];
+}
+
+/* Fila de lista que reacciona al cursor sin moverse. */
+@utility row-interactive {
+  @apply transition duration-150 hover:border-[#292823]/20 hover:bg-[#faf9f4];
+}
+
+/* Bloque secundario dentro de una tarjeta (sub-secciones, filas, resúmenes). */
+@utility surface-muted {
+  @apply rounded-2xl border border-[#292823]/8 bg-[#faf9f4] p-4;
+}
+
+/* Botones: una sola escala de tamaño y forma para toda la app. */
+@utility btn {
+  @apply inline-flex items-center justify-center gap-2 rounded-full px-4.5 py-2.5 text-sm leading-5 font-bold whitespace-nowrap transition duration-150 disabled:cursor-not-allowed disabled:opacity-55;
+}
+
+@utility btn-sm {
+  @apply px-3.5 py-1.5 text-xs;
+}
+
+@utility btn-primary {
+  @apply btn bg-graphite text-white hover:bg-[#3a3933] active:translate-y-px disabled:bg-[#292823]/12 disabled:text-[#77756d] disabled:opacity-100;
+}
+
+@utility btn-accent {
+  @apply btn bg-lime text-graphite hover:brightness-95 active:translate-y-px;
+}
+
+@utility btn-secondary {
+  @apply btn border border-[#292823]/15 bg-white text-ink hover:border-[#292823]/30 hover:bg-[#faf9f4];
+}
+
+@utility btn-ghost {
+  @apply btn text-[#3d3c36] hover:bg-black/5;
+}
+
+@utility btn-danger {
+  @apply btn border border-coral-strong/40 bg-white text-[#7a2a20] hover:bg-[#fbe7e5];
+}
+
+/* Campos de formulario. */
+@utility field {
+  @apply w-full rounded-xl border font-sans tracking-normal normal-case border-[#292823]/15 bg-white px-3.5 py-2.5 text-sm font-medium text-ink transition outline-none placeholder:text-[#a3a096] hover:border-[#292823]/25 focus:border-graphite focus:ring-3 focus:ring-lime/45 disabled:cursor-not-allowed disabled:bg-[#f4f3ee] disabled:text-[#8c897f] aria-[invalid=true]:border-coral-strong;
+}
+
+@utility field-label {
+  @apply eyebrow text-[#6c6a62];
+}
+
+@utility field-hint {
+  @apply text-xs leading-5 text-[#706e65];
+}
+
+@utility field-error {
+  @apply text-xs font-medium text-[#b23f2f];
+}
+
+@utility check {
+  @apply size-4 shrink-0 cursor-pointer rounded accent-graphite;
+}
+
+/* Chips de estado: mismo tamaño en toda la app, el color lleva la semántica. */
+@utility chip {
+  @apply inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] leading-5 font-bold whitespace-nowrap;
+}
+
+@utility chip-neutral {
+  @apply chip bg-[#292823]/6 text-[#4b4a44];
+}
+
+@utility chip-ok {
+  @apply chip bg-lime-soft text-[#3b4d14];
+}
+
+@utility chip-warn {
+  @apply chip bg-[#fdf3e0] text-[#7a4f0a];
+}
+
+@utility chip-danger {
+  @apply chip bg-[#fbe7e5] text-[#8e2f22];
+}
+
+@utility chip-dark {
+  @apply chip bg-graphite text-lime;
+}
+
+/* Avatar con iniciales. */
+@utility avatar {
+  @apply flex size-9 shrink-0 items-center justify-center rounded-full bg-coral font-display text-[11px] font-bold tracking-wide text-[#35251e];
 }
 
 @media (prefers-reduced-motion: reduce) {

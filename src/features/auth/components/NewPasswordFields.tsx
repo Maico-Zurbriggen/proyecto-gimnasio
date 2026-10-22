@@ -3,9 +3,6 @@ import { useId, useState } from 'react';
 import { PasswordRequirementsList } from '../../../shared/components/PasswordRequirementsList';
 import { LARGO_MAXIMO_CONTRASENA } from '../../../shared/lib/passwordStrength';
 
-const INPUT_CLASS =
-  'focus:border-graphite w-full rounded-xl border bg-white px-3.5 py-2.5 text-sm font-medium outline-none';
-
 export interface NewPasswordErrors {
   password?: string[];
   confirmation?: string[];
@@ -39,7 +36,7 @@ export function NewPasswordFields({
     <>
       <div className="flex flex-col gap-1.5">
         <div className="flex items-center justify-between gap-2">
-          <label htmlFor={idNueva} className="eyebrow text-[#5f5d55]">
+          <label htmlFor={idNueva} className="field-label">
             Contraseña nueva <span aria-hidden="true">*</span>
           </label>
           <button
@@ -47,7 +44,7 @@ export function NewPasswordFields({
             aria-pressed={visible}
             aria-controls={`${idNueva} ${idRepeticion}`}
             onClick={() => setVisible((v) => !v)}
-            className="rounded-full px-2 py-1 text-xs font-bold text-[#3d3c36] underline underline-offset-2 hover:bg-black/5"
+            className="btn-ghost btn-sm"
           >
             {visible ? 'Ocultar contraseña' : 'Mostrar contraseña'}
           </button>
@@ -68,7 +65,7 @@ export function NewPasswordFields({
             .join(' ')}
           value={password}
           onChange={(event) => onPasswordChange(event.target.value)}
-          className={`${INPUT_CLASS} ${errors.password ? 'border-coral-strong' : 'border-[#292823]/15'}`}
+          className="field"
         />
         {errors.password ? (
           <ul
@@ -89,7 +86,7 @@ export function NewPasswordFields({
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <label htmlFor={idRepeticion} className="eyebrow text-[#5f5d55]">
+        <label htmlFor={idRepeticion} className="field-label">
           Repetí la contraseña <span aria-hidden="true">*</span>
         </label>
         <input
@@ -105,7 +102,7 @@ export function NewPasswordFields({
           }
           value={confirmation}
           onChange={(event) => onConfirmationChange(event.target.value)}
-          className={`${INPUT_CLASS} ${errors.confirmation ? 'border-coral-strong' : 'border-[#292823]/15'}`}
+          className="field"
         />
         {errors.confirmation ? (
           <p

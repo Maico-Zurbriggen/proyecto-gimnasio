@@ -80,14 +80,19 @@ export function GenerationSettingsPage() {
         title="Parámetros de generación con IA"
         description="Se aplican a las nuevas planillas, renovaciones automáticas y regeneraciones. El entrenador revisa cada propuesta antes de ponerla en vigencia."
       />
-      <main className="px-4 pb-10 sm:px-7 lg:px-9">
+      <main className="page-body">
         <BentoCard>
           {query.isPending ? (
             <p role="status">Cargando parámetros…</p>
           ) : query.error ? (
             <div>
               <p role="alert">No pudimos cargar la configuración.</p>
-              <button onClick={() => void query.refetch()}>Reintentar</button>
+              <button
+                className="btn-secondary btn-sm mt-3"
+                onClick={() => void query.refetch()}
+              >
+                Reintentar
+              </button>
             </div>
           ) : (
             <form
@@ -99,32 +104,38 @@ export function GenerationSettingsPage() {
                 });
               }}
             >
-              <label className="flex items-center gap-3 font-semibold">
-                <input
-                  type="checkbox"
-                  checked={enabled}
-                  onChange={(event) => {
-                    setEnabled(event.target.checked);
-                    mutation.reset();
-                  }}
-                />
-                Usar parámetros definidos por el gimnasio
-              </label>
-              <p className="mt-2 text-sm text-[#77756d]">
-                Sin parámetros guardados, la IA decide la prescripción según el
-                alumno. Los ejercicios siempre salen del catálogo aprobado y
-                habilitado del gimnasio.
-              </p>
+              <div className="surface-muted">
+                <label className="flex items-center gap-3 font-semibold">
+                  <input
+                    type="checkbox"
+                    className="check"
+                    checked={enabled}
+                    onChange={(event) => {
+                      setEnabled(event.target.checked);
+                      mutation.reset();
+                    }}
+                  />
+                  Usar parámetros definidos por el gimnasio
+                </label>
+                <p className="mt-2 text-sm text-[#77756d]">
+                  Sin parámetros guardados, la IA decide la prescripción según
+                  el alumno. Los ejercicios siempre salen del catálogo aprobado
+                  y habilitado del gimnasio.
+                </p>
+              </div>
               <fieldset
                 disabled={!enabled || mutation.isPending}
-                className="mt-6 grid gap-5 sm:grid-cols-2"
+                className="mt-6 grid gap-4 sm:grid-cols-2"
               >
                 {ranges.map(([label, minimum, maximum, lower, upper]) => (
-                  <div key={minimum}>
+                  <div
+                    key={minimum}
+                    className="rounded-2xl border border-[#292823]/8 bg-white/70 p-4"
+                  >
                     <p className="mb-2 text-sm font-bold">{label}</p>
                     <div className="grid grid-cols-2 gap-3">
                       {([minimum, maximum] as const).map((key, index) => (
-                        <label key={key} className="text-xs">
+                        <label key={key} className="field-label">
                           {index === 0 ? 'Mínimo' : 'Máximo'}
                           <input
                             aria-label={`${label}: ${index === 0 ? 'mínimo' : 'máximo'}`}
@@ -141,14 +152,14 @@ export function GenerationSettingsPage() {
                               });
                               mutation.reset();
                             }}
-                            className="mt-1 block w-full rounded-xl border border-[#292823]/20 bg-white p-3 text-sm disabled:bg-[#efeee7]"
+                            className="field mt-1"
                           />
                         </label>
                       ))}
                     </div>
                   </div>
                 ))}
-                <label className="text-sm font-bold">
+                <label className="rounded-2xl border border-[#292823]/8 bg-white/70 p-4 text-sm font-bold">
                   Series de calentamiento por ejercicio
                   <input
                     aria-label="Series de calentamiento por ejercicio"
@@ -165,7 +176,7 @@ export function GenerationSettingsPage() {
                       });
                       mutation.reset();
                     }}
-                    className="mt-2 block w-full rounded-xl border border-[#292823]/20 bg-white p-3 text-sm disabled:bg-[#efeee7]"
+                    className="field mt-2"
                   />
                   <span className="mt-1 block text-xs font-normal text-[#77756d]">
                     Cantidad exacta, adicional a las series de trabajo. Los
@@ -175,7 +186,7 @@ export function GenerationSettingsPage() {
                 </label>
               </fieldset>
               {mutation.error ? (
-                <p role="alert" className="mt-4 text-sm text-[#7a2a20]">
+                <p role="alert" className="field-error mt-4">
                   {errorMessage(mutation.error)}
                 </p>
               ) : null}
@@ -188,7 +199,7 @@ export function GenerationSettingsPage() {
                 <button
                   type="submit"
                   disabled={mutation.isPending}
-                  className="rounded-full bg-lime px-5 py-3 text-sm font-bold disabled:opacity-50"
+                  className="btn-accent"
                 >
                   {mutation.isPending ? 'Guardando…' : 'Guardar parámetros'}
                 </button>
@@ -197,7 +208,7 @@ export function GenerationSettingsPage() {
                   <button
                     type="button"
                     onClick={() => void query.refetch()}
-                    className="text-sm underline"
+                    className="btn-secondary btn-sm"
                   >
                     Recargar parámetros
                   </button>

@@ -60,6 +60,34 @@ describe('RoutineChangeRequestPanel', () => {
     });
   });
 
+  it('muestra el error tecnico del polling en lugar del generico', async () => {
+    mockApi({
+      ['POST /students/' + STUDENT_ID + '/routine-generations']: {
+        status: 202,
+        body: { requestId: REQUEST_ID, status: 'pending' },
+      },
+      ['GET /students/' + STUDENT_ID + '/routine-generations/' + REQUEST_ID]: {
+        body: {
+          requestId: REQUEST_ID,
+          status: 'NO_DISPONIBLE',
+          estructuraCandidata: null,
+          violaciones: null,
+          error: 'llm_request_failed',
+          routineId: null,
+          reason: null,
+        },
+      },
+    });
+    renderPanel();
+    fireEvent.change(screen.getByLabelText('Cambios'), {
+      target: { value: 'Mas pecho' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Pedir cambios' }));
+    expect(
+      await screen.findByText(/temporalmente no disponible/),
+    ).toBeVisible();
+  });
+
   it('informa que ya no hay rutina propuesta', async () => {
     mockApi({
       [`POST /students/${STUDENT_ID}/routine-generations`]: {

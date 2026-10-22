@@ -43,13 +43,6 @@ interface ErroresDeCampo {
   confirmation?: string[];
 }
 
-const INPUT_CLASS =
-  'w-full rounded-xl border bg-white px-3.5 py-2.5 text-sm font-medium text-ink outline-none transition focus:border-graphite';
-
-function claseDeInput(conError: boolean): string {
-  return `${INPUT_CLASS} ${conError ? 'border-coral-strong' : 'border-[#292823]/15'}`;
-}
-
 /** Mensajes de un campo, en texto y anunciados al lector de pantalla. */
 function MensajesDeCampo({
   id,
@@ -60,10 +53,7 @@ function MensajesDeCampo({
 }) {
   if (!mensajes?.length) return null;
   return (
-    <ul
-      id={id}
-      className="text-coral-text mt-1 flex flex-col gap-0.5 text-xs font-semibold"
-    >
+    <ul id={id} className="field-error mt-1 flex flex-col gap-0.5">
       {mensajes.map((mensaje) => (
         <li key={mensaje}>
           <span aria-hidden="true">✕ </span>
@@ -193,7 +183,10 @@ export function CompleteAccountPage() {
           : {}),
       });
       // La cookie de sesión ya vino en la respuesta: sólo hay que adoptarla.
-      adoptSession(result.user);
+      adoptSession(result.user, {
+        name: nombre.trim(),
+        email: invitation?.email,
+      });
       navigate(
         result.user.roles.includes('ALUMNO')
           ? STUDENT_ONBOARDING_PATH
@@ -267,14 +260,11 @@ export function CompleteAccountPage() {
         ) : null}
 
         {!cargando && errorDeRed ? (
-          <div
-            role="alert"
-            className="flex flex-col gap-3 rounded-2xl border border-[#292823]/10 bg-white p-6"
-          >
+          <div role="alert" className="bento-card flex flex-col gap-3">
             <p className="text-sm font-semibold">
               No pudimos verificar la invitación.
             </p>
-            <p className="text-sm text-[#55534c]">
+            <p className="text-sm text-[#68675f]">
               {demasiadosIntentos
                 ? 'Hubo demasiados intentos seguidos. Esperá un minuto y volvé a probar.'
                 : 'Puede ser un problema de conexión. Probá de nuevo.'}
@@ -282,7 +272,7 @@ export function CompleteAccountPage() {
             <button
               type="button"
               onClick={reintentar}
-              className="bg-graphite self-start rounded-full px-4 py-2.5 text-sm font-bold text-white transition hover:brightness-110"
+              className="btn-primary self-start"
             >
               Reintentar
             </button>
@@ -298,11 +288,14 @@ export function CompleteAccountPage() {
             noValidate
             onSubmit={(event) => void handleSubmit(event)}
             aria-label="Completar cuenta"
-            className="flex flex-col gap-4 rounded-2xl border border-[#292823]/10 bg-white p-6"
+            className="bento-card flex flex-col gap-4"
           >
             <div>
-              <p className="eyebrow text-[#5f5d55]">{invitation.gymName}</p>
-              <p className="mt-1 text-sm font-medium text-[#55534c]">
+              <p className="eyebrow text-[#5f5d55]">Te damos la bienvenida a</p>
+              <h1 className="font-display mt-1 text-2xl font-semibold tracking-tight">
+                {invitation.gymName}
+              </h1>
+              <p className="mt-2 text-sm text-[#68675f]">
                 Te invitaron como{' '}
                 <strong className="font-bold">
                   {invitation.roles.join(', ').toLowerCase()}
@@ -321,7 +314,7 @@ export function CompleteAccountPage() {
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <label htmlFor={idCorreo} className="eyebrow text-[#5f5d55]">
+              <label htmlFor={idCorreo} className="field-label">
                 Correo
               </label>
               <input
@@ -330,12 +323,12 @@ export function CompleteAccountPage() {
                 value={invitation.email}
                 readOnly
                 aria-readonly="true"
-                className={`${claseDeInput(false)} bg-[#f4f3ee] text-[#55534c]`}
+                className="field bg-[#f4f3ee] text-[#55534c]"
               />
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <label htmlFor={idNombre} className="eyebrow text-[#5f5d55]">
+              <label htmlFor={idNombre} className="field-label">
                 Tu nombre <span aria-hidden="true">*</span>
               </label>
               <input
@@ -352,7 +345,7 @@ export function CompleteAccountPage() {
                 }
                 value={nombre}
                 onChange={(event) => setNombre(event.target.value)}
-                className={claseDeInput(Boolean(errores.displayName))}
+                className="field"
               />
               <MensajesDeCampo
                 id={`${idNombre}-error`}
@@ -362,10 +355,7 @@ export function CompleteAccountPage() {
 
             <div className="flex flex-col gap-1.5">
               <div className="flex items-center justify-between gap-2">
-                <label
-                  htmlFor={idContrasena}
-                  className="eyebrow text-[#5f5d55]"
-                >
+                <label htmlFor={idContrasena} className="field-label">
                   Contraseña <span aria-hidden="true">*</span>
                 </label>
                 <button
@@ -373,7 +363,7 @@ export function CompleteAccountPage() {
                   aria-pressed={mostrarContrasena}
                   aria-controls={`${idContrasena} ${idRepeticion}`}
                   onClick={() => setMostrarContrasena((valor) => !valor)}
-                  className="rounded-full px-2 py-1 text-xs font-bold text-[#3d3c36] underline underline-offset-2 hover:bg-black/5"
+                  className="btn-ghost btn-sm underline underline-offset-2"
                 >
                   {mostrarContrasena
                     ? 'Ocultar contraseña'
@@ -397,7 +387,7 @@ export function CompleteAccountPage() {
                   .join(' ')}
                 value={contrasena}
                 onChange={(event) => setContrasena(event.target.value)}
-                className={claseDeInput(Boolean(errores.password))}
+                className="field"
               />
               <MensajesDeCampo
                 id={`${idContrasena}-error`}
@@ -409,7 +399,7 @@ export function CompleteAccountPage() {
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <label htmlFor={idRepeticion} className="eyebrow text-[#5f5d55]">
+              <label htmlFor={idRepeticion} className="field-label">
                 Repetí la contraseña <span aria-hidden="true">*</span>
               </label>
               <input
@@ -426,7 +416,7 @@ export function CompleteAccountPage() {
                 }
                 value={repeticion}
                 onChange={(event) => setRepeticion(event.target.value)}
-                className={claseDeInput(Boolean(errores.confirmation))}
+                className="field"
               />
               <MensajesDeCampo
                 id={`${idRepeticion}-error`}
@@ -435,14 +425,14 @@ export function CompleteAccountPage() {
             </div>
 
             {invitation.healthConsentText ? (
-              <fieldset className="rounded-xl border border-[#292823]/10 bg-[#faf9f4] p-3">
+              <fieldset className="surface-muted">
                 <legend className="eyebrow px-1 text-[#5f5d55]">
                   Datos de salud (opcional)
                 </legend>
                 <label className="flex items-start gap-2 text-xs font-medium text-[#3d3c36]">
                   <input
                     type="checkbox"
-                    className="mt-0.5 size-4 shrink-0"
+                    className="check mt-0.5"
                     checked={consiente}
                     onChange={(event) => setConsiente(event.target.checked)}
                   />
@@ -470,7 +460,7 @@ export function CompleteAccountPage() {
             ) : null}
 
             {errorEnvio ? (
-              <p role="alert" className="text-coral-text text-xs font-semibold">
+              <p role="alert" className="field-error">
                 {errorEnvio}
               </p>
             ) : null}
@@ -479,11 +469,11 @@ export function CompleteAccountPage() {
               type="submit"
               disabled={enviando}
               aria-busy={enviando}
-              className="bg-graphite mt-1 rounded-full px-4 py-2.5 text-sm font-bold text-white transition hover:brightness-110 disabled:opacity-60"
+              className="btn-primary mt-1"
             >
               {enviando ? 'Creando cuenta…' : 'Crear cuenta y entrar'}
             </button>
-            <p className="text-[11px] text-[#5f5d55]">
+            <p className="field-hint">
               <span aria-hidden="true">*</span> Campos obligatorios.
             </p>
           </form>
