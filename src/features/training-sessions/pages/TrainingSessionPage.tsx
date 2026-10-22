@@ -2,7 +2,11 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import type { ChangeEventHandler } from 'react';
 
 import { ApiError, validationMessages } from '../../../api/client';
-import type { TrainingSession } from '../../../api/trainingSessions';
+import {
+  updateSeriesRecord,
+  type TrainingSession,
+  type UpdateSeriesInput,
+} from '../../../api/trainingSessions';
 import { Banner } from '../../../shared/components/Banner';
 import { BentoCard } from '../../../shared/ui/BentoCard';
 import { PageHeader } from '../../../shared/ui/PageHeader';
@@ -19,6 +23,7 @@ import {
   readSessionDraft,
   writeSessionDraft,
 } from '../lib/sessionDraft';
+import { usePendingSeriesSync } from '../hooks/usePendingSeriesSync';
 import { formatElapsed } from '../lib/sessionElapsed';
 import {
   hasSeriesFieldErrors,
@@ -72,11 +77,16 @@ function SeriesRow({
   session,
   position,
   onAtypical,
+  onEnvioPendiente,
+  onEnvioConfirmado,
 }: {
   studentId: string;
   session: TrainingSession;
   position: number;
   onAtypical: (body: unknown) => void;
+  /** El envío se agotó sin llegar: queda en la cola de reintento (RNF-10). */
+  onEnvioPendiente: (position: number, valores: UpdateSeriesInput) => void;
+  onEnvioConfirmado: (position: number) => void;
 }) {
   const record = session.setRecords.find((item) => item.position === position);
   const update = useUpdateSeriesRecord(studentId, session.id);
@@ -116,18 +126,20 @@ function SeriesRow({
     setLocalErrors(fieldErrors);
     if (hasSeriesFieldErrors(fieldErrors)) return;
     setNeedsConfirm(false);
+    const valores: UpdateSeriesInput = {
+      performedLoad: load === '' ? null : Number(load),
+      performedRepetitions: reps === '' ? null : Number(reps),
+      perceivedEffort: effort === '' ? null : Number(effort),
+      completed: true,
+      atypicalConfirmed: atypicalConfirmed || undefined,
+    };
+
     update.mutate(
-      {
-        position,
-        performedLoad: load === '' ? null : Number(load),
-        performedRepetitions: reps === '' ? null : Number(reps),
-        perceivedEffort: effort === '' ? null : Number(effort),
-        completed: true,
-        atypicalConfirmed: atypicalConfirmed || undefined,
-      },
+      { position, ...valores },
       {
         onSuccess: (next) => {
           setSavedAt(new Date().toISOString());
+          onEnvioConfirmado(position);
           // Limpia sólo esta posición: otras series pueden tener borrador.
           const draft = readSessionDraft(studentId, next.id);
           const values = { ...(draft?.values ?? {}) };
@@ -148,6 +160,19 @@ function SeriesRow({
             // Pausa el autoguardado hasta confirmar o corregir (RN-55a).
             setNeedsConfirm(true);
             onAtypical(error.body);
+            return;
+          }
+
+          // El autoguardado ya agotó sus reintentos. Si fue por la red, la
+          // serie pasa a la cola: se reenvía al recuperar la conexión en lugar
+          // de quedar sólo en el borrador sin que nadie la vuelva a mandar
+          // (RNF-10, CB-24).
+          const esDeCliente =
+            error instanceof ApiError &&
+            error.status >= 400 &&
+            error.status < 500;
+          if (!esDeCliente) {
+            onEnvioPendiente(position, valores);
           }
         },
       },
@@ -394,6 +419,24 @@ export function TrainingSessionPage({ studentId }: TrainingSessionPageProps) {
   // Tiempo real: late cada segundo salvo en pausa, donde se congela.
   const now = useNow(!!session && !paused);
 
+  // Cola de series que el autoguardado no logró enviar (RNF-10, CB-24).
+  const pendientes = usePendingSeriesSync({
+    enviarSerie: (position, valores) =>
+      updateSeriesRecord(
+        studentId,
+        session?.id ?? 'sin-sesion',
+        position,
+        valores,
+      ).then(() => undefined),
+    onSesionCerrada: () => {
+      // Criterio 8: la sesión dejó de admitir registros mientras el teléfono
+      // estaba sin señal. Se avisa en lugar de descartar en silencio.
+      setClosedMessage(
+        'Esta sesión ya no admite registros: se cerró mientras estabas sin conexión. Lo anterior quedó guardado.',
+      );
+    },
+  });
+
   const finish = useFinishTrainingSession(
     studentId,
     session?.id ?? 'sin-sesion',
@@ -552,6 +595,26 @@ export function TrainingSessionPage({ studentId }: TrainingSessionPageProps) {
             <p>{closedMessage}</p>
           </Banner>
         ) : null}
+        {pendientes.pendientes.length > 0 ? (
+          <Banner variant="warning" title="Pendiente de sincronizar">
+            {/* El mensaje habla del trabajo a salvo, no de la red: mientras el
+                borrador local funcione, perder conexión no le cuesta nada al
+                alumno y no hay motivo para alarmarlo (RNF-10). */}
+            <p>
+              {pendientes.pendientes.length === 1
+                ? 'Guardamos 1 serie en este dispositivo. Se envía sola al recuperar la conexión.'
+                : `Guardamos ${String(pendientes.pendientes.length)} series en este dispositivo. Se envían solas al recuperar la conexión.`}
+            </p>
+            <button
+              type="button"
+              onClick={pendientes.sincronizar}
+              disabled={pendientes.sincronizando}
+              className="btn-ghost mt-2"
+            >
+              {pendientes.sincronizando ? 'Enviando…' : 'Reintentar ahora'}
+            </button>
+          </Banner>
+        ) : null}
         {session.aptitudeWarning ? (
           <Banner
             variant="info"
@@ -666,6 +729,8 @@ export function TrainingSessionPage({ studentId }: TrainingSessionPageProps) {
                 session={session}
                 position={record.position}
                 onAtypical={setAtypicalBody}
+                onEnvioPendiente={pendientes.encolar}
+                onEnvioConfirmado={pendientes.confirmar}
               />
             ))}
           </ul>

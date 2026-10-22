@@ -326,6 +326,53 @@ describe('TrainingSessionPage (RF-027, FL-05, FL-07)', () => {
     }
   });
 
+  it('criterio 6: tras agotar los reintentos avisa que quedó pendiente de sincronizar', async () => {
+    vi.useFakeTimers();
+    try {
+      // La red del gimnasio se cae: el autoguardado agota sus reintentos.
+      mockApi({
+        'GET /training-sessions/active': { body: activeSession() },
+        [`PATCH /students/${STUDENT_ID}/training-sessions/${SESSION_ID}/records/1`]:
+          () => ({ status: 503, body: { error: 'service_unavailable' } }),
+      });
+      renderPage();
+
+      await act(async () => {
+        for (let i = 0; i < 20; i += 1) {
+          vi.advanceTimersByTime(0);
+          await Promise.resolve();
+        }
+      });
+
+      fireEvent.change(screen.getByLabelText(/carga de la serie 1/i), {
+        target: { value: '20' },
+      });
+      fireEvent.change(screen.getByLabelText(/repeticiones de la serie 1/i), {
+        target: { value: '10' },
+      });
+
+      // Debounce + los reintentos del autoguardado (500 ms entre cada uno).
+      await act(async () => {
+        vi.advanceTimersByTime(3000);
+      });
+      await act(async () => {
+        for (let i = 0; i < 40; i += 1) {
+          vi.advanceTimersByTime(600);
+          await Promise.resolve();
+        }
+      });
+
+      // Lo importante: el alumno se entera de que su serie no llegó, y el
+      // mensaje le dice que está guardada, no que se perdió.
+      expect(screen.getByText(/pendiente de sincronizar/i)).toBeInTheDocument();
+      expect(
+        screen.getByText(/guardamos 1 serie en este dispositivo/i),
+      ).toBeInTheDocument();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it('conserva lo tipeado sin enviar ante una recarga (RNF-10)', async () => {
     const { unmount } = renderPageWithSession();
     expect(
