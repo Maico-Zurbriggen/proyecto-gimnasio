@@ -13,6 +13,7 @@ import { useSession } from '../../auth/hooks/useSession';
 import { initialsOf, readIdentity } from '../../auth/identity';
 import { useOwnMeasurementBlock } from '../../students/hooks/useOwnMeasurementBlock';
 import { StudentConditionsPanel } from '../components/StudentConditionsPanel';
+import { StudentGoalsPanel } from '../components/StudentGoalsPanel';
 
 /** Ficha propia: identidad, entrenador y datos físicos que ve el entrenador. */
 function ProfileSummary() {
@@ -169,7 +170,8 @@ export function StudentProfilePage({ studentId }: { studentId: string }) {
         <div className="lg:col-span-5">
           <ProfileSummary />
         </div>
-        <div className="lg:col-span-7">
+        <div className="flex flex-col gap-6 lg:col-span-7">
+          <StudentGoalsPanel studentId={studentId} />
           <StudentConditionsPanel studentId={studentId} />
         </div>
       </main>

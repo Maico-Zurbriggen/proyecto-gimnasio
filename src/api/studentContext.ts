@@ -37,6 +37,26 @@ export const studentContextSchema = z.object({
 
 export type StudentContext = z.infer<typeof studentContextSchema>;
 
+const goalRecordSchema = z.object({
+  id: z.string().uuid(),
+  type: z.enum(GOAL_TYPES),
+  startsOn: z.string(),
+  endsOn: z.string().nullable(),
+});
+
+export const goalsSnapshotSchema = z.object({
+  timezone: z.string(),
+  current: goalRecordSchema.nullable(),
+  history: z.array(goalRecordSchema),
+  atDate: goalRecordSchema.nullable(),
+  context: z.object({
+    sufficient: z.boolean(),
+    missing: z.array(z.string()),
+  }),
+});
+
+export type GoalsSnapshot = z.infer<typeof goalsSnapshotSchema>;
+
 export interface StudentContextInput {
   experienceLevel: (typeof EXPERIENCE_LEVELS)[number];
   availableDaysPerWeek: number;
@@ -48,6 +68,8 @@ export interface StudentContextInput {
 }
 
 export const studentContextQueryKey = ['students', 'me', 'context'] as const;
+export const goalsQueryKey = (studentId: string) =>
+  ['students', studentId, 'goals'] as const;
 
 export async function fetchOwnContext(
   signal?: AbortSignal,
@@ -62,6 +84,18 @@ export async function saveOwnContext(
 ): Promise<StudentContext> {
   return studentContextSchema.parse(
     await apiPut('/students/me/context', input),
+  );
+}
+
+/** Objetivo vigente e historial declarado del alumno (HU10). */
+export async function fetchGoals(
+  studentId: string,
+  signal?: AbortSignal,
+): Promise<GoalsSnapshot> {
+  return goalsSnapshotSchema.parse(
+    await apiGet(`/students/${encodeURIComponent(studentId)}/goals`, {
+      signal,
+    }),
   );
 }
 
