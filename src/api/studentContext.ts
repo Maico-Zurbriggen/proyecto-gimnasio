@@ -37,7 +37,7 @@ export const studentContextSchema = z.object({
 
 export type StudentContext = z.infer<typeof studentContextSchema>;
 
-const goalRecordSchema = z.object({
+export const goalRecordSchema = z.object({
   id: z.string().uuid(),
   type: z.enum(GOAL_TYPES),
   startsOn: z.string(),
@@ -56,6 +56,14 @@ export const goalsSnapshotSchema = z.object({
 });
 
 export type GoalsSnapshot = z.infer<typeof goalsSnapshotSchema>;
+
+export const goalDeclarationResultSchema = z.object({
+  goal: goalRecordSchema,
+  changed: z.boolean(),
+  timezone: z.string(),
+});
+
+export type GoalDeclarationResult = z.infer<typeof goalDeclarationResultSchema>;
 
 export interface StudentContextInput {
   experienceLevel: (typeof EXPERIENCE_LEVELS)[number];
@@ -103,8 +111,10 @@ export async function fetchGoals(
 export async function declareGoal(
   studentId: string,
   type: (typeof GOAL_TYPES)[number],
-): Promise<void> {
-  await apiPost(`/students/${encodeURIComponent(studentId)}/goals`, { type });
+): Promise<GoalDeclarationResult> {
+  return goalDeclarationResultSchema.parse(
+    await apiPost(`/students/${encodeURIComponent(studentId)}/goals`, { type }),
+  );
 }
 
 /** `POST /students/me/health-consent`: otorgar el consentimiento después del alta. */

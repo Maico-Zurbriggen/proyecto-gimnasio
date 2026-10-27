@@ -16,14 +16,22 @@ export function StudentGoalsPanel({ studentId }: { studentId: string }) {
   const selectId = useId();
   const queryClient = useQueryClient();
   const [selected, setSelected] = useState<GoalType | ''>('');
+  const [confirming, setConfirming] = useState(false);
+  const [feedback, setFeedback] = useState<string | null>(null);
   const goals = useQuery({
     queryKey: goalsQueryKey(studentId),
     queryFn: ({ signal }) => fetchGoals(studentId, signal),
   });
   const save = useMutation({
     mutationFn: (type: GoalType) => declareGoal(studentId, type),
-    onSuccess: async () => {
+    onSuccess: async (result) => {
+      setFeedback(
+        result.changed
+          ? 'Objetivo actualizado correctamente.'
+          : `${humanizeEnum(result.goal.type)} ya es tu objetivo vigente. No se realizaron cambios.`,
+      );
       setSelected('');
+      setConfirming(false);
       await queryClient.invalidateQueries({
         queryKey: goalsQueryKey(studentId),
       });
@@ -32,7 +40,13 @@ export function StudentGoalsPanel({ studentId }: { studentId: string }) {
 
   const submit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (selected) save.mutate(selected);
+    if (!selected) return;
+    setFeedback(null);
+    if (goals.data?.current && selected !== goals.data.current.type) {
+      setConfirming(true);
+      return;
+    }
+    save.mutate(selected);
   };
 
   return (
@@ -90,9 +104,11 @@ export function StudentGoalsPanel({ studentId }: { studentId: string }) {
               id={selectId}
               className="field"
               value={selected}
-              onChange={(event) =>
-                setSelected(event.target.value as GoalType | '')
-              }
+              onChange={(event) => {
+                setSelected(event.target.value as GoalType | '');
+                setConfirming(false);
+                setFeedback(null);
+              }}
             >
               <option value="">Elegí un objetivo</option>
               {GOAL_TYPES.map((type) => (
@@ -113,7 +129,50 @@ export function StudentGoalsPanel({ studentId }: { studentId: string }) {
                 No pudimos guardar el objetivo. Probá de nuevo.
               </p>
             ) : null}
+            {feedback ? (
+              <p role="status" className="text-sm text-[#426b45]">
+                {feedback}
+              </p>
+            ) : null}
           </form>
+
+          {confirming && selected ? (
+            <div
+              role="alertdialog"
+              aria-labelledby="goal-change-title"
+              aria-describedby="goal-change-description"
+              className="surface-muted mt-4"
+            >
+              <h3 id="goal-change-title" className="font-semibold">
+                Confirmar cambio de objetivo
+              </h3>
+              <p
+                id="goal-change-description"
+                className="mt-2 text-sm text-[#68675f]"
+              >
+                Cambiar tu objetivo puede generar una propuesta de ajuste de
+                rutina. La propuesta deberá ser revisada por tu entrenador.
+              </p>
+              <div className="mt-4 flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  className="btn-primary btn-sm"
+                  disabled={save.isPending}
+                  onClick={() => save.mutate(selected)}
+                >
+                  {save.isPending ? 'Guardando…' : 'Confirmar cambio'}
+                </button>
+                <button
+                  type="button"
+                  className="btn-secondary btn-sm"
+                  disabled={save.isPending}
+                  onClick={() => setConfirming(false)}
+                >
+                  Cancelar
+                </button>
+              </div>
+            </div>
+          ) : null}
 
           {goals.data.history.length > 1 ? (
             <details className="mt-5">

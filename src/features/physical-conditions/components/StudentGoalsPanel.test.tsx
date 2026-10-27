@@ -54,7 +54,14 @@ describe('StudentGoalsPanel (HU10)', () => {
       [`GET ${URL}`]: () => ({ body: snapshot(current) }),
       [`POST ${URL}`]: () => {
         current = GOAL;
-        return { status: 201, body: { goal: GOAL, changed: true } };
+        return {
+          status: 201,
+          body: {
+            goal: GOAL,
+            changed: true,
+            timezone: 'America/Argentina/Buenos_Aires',
+          },
+        };
       },
     });
     renderPanel();
@@ -71,6 +78,54 @@ describe('StudentGoalsPanel (HU10)', () => {
         ([url, init]) => init?.method === 'POST' && String(url).endsWith(URL),
       ),
     ).toBe(true);
+  });
+
+  it('advierte antes de cambiar el objetivo vigente', async () => {
+    mockApi({
+      [`GET ${URL}`]: { body: snapshot(GOAL) },
+      [`POST ${URL}`]: {
+        status: 201,
+        body: {
+          goal: { ...GOAL, type: 'HIPERTROFIA' },
+          changed: true,
+          timezone: 'America/Argentina/Buenos_Aires',
+        },
+      },
+    });
+    renderPanel();
+
+    await screen.findByText('Objetivo vigente');
+    fireEvent.change(screen.getByLabelText('Cambiar objetivo'), {
+      target: { value: 'HIPERTROFIA' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Guardar objetivo' }));
+
+    expect(
+      screen.getByRole('alertdialog', { name: 'Confirmar cambio de objetivo' }),
+    ).toHaveTextContent('puede generar una propuesta de ajuste de rutina');
+  });
+
+  it('informa cuando se vuelve a elegir el objetivo vigente', async () => {
+    mockApi({
+      [`GET ${URL}`]: { body: snapshot(GOAL) },
+      [`POST ${URL}`]: {
+        status: 201,
+        body: {
+          goal: GOAL,
+          changed: false,
+          timezone: 'America/Argentina/Buenos_Aires',
+        },
+      },
+    });
+    renderPanel();
+
+    await screen.findByText('Objetivo vigente');
+    fireEvent.change(screen.getByLabelText('Cambiar objetivo'), {
+      target: { value: 'FUERZA' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Guardar objetivo' }));
+
+    expect(await screen.findByText(/ya es tu objetivo vigente/i)).toBeVisible();
   });
 
   it('ofrece reintentar cuando falla la consulta', async () => {
