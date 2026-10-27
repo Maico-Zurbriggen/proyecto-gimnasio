@@ -10,6 +10,7 @@ import { RoutinePrescriptionPanel } from '../../prescriptions/components/Routine
 import { TrainerConditionsCard } from '../../physical-conditions/components/TrainerConditionsCard';
 import { StudentPendingProposals } from '../../adaptation-proposals/components/StudentPendingProposals';
 import { ActiveRoutineCard } from '../components/ActiveRoutineCard';
+import { TrainerGoalsCard } from '../components/TrainerGoalsCard';
 import { UnlockPanel } from '../components/UnlockPanel';
 import { useStudentStatus } from '../hooks/useStudentStatus';
 import { useUnlockStudent } from '../hooks/useUnlockStudent';
@@ -213,7 +214,10 @@ export function StudentDetailPage() {
               />
             </div>
             {/* HU11: condiciones declaradas por el alumno, sólo lectura. */}
-            <TrainerConditionsCard studentId={student.studentId} />
+            <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+              <TrainerGoalsCard studentId={student.studentId} />
+              <TrainerConditionsCard studentId={student.studentId} />
+            </div>
             {!student.bloqueado ? (
               <StudentPendingProposals studentId={student.studentId} />
             ) : null}

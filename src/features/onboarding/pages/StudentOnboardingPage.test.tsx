@@ -76,7 +76,19 @@ describe('StudentOnboardingPage (FL-01)', () => {
           complete: true,
         },
       },
-      [`POST /students/${STUDENT}/goals`]: { status: 201, body: {} },
+      [`POST /students/${STUDENT}/goals`]: {
+        status: 201,
+        body: {
+          goal: {
+            id: '12000000-0000-4000-8000-000000000001',
+            type: 'HIPERTROFIA',
+            startsOn: '2026-10-26T12:00:00.000Z',
+            endsOn: null,
+          },
+          changed: true,
+          timezone: 'America/Argentina/Buenos_Aires',
+        },
+      },
     });
     renderPage();
 
@@ -182,7 +194,19 @@ describe('StudentOnboardingPage (FL-01)', () => {
         body: { ...VACIO, healthDataConsent: true },
       },
       'PUT /students/me/context': { body: { ...VACIO, complete: true } },
-      [`POST /students/${STUDENT}/goals`]: { status: 201, body: {} },
+      [`POST /students/${STUDENT}/goals`]: {
+        status: 201,
+        body: {
+          goal: {
+            id: '12000000-0000-4000-8000-000000000002',
+            type: 'FUERZA',
+            startsOn: '2026-10-26T12:00:00.000Z',
+            endsOn: null,
+          },
+          changed: true,
+          timezone: 'America/Argentina/Buenos_Aires',
+        },
+      },
     });
     renderPage();
 
