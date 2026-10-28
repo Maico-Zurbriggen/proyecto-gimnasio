@@ -1,4 +1,4 @@
-import { Bell, KeyRound, LogOut } from 'lucide-react';
+import { KeyRound, LogOut } from 'lucide-react';
 import { useState } from 'react';
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
 
@@ -17,6 +17,7 @@ import {
 import { useOwnMeasurementBlock } from '../../features/students/hooks/useOwnMeasurementBlock';
 import { useTrainerStudents } from '../../features/students/hooks/useTrainerStudents';
 import { totalPendingReviews } from '../../features/students/lib/pendingReviews';
+import { NoticesMenu } from '../../features/notifications/components/NoticesMenu';
 import { NAVIGATION } from './nav';
 
 const FOOTER_ACTION_CLASS =
@@ -375,14 +376,7 @@ export function AppShell() {
             </div>
             <div className="flex items-center gap-2 sm:gap-3">
               <RoleSwitcher active={role} roles={user?.roles ?? []} />
-              <button
-                type="button"
-                aria-label="Notificaciones"
-                className="relative flex size-9 items-center justify-center rounded-full border border-black/8 bg-white/75 text-[#46443e] transition hover:-translate-y-0.5 hover:bg-white"
-              >
-                <Bell className="size-4" />
-                <span className="absolute right-1.5 top-1.5 size-1.5 rounded-full bg-coral-strong" />
-              </button>
+              <NoticesMenu role={role} />
               <UserBadge identity={identity} roleName={ROLE_META[role].name} />
             </div>
           </div>

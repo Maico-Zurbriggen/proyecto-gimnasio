@@ -15,6 +15,14 @@ export function adjustmentTypeLabel(type: AdjustmentType): string {
   return TYPE_LABEL[type];
 }
 
+export function requiresManualIntervention(
+  adjustment: ProposalAdjustment,
+): boolean {
+  return (
+    field(adjustment.proposedValue, 'requires_manual_intervention') === true
+  );
+}
+
 function field(value: unknown, key: string): unknown {
   return typeof value === 'object' && value !== null
     ? (value as Record<string, unknown>)[key]
@@ -53,6 +61,9 @@ export function formatAdjustmentValue(
       break;
     }
     case 'SUSTITUCION': {
+      if (field(value, 'requires_manual_intervention') === true) {
+        return 'Selección manual requerida';
+      }
       const exercise =
         field(value, 'exercise_name') ?? field(value, 'exercise_id');
       if (typeof exercise === 'string') {
