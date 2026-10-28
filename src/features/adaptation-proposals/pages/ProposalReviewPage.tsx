@@ -13,7 +13,11 @@ import { StructureProposalView } from '../components/StructureProposalView';
 import { useProposalReview } from '../hooks/useProposalReview';
 import { useResolveProposal } from '../hooks/useResolveProposal';
 import { useProposalRegeneration } from '../hooks/useProposalRegeneration';
-import { adjustmentTypeLabel, formatAdjustmentValue } from '../lib/adjustments';
+import {
+  adjustmentTypeLabel,
+  formatAdjustmentValue,
+  requiresManualIntervention,
+} from '../lib/adjustments';
 
 function loadErrorMessage(error: unknown): string {
   if (error instanceof ApiError && error.status === 404) {
@@ -105,6 +109,10 @@ export function ProposalReviewPage() {
   const proposal = review.data;
   const pending = proposal.state === 'PENDIENTE';
   const total = proposal.adjustments.length;
+  const manualAdjustments = proposal.adjustments.filter(
+    requiresManualIntervention,
+  );
+  const hasManualAdjustments = manualAdjustments.length > 0;
   const canApprovePartially = accepted.size > 0 && accepted.size < total;
   const canReject = reason.trim().length > 0;
   const busy = resolve.isPending || regeneration.busy;
@@ -227,12 +235,23 @@ export function ProposalReviewPage() {
                   ? ` · ${humanizeEnum(proposal.routine.routineType)}, versión ${proposal.routine.currentVersionNumber ?? '—'}`
                   : ''}
               </p>
+              {hasManualAdjustments ? (
+                <Banner
+                  variant="warning"
+                  title="Hay ejercicios sin reemplazo automático"
+                >
+                  Elegí una alternativa compatible desde la rutina del alumno y
+                  luego resolvé esta propuesta. La propuesta permanece pendiente
+                  para que no se pierda la intervención.
+                </Banner>
+              ) : null}
               <ul className="mt-4 divide-y divide-[#292823]/8">
                 {proposal.adjustments.map((adjustment) => {
                   const label = `${adjustmentTypeLabel(adjustment.type)} · ${adjustment.exerciseName ?? 'Rutina completa'}`;
+                  const manual = requiresManualIntervention(adjustment);
                   return (
                     <li key={adjustment.id} className="flex gap-3 py-3">
-                      {pending ? (
+                      {pending && !manual ? (
                         <input
                           type="checkbox"
                           checked={accepted.has(adjustment.id)}
@@ -261,6 +280,14 @@ export function ProposalReviewPage() {
                           criterion={adjustment.criterion}
                           supportingData={adjustment.supportingData}
                         />
+                        {manual ? (
+                          <Link
+                            to={`/entrenador/alumnos/${proposal.student.id}/rutina`}
+                            className="btn-secondary btn-sm mt-3 inline-flex"
+                          >
+                            Editar rutina manualmente
+                          </Link>
+                        ) : null}
                         {adjustment.type === 'ESTRUCTURA' ? (
                           <StructureProposalView
                             value={adjustment.proposedValue}
@@ -310,7 +337,7 @@ export function ProposalReviewPage() {
                 <div className="mt-4 flex flex-wrap gap-2">
                   <button
                     type="button"
-                    disabled={busy}
+                    disabled={busy || hasManualAdjustments}
                     onClick={() =>
                       resolve.mutate({
                         decision: 'ACEPTADA_TOTAL',

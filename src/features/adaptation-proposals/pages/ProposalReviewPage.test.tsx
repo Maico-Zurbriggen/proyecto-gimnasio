@@ -381,6 +381,48 @@ describe('ProposalReviewPage (HU04)', () => {
     });
   });
 
+  it('keeps manual substitutions visible and prevents automatic approval', async () => {
+    mockApi({
+      [`GET /proposals/${PROPOSAL}`]: {
+        body: review({
+          adjustments: [
+            {
+              id: ADJ_LOAD,
+              type: 'SUSTITUCION',
+              routineExerciseId: 're-1',
+              exerciseName: 'Press militar',
+              criterion: 'Condición moderada en hombro.',
+              previousValue: {
+                exercise_id: 'old',
+                exercise_name: 'Press militar',
+              },
+              proposedValue: { requires_manual_intervention: true },
+              supportingData: {
+                motivo: 'Condición moderada en hombro.',
+                requires_manual_intervention: true,
+              },
+              state: 'PENDIENTE',
+            },
+          ],
+        }),
+      },
+    });
+
+    renderPage();
+
+    expect(
+      await screen.findByText('Hay ejercicios sin reemplazo automático'),
+    ).toBeVisible();
+    expect(screen.getByText('Selección manual requerida')).toBeVisible();
+    expect(screen.getByRole('button', { name: 'Aprobar' })).toBeDisabled();
+    expect(
+      screen.getByRole('link', { name: 'Editar rutina manualmente' }),
+    ).toHaveAttribute(
+      'href',
+      '/entrenador/alumnos/20000000-0000-4000-8000-000000000005/rutina',
+    );
+  });
+
   it('muestra el error del backend si la propuesta ya fue resuelta', async () => {
     mockApi({
       [`GET /proposals/${PROPOSAL}`]: { body: review() },
