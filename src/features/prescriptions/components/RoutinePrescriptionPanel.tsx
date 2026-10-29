@@ -73,7 +73,8 @@ export function RoutinePrescriptionPanel({
   const lista: RoutineSummary[] = routines.data ?? [];
   const propuesta = lista.find((routine) => routine.state === 'PROPUESTA');
   const vigente = lista.find((routine) => routine.state === 'VIGENTE');
-  const contenido = useRoutineContent(studentId, propuesta?.id);
+  const contenidoPropuesta = useRoutineContent(studentId, propuesta?.id);
+  const contenidoVigente = useRoutineContent(studentId, vigente?.id);
 
   const seleccion = templateId || (templates.data?.[0]?.id ?? '');
   const operando = assign.isPending || review.isPending;
@@ -101,7 +102,7 @@ export function RoutinePrescriptionPanel({
               type="button"
               className="btn-secondary btn-sm ml-2"
               onClick={() => {
-                void contenido.refetch();
+                void contenidoPropuesta.refetch();
                 review.reset();
               }}
             >
@@ -130,6 +131,42 @@ export function RoutinePrescriptionPanel({
           </Banner>
         ) : null}
 
+        {vigente ? (
+          <section className="flex flex-col gap-4 rounded-2xl border border-[#292823]/8 bg-white/60 p-4 sm:p-5">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="chip-ok">Rutina vigente</span>
+              <span className="text-xs font-medium text-[#77756d]">
+                {vigente.routineType.toLowerCase()} ·{' '}
+                {String(vigente.targetWeeklyFrequency)} días · versión{' '}
+                {String(vigente.versionNumber)}
+              </span>
+            </div>
+            {contenidoVigente.isPending ? (
+              <p role="status" className="text-xs text-[#77756d]">
+                Cargando la rutina vigente completa…
+              </p>
+            ) : null}
+            {contenidoVigente.error ? (
+              <div className="flex flex-wrap items-center gap-2">
+                <p role="alert" className="field-error">
+                  No pudimos cargar los días, ejercicios y series de la rutina
+                  vigente.
+                </p>
+                <button
+                  type="button"
+                  className="btn-secondary btn-sm"
+                  onClick={() => void contenidoVigente.refetch()}
+                >
+                  Reintentar
+                </button>
+              </div>
+            ) : null}
+            {contenidoVigente.data ? (
+              <RoutineContentView routine={contenidoVigente.data} />
+            ) : null}
+          </section>
+        ) : null}
+
         {propuesta ? (
           <section className="flex flex-col gap-4">
             <div className="flex flex-wrap items-center gap-2">
@@ -141,19 +178,19 @@ export function RoutinePrescriptionPanel({
               </span>
             </div>
 
-            {contenido.isLoading ? (
+            {contenidoPropuesta.isLoading ? (
               <p className="text-xs text-[#77756d]">Cargando la propuesta…</p>
             ) : null}
-            {contenido.data ? (
-              <RoutineContentView routine={contenido.data} />
+            {contenidoPropuesta.data ? (
+              <RoutineContentView routine={contenidoPropuesta.data} />
             ) : null}
 
             <RoutineReviewForm
               pending={review.isPending}
               error={review.error}
               approveDisabled={
-                !contenido.data ||
-                contenido.data.days.some((day) =>
+                !contenidoPropuesta.data ||
+                contenidoPropuesta.data.days.some((day) =>
                   day.exercises.some(
                     (exercise) => exercise.available === false,
                   ),
@@ -162,7 +199,7 @@ export function RoutinePrescriptionPanel({
               onDecide={(decision) => {
                 review.mutate({
                   routineId: propuesta.id,
-                  reviewToken: contenido.data?.reviewToken,
+                  reviewToken: contenidoPropuesta.data?.reviewToken,
                   ...decision,
                 });
               }}
