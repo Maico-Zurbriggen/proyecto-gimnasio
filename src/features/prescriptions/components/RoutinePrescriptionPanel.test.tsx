@@ -170,6 +170,20 @@ describe('RoutinePrescriptionPanel (RF-022, RF-110)', () => {
     ).toBeInTheDocument();
   });
 
+  it('muestra al entrenador los días, ejercicios y series de la rutina vigente', async () => {
+    render({
+      [`GET /students/${STUDENT}/routines`]: { body: [rutina('VIGENTE')] },
+      [`GET /students/${STUDENT}/routines/${ROUTINE}`]: {
+        body: { ...CONTENIDO, state: 'VIGENTE' },
+      },
+    });
+
+    expect(await screen.findByText('Rutina vigente')).toBeVisible();
+    expect(await screen.findByText('Día 1 · Superior A')).toBeVisible();
+    expect(screen.getByText('1. Press de banca plano')).toBeVisible();
+    expect(screen.getByText(/Serie 1.*8-10 rep.*40 kg/)).toBeVisible();
+  });
+
   it('asigna la plantilla elegida y la rutina nace como propuesta', async () => {
     const fetchMock = render({
       [`POST /students/${STUDENT}/routines`]: {
