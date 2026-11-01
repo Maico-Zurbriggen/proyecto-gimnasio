@@ -14,6 +14,12 @@ import { mockApi } from '../../../../test/apiMocks';
 import { readSessionDraft, writeSessionDraft } from '../lib/sessionDraft';
 import { TrainingSessionPage } from './TrainingSessionPage';
 
+const catalog = vi.hoisted(() => ({ list: vi.fn() }));
+vi.mock('../../../api/catalog', () => ({
+  listCatalog: catalog.list,
+  getExercise: vi.fn(),
+}));
+
 const STUDENT_ID = '11111111-1111-4111-a111-111111111111';
 const SESSION_ID = '22222222-2222-4222-a222-222222222222';
 
@@ -700,7 +706,8 @@ describe('TrainingSessionPage (RF-027, FL-05, FL-07)', () => {
       ).toMatchObject({ omissionReason: 'Máquina ocupada', completed: false });
     });
 
-    it('agrega una serie adicional en la posición siguiente', async () => {
+    it('agrega una serie adicional con el ejercicio de la última serie por defecto', async () => {
+      catalog.list.mockResolvedValue({ items: [] });
       const session = activeSession();
       const fetchMock = mockApi({
         'GET /training-sessions/active': { body: session },
@@ -709,6 +716,11 @@ describe('TrainingSessionPage (RF-027, FL-05, FL-07)', () => {
       renderPage();
       fireEvent.click(
         await screen.findByRole('button', { name: /agregar serie/i }),
+      );
+      fireEvent.click(
+        await screen.findByRole('button', {
+          name: /mismo ejercicio que la última serie/i,
+        }),
       );
 
       await waitFor(() => {
@@ -721,6 +733,32 @@ describe('TrainingSessionPage (RF-027, FL-05, FL-07)', () => {
         performedExerciseId: '66666666-6666-4666-a666-666666666666',
         performedWarmup: false,
       });
+    });
+
+    it('permite elegir otro ejercicio para la serie adicional', async () => {
+      const session = activeSession();
+      const OTHER = '77777777-7777-4777-a777-777777777777';
+      catalog.list.mockResolvedValue({
+        items: [{ id: OTHER, name: 'Press militar' }],
+      });
+      const fetchMock = mockApi({
+        'GET /training-sessions/active': { body: session },
+        [`PATCH ${RECORDS}/2`]: () => ({ body: session }),
+      });
+      renderPage();
+      fireEvent.click(
+        await screen.findByRole('button', { name: /agregar serie/i }),
+      );
+      fireEvent.click(
+        await screen.findByRole('button', { name: 'Press militar' }),
+      );
+
+      await waitFor(() => {
+        expect(patchCalls(fetchMock)).toHaveLength(1);
+      });
+      expect(
+        JSON.parse(String(patchCalls(fetchMock)[0]?.[1]?.body)),
+      ).toMatchObject({ additional: true, performedExerciseId: OTHER });
     });
   });
 });

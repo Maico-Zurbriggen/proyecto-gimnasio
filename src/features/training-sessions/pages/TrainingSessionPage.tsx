@@ -482,6 +482,7 @@ function SeriesRow({
         <SubstituteExercisePanel
           position={position}
           disabled={update.isPending}
+          prescribedExerciseId={record.prescribedExerciseId ?? undefined}
           onPick={sustituir}
           onCancel={() => {
             setSubstituting(false);
@@ -533,6 +534,7 @@ export function TrainingSessionPage({ studentId }: TrainingSessionPageProps) {
   const preload = useSetPreload(studentId, session?.routineDayId ?? '');
   const add = useUpdateSeriesRecord(studentId, session?.id ?? 'sin-sesion');
   const [addWarmup, setAddWarmup] = useState(false);
+  const [choosingAdd, setChoosingAdd] = useState(false);
 
   // Cola de series que el autoguardado no logró enviar (RNF-10, CB-24).
   // Offline TanStack pausa la mutación sin llegar a onError: se cuenta aparte.
@@ -705,7 +707,9 @@ export function TrainingSessionPage({ studentId }: TrainingSessionPageProps) {
   const currentPosition = session.setRecords.find(
     (r) => !r.completed && !r.omissionReason,
   )?.position;
-  // La serie agregada repite el ejercicio de la última serie.
+  const nextPosition =
+    Math.max(0, ...session.setRecords.map((r) => r.position)) + 1;
+  // La serie agregada propone el ejercicio de la última serie.
   const lastRecord = session.setRecords[session.setRecords.length - 1];
   const lastExerciseId =
     lastRecord?.performedExerciseId ?? lastRecord?.prescribedExerciseId;
@@ -884,21 +888,38 @@ export function TrainingSessionPage({ studentId }: TrainingSessionPageProps) {
               type="button"
               disabled={add.isPending || !lastExerciseId}
               onClick={() => {
-                if (!lastExerciseId) return;
-                add.mutate({
-                  position:
-                    Math.max(0, ...session.setRecords.map((r) => r.position)) +
-                    1,
-                  additional: true,
-                  performedExerciseId: lastExerciseId,
-                  performedWarmup: addWarmup,
-                });
+                setChoosingAdd((value) => !value);
               }}
               className="btn-secondary min-h-11"
             >
               Agregar serie
             </button>
           </div>
+          {choosingAdd && lastExerciseId ? (
+            <SubstituteExercisePanel
+              position={nextPosition}
+              disabled={add.isPending}
+              defaultExerciseId={lastExerciseId}
+              onPick={(exerciseId) => {
+                add.mutate(
+                  {
+                    position: nextPosition,
+                    additional: true,
+                    performedExerciseId: exerciseId,
+                    performedWarmup: addWarmup,
+                  },
+                  {
+                    onSuccess: () => {
+                      setChoosingAdd(false);
+                    },
+                  },
+                );
+              }}
+              onCancel={() => {
+                setChoosingAdd(false);
+              }}
+            />
+          ) : null}
           {add.isError && !add.isPending ? (
             <p role="alert" className="field-error mt-2">
               {errorMessage(add.error)}
