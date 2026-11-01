@@ -23,6 +23,7 @@ import {
 import { humanizeEnum } from '../../../shared/lib/format';
 import { BentoCard } from '../../../shared/ui/BentoCard';
 import { PageHeader } from '../../../shared/ui/PageHeader';
+import { LoadingState } from '../../../shared/ui/LoadingState';
 
 type Campo = keyof StudentContextInput | 'goal' | 'consent';
 
@@ -174,9 +175,7 @@ export function StudentOnboardingPage({ studentId }: { studentId: string }) {
       <main className="page-body">
         <BentoCard className="max-w-2xl">
           {context.isPending ? (
-            <p role="status" className="text-sm text-[#5f5d55]">
-              Cargando tu perfil…
-            </p>
+            <LoadingState label="Cargando tu perfil…" variant="card" />
           ) : context.isError ? (
             <div role="alert" className="flex flex-col items-start gap-3">
               <p className="text-sm">No pudimos cargar tu perfil.</p>

@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { fetchGoals, goalsQueryKey } from '../../../api/studentContext';
 import { formatDate, humanizeEnum } from '../../../shared/lib/format';
 import { BentoCard } from '../../../shared/ui/BentoCard';
+import { LoadingState } from '../../../shared/ui/LoadingState';
 
 /** Objetivo vigente e historial del alumno, visibles para su entrenador. */
 export function TrainerGoalsCard({ studentId }: { studentId: string }) {
@@ -17,9 +18,11 @@ export function TrainerGoalsCard({ studentId }: { studentId: string }) {
         Objetivo de entrenamiento
       </h2>
       {goals.isPending ? (
-        <p role="status" className="mt-4 text-sm text-[#68675f]">
-          Cargando objetivo…
-        </p>
+        <LoadingState
+          label="Cargando objetivo…"
+          variant="card"
+          className="mt-4"
+        />
       ) : goals.isError ? (
         <div role="alert" className="mt-4 flex flex-col items-start gap-3">
           <p className="text-sm">No pudimos cargar el objetivo.</p>

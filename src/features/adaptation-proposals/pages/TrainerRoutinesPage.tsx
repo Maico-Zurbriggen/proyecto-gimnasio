@@ -12,6 +12,7 @@ import { useTrainerStudents } from '../../students/hooks/useTrainerStudents';
 import { originLabel } from '../../prescriptions/lib/origin';
 import { useTrainerProposals } from '../hooks/useTrainerProposals';
 import { adjustmentEvidenceSummary } from '../components/AdjustmentEvidence';
+import { LoadingState } from '../../../shared/ui/LoadingState';
 
 function LoadError({ onRetry, busy }: { onRetry: () => void; busy: boolean }) {
   return (
@@ -50,9 +51,11 @@ function PendingRoutineReviews() {
     <BentoCard>
       <p className="eyebrow text-[#5f5d55]">Rutinas nuevas por aprobar</p>
       {isPending ? (
-        <p role="status" className="mt-5 text-xs text-[#5f5d55]">
-          Cargando rutinas propuestas…
-        </p>
+        <LoadingState
+          label="Cargando rutinas propuestas…"
+          variant="list"
+          className="mt-5"
+        />
       ) : error ? (
         <LoadError onRetry={() => void refetch()} busy={isFetching} />
       ) : data.length === 0 ? (
@@ -123,9 +126,11 @@ function PendingAdaptationProposals() {
     <BentoCard>
       <p className="eyebrow text-[#77756d]">Propuestas de adaptación</p>
       {isPending ? (
-        <p role="status" className="mt-5 text-xs text-[#8c897f]">
-          Cargando propuestas…
-        </p>
+        <LoadingState
+          label="Cargando propuestas…"
+          variant="list"
+          className="mt-5"
+        />
       ) : error ? (
         <LoadError onRetry={() => void refetch()} busy={isFetching} />
       ) : data.length === 0 ? (
@@ -207,9 +212,11 @@ function AssignedRoutines() {
     <BentoCard>
       <p className="eyebrow text-[#77756d]">Rutinas asignadas</p>
       {isPending ? (
-        <p role="status" className="mt-5 text-xs text-[#8c897f]">
-          Cargando rutinas…
-        </p>
+        <LoadingState
+          label="Cargando rutinas…"
+          variant="list"
+          className="mt-5"
+        />
       ) : error ? (
         <LoadError onRetry={() => void refetch()} busy={isFetching} />
       ) : withRoutine.length === 0 ? (

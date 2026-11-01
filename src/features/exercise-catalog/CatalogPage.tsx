@@ -28,6 +28,7 @@ import {
   label,
   patterns,
 } from './ExerciseForm';
+import { LoadingState } from '../../shared/ui/LoadingState';
 
 function InventoryPanel({
   inventory,
@@ -797,12 +798,11 @@ function CatalogContent({ manage }: { manage: boolean }) {
           </p>
         )}
         {catalog.isLoading && (
-          <p
-            role="status"
-            className="surface-muted py-10 text-center text-sm text-[#68675f]"
-          >
-            Cargando ejercicios…
-          </p>
+          <LoadingState
+            label="Cargando ejercicios…"
+            variant="list"
+            className="surface-muted p-4"
+          />
         )}
         {catalog.error && (
           <p role="alert" className="surface-muted">

@@ -18,6 +18,7 @@ import {
   LARGO_MAXIMO_CONTRASENA,
   isPasswordStrong,
 } from '../../../shared/lib/passwordStrength';
+import { LoadingState } from '../../../shared/ui/LoadingState';
 
 const LARGO_MINIMO_NOMBRE = 2;
 
@@ -254,9 +255,7 @@ export function CompleteAccountPage() {
         </div>
 
         {cargando ? (
-          <p role="status" className="text-sm font-medium text-[#5f5d55]">
-            Verificando la invitación…
-          </p>
+          <LoadingState label="Verificando la invitación…" variant="card" />
         ) : null}
 
         {!cargando && errorDeRed ? (

@@ -4,6 +4,7 @@ import { formatDate } from '../../../shared/lib/format';
 import { BentoCard } from '../../../shared/ui/BentoCard';
 import { useTrainerProposals } from '../hooks/useTrainerProposals';
 import { adjustmentEvidenceSummary } from './AdjustmentEvidence';
+import { LoadingState } from '../../../shared/ui/LoadingState';
 
 export function StudentPendingProposals({ studentId }: { studentId: string }) {
   const proposals = useTrainerProposals();
@@ -11,7 +12,13 @@ export function StudentPendingProposals({ studentId }: { studentId: string }) {
     proposals.data?.filter((proposal) => proposal.student.id === studentId) ??
     [];
   if (proposals.isPending)
-    return <p className="mt-4 text-xs">Cargando propuestas de adaptación…</p>;
+    return (
+      <LoadingState
+        label="Cargando propuestas de adaptación…"
+        variant="list"
+        className="mt-4"
+      />
+    );
   if (proposals.error)
     return (
       <p role="status" className="mt-4 text-xs">

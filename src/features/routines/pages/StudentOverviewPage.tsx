@@ -18,6 +18,7 @@ import { RoutineGenerationPanel } from '../../routine-generations/components/Rou
 import { RenewalBanner } from '../components/RenewalBanner';
 import { RenewalMeasurementForm } from '../components/RenewalMeasurementForm';
 import { useActiveRoutine } from '../hooks/useActiveRoutine';
+import { LoadingState } from '../../../shared/ui/LoadingState';
 
 /**
  * Aviso de renovación alimentado por `GET /routines/active` (HU01). Declara
@@ -143,7 +144,9 @@ function RoutinePreviewSection({ studentId }: StudentOverviewPageProps) {
 
   return (
     <BentoCard>
-      {routines.isPending ? <p role="status">Cargando tus rutinas…</p> : null}
+      {routines.isPending ? (
+        <LoadingState label="Cargando tus rutinas…" variant="list" />
+      ) : null}
       {routines.isError ? (
         <Banner variant="danger" title="No pudimos cargar tus rutinas" />
       ) : null}
@@ -172,9 +175,10 @@ function RoutinePreviewSection({ studentId }: StudentOverviewPageProps) {
             ) : null}
           </div>
           {content.isPending ? (
-            <p role="status" className="text-sm text-[#77756d]">
-              Cargando los días y ejercicios…
-            </p>
+            <LoadingState
+              label="Cargando los días y ejercicios…"
+              variant="list"
+            />
           ) : null}
           {content.isError ? (
             <p role="alert" className="field-error">

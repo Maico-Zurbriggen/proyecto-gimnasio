@@ -12,6 +12,7 @@ import {
   useRoutineContent,
   useStudentRoutines,
 } from '../hooks/usePrescriptions';
+import { LoadingState } from '../../../shared/ui/LoadingState';
 
 const TIPOS: Record<string, string> = {
   FUERZA: 'Fuerza',
@@ -81,9 +82,10 @@ function StudentRoutineSection({
       ) : null}
 
       {contenido.isPending ? (
-        <p role="status" className="text-sm text-[#77756d]">
-          Cargando los días, ejercicios y series…
-        </p>
+        <LoadingState
+          label="Cargando los días, ejercicios y series…"
+          variant="list"
+        />
       ) : null}
 
       {contenido.isError ? (
@@ -144,9 +146,7 @@ export function StudentRoutinePage({
       <main className="page-body flex flex-col gap-6">
         {generationPanel}
         {routines.isLoading ? (
-          <p role="status" className="text-sm text-[#77756d]">
-            Cargando tu rutina…
-          </p>
+          <LoadingState label="Cargando tu rutina…" variant="card" />
         ) : null}
 
         {routines.isError ? (

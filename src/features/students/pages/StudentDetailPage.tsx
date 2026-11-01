@@ -15,6 +15,7 @@ import { TrainerGoalsCard } from '../components/TrainerGoalsCard';
 import { UnlockPanel } from '../components/UnlockPanel';
 import { useStudentStatus } from '../hooks/useStudentStatus';
 import { useUnlockStudent } from '../hooks/useUnlockStudent';
+import { LoadingState } from '../../../shared/ui/LoadingState';
 
 const BACK_LINK_CLASS = 'btn-secondary btn-sm';
 
@@ -67,11 +68,7 @@ export function StudentDetailPage() {
   );
 
   if (status.isPending) {
-    return (
-      <div>
-        <PageHeader kicker="Ficha de alumno" title="Cargando ficha…" />
-      </div>
-    );
+    return <LoadingState label="Cargando ficha…" variant="page" />;
   }
 
   if (status.error) {

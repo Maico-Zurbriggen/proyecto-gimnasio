@@ -11,6 +11,7 @@ import {
   useTrainingSessionDetail,
 } from '../hooks/useTrainingSession';
 import { formatDuration } from '../lib/sessionElapsed';
+import { LoadingState } from '../../../shared/ui/LoadingState';
 
 const STATE_FILTERS: { value: HistoryStateFilter; label: string }[] = [
   { value: 'TODAS', label: 'Todas' },
@@ -57,7 +58,7 @@ function SessionDetail({
   const detail = useTrainingSessionDetail(studentId, sessionId);
 
   if (detail.isPending) {
-    return <p role="status">Cargando el detalle…</p>;
+    return <LoadingState label="Cargando el detalle…" variant="card" />;
   }
 
   if (detail.isError) {
@@ -222,7 +223,9 @@ export function TrainingHistoryPage({
           </select>
         </BentoCard>
 
-        {history.isPending ? <p role="status">Cargando tu historial…</p> : null}
+        {history.isPending ? (
+          <LoadingState label="Cargando tu historial…" variant="list" />
+        ) : null}
 
         {history.isError && !history.isPending ? (
           <Banner

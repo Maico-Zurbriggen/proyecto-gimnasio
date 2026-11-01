@@ -19,6 +19,7 @@ import {
   formatAdjustmentValue,
   requiresManualIntervention,
 } from '../lib/adjustments';
+import { LoadingState } from '../../../shared/ui/LoadingState';
 
 function loadErrorMessage(error: unknown): string {
   if (error instanceof ApiError && error.status === 404) {
@@ -85,14 +86,7 @@ export function ProposalReviewPage() {
   );
 
   if (review.isPending) {
-    return (
-      <div>
-        <PageHeader
-          kicker="Revisión de propuesta"
-          title="Cargando propuesta…"
-        />
-      </div>
-    );
+    return <LoadingState label="Cargando propuesta…" variant="page" />;
   }
 
   if (review.error) {
