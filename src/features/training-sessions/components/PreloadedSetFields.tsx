@@ -1,18 +1,31 @@
 import { cn } from '../../../shared/lib/cn';
 import type { SeriePrecargada } from '../../../api/trainingSessions';
 
+/** Lo mínimo de una serie para pintar los campos (la agregada no tiene rango). */
+export type SerieDeCampos = Pick<
+  SeriePrecargada,
+  'position' | 'warmup' | 'origen' | 'antiguedadEnDias'
+> & {
+  repeticionesMinimas: number | null;
+  repeticionesMaximas: number | null;
+};
+
 export interface PreloadedSetFieldsProps {
-  serie: SeriePrecargada;
+  serie: SerieDeCampos;
   /** Valores actuales del formulario; `null` es campo vacío. */
   carga: number | null;
   repeticiones: number | null;
   onCargaChange: (carga: number | null) => void;
   onRepeticionesChange: (repeticiones: number | null) => void;
   disabled?: boolean;
+  /** Se guarda al salir del campo (autoguardado de la sesión). */
+  onBlur?: () => void;
+  errorCarga?: string;
+  errorRepeticiones?: string;
 }
 
 /** Texto que explica de dónde viene el valor propuesto. */
-function procedencia(serie: SeriePrecargada): string | null {
+function procedencia(serie: SerieDeCampos): string | null {
   switch (serie.origen) {
     case 'ULTIMA_EJECUCION': {
       const dias = serie.antiguedadEnDias;
@@ -53,10 +66,17 @@ export function PreloadedSetFields({
   onCargaChange,
   onRepeticionesChange,
   disabled = false,
+  onBlur,
+  errorCarga,
+  errorRepeticiones,
 }: PreloadedSetFieldsProps) {
   const idCarga = `serie-${String(serie.position)}-carga`;
   const idReps = `serie-${String(serie.position)}-reps`;
   const fuente = procedencia(serie);
+  const rango =
+    serie.repeticionesMinimas === null || serie.repeticionesMaximas === null
+      ? null
+      : `${String(serie.repeticionesMinimas)}-${String(serie.repeticionesMaximas)}`;
 
   return (
     <fieldset className="flex flex-col gap-2" disabled={disabled}>
@@ -87,11 +107,19 @@ export function PreloadedSetFields({
             onChange={(event) => {
               onCargaChange(parseNumero(event.target.value));
             }}
+            onBlur={onBlur}
+            aria-label={`Carga de la serie ${String(serie.position)}`}
+            aria-invalid={Boolean(errorCarga)}
             className={cn(
-              'rounded border px-3 py-2 text-base',
+              'min-h-11 rounded border px-3 py-2 text-base',
               'border-slate-300 focus:border-slate-500 focus:outline-none',
             )}
           />
+          {errorCarga ? (
+            <span role="alert" className="field-error">
+              {errorCarga}
+            </span>
+          ) : null}
         </div>
 
         <div className="flex flex-1 flex-col gap-1">
@@ -105,25 +133,29 @@ export function PreloadedSetFields({
             min={1}
             max={100}
             value={repeticiones === null ? '' : String(repeticiones)}
-            placeholder={`${String(serie.repeticionesMinimas)}-${String(serie.repeticionesMaximas)}`}
+            placeholder={rango ?? ''}
             onChange={(event) => {
               onRepeticionesChange(parseNumero(event.target.value));
             }}
+            onBlur={onBlur}
+            aria-label={`Repeticiones de la serie ${String(serie.position)}`}
+            aria-invalid={Boolean(errorRepeticiones)}
             className={cn(
-              'rounded border px-3 py-2 text-base',
+              'min-h-11 rounded border px-3 py-2 text-base',
               'border-slate-300 focus:border-slate-500 focus:outline-none',
             )}
           />
+          {errorRepeticiones ? (
+            <span role="alert" className="field-error">
+              {errorRepeticiones}
+            </span>
+          ) : null}
         </div>
       </div>
 
       <p className="text-xs text-slate-500">
         {fuente ?? 'Primera vez con este ejercicio: ingresá la carga.'}
-        {' · '}
-        <span>
-          Prescripto: {serie.repeticionesMinimas}-{serie.repeticionesMaximas}{' '}
-          repeticiones
-        </span>
+        {rango ? <span> · Prescripto: {rango} repeticiones</span> : null}
       </p>
     </fieldset>
   );

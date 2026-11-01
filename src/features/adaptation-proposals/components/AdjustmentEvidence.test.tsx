@@ -44,7 +44,7 @@ describe('AdjustmentEvidence (T3 · RF-090)', () => {
         motivo: 'CAMBIO_OBJETIVO',
       },
     });
-    expect(summary).toContain('HIPERTROFIA');
+    expect(summary).toContain('Objetivo nuevo: HIPERTROFIA');
     expect(summary).toContain('Cambio de objetivo');
   });
 
@@ -58,6 +58,42 @@ describe('AdjustmentEvidence (T3 · RF-090)', () => {
         datoFaltante: 'medicion corporal posterior al inicio del ciclo',
       },
     });
-    expect(summary).toContain('falta:');
+    expect(summary).toContain('Dato faltante: medicion corporal');
+    expect(summary).toContain('Sin datos actualizados: Sí');
+  });
+
+  it('limita a 3 datos, oculta ids y declara el resto', () => {
+    const summary = adjustmentEvidenceSummary({
+      type: 'CARGA',
+      exerciseName: 'Sentadilla',
+      criterion: 'Criterio X.',
+      supportingData: {
+        goalId: 'abc',
+        exerciseId: 'zzz',
+        sesionesConsideradas: 6,
+        variacionE1RM: 0.8,
+        sinDatos: false,
+        otro: 1,
+        lista: [1, 2],
+      },
+    });
+    expect(summary).toContain('Sentadilla: Criterio X.');
+    expect(summary).toContain('Sesiones consideradas: 6');
+    expect(summary).toContain('+1 más');
+    expect(summary).not.toMatch(/abc|zzz|Goal|Exercise id/i);
+  });
+
+  it('explica el dato faltante y muestra un cero real como 0', () => {
+    render(
+      <AdjustmentEvidence
+        type="CARGA"
+        criterion="Criterio."
+        supportingData={{ variacionE1RM: null, faltas: 0 }}
+      />,
+    );
+    expect(screen.getByRole('status')).toHaveTextContent(
+      'Falta información: variacion e1 rm',
+    );
+    expect(screen.getByText('0')).toBeVisible();
   });
 });

@@ -9,6 +9,7 @@ import { SectionTabs } from '../../../shared/ui/SectionTabs';
 import { RoutinePrescriptionPanel } from '../../prescriptions/components/RoutinePrescriptionPanel';
 import { TrainerConditionsCard } from '../../physical-conditions/components/TrainerConditionsCard';
 import { StudentPendingProposals } from '../../adaptation-proposals/components/StudentPendingProposals';
+import { TrainingHistoryPage } from '../../training-sessions/pages/TrainingHistoryPage';
 import { ActiveRoutineCard } from '../components/ActiveRoutineCard';
 import { TrainerGoalsCard } from '../components/TrainerGoalsCard';
 import { UnlockPanel } from '../components/UnlockPanel';
@@ -53,7 +54,9 @@ export function StudentDetailPage() {
     ? 'rutina'
     : pathname.endsWith('/mediciones')
       ? 'mediciones'
-      : 'resumen';
+      : pathname.endsWith('/historial')
+        ? 'historial'
+        : 'resumen';
   const status = useStudentStatus(studentId);
   const unlock = useUnlockStudent(studentId);
 
@@ -178,6 +181,10 @@ export function StudentDetailPage() {
               label: 'Mediciones',
               to: `/entrenador/alumnos/${student.studentId}/mediciones`,
             },
+            {
+              label: 'Historial',
+              to: `/entrenador/alumnos/${student.studentId}/historial`,
+            },
           ]}
         />
 
@@ -245,6 +252,10 @@ export function StudentDetailPage() {
         ) : null}
 
         {tab === 'mediciones' ? statusCard : null}
+
+        {tab === 'historial' ? (
+          <TrainingHistoryPage studentId={student.studentId} readOnly />
+        ) : null}
       </main>
     </div>
   );

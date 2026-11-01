@@ -146,6 +146,10 @@ export function AppRouter() {
               element={<StudentDetailPage />}
             />
             <Route
+              path="/entrenador/alumnos/:studentId/historial"
+              element={<StudentDetailPage />}
+            />
+            <Route
               path="/entrenador/rutinas"
               element={<TrainerRoutinesPage />}
             />

@@ -83,10 +83,13 @@ export function useStartTrainingSession() {
   });
 }
 
+export const seriesMutationKey = ['training-sessions', 'series-record'];
+
 /** Registrar una serie; cada escritura renueva la actividad (RN-53). */
 export function useUpdateSeriesRecord(studentId: string, sessionId: string) {
   const queryClient = useQueryClient();
   return useMutation({
+    mutationKey: seriesMutationKey,
     // `position` va en la URL: no debe viajar en el cuerpo (schema estricto).
     mutationFn: ({
       position,

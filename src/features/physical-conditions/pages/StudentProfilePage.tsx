@@ -1,11 +1,13 @@
 import { useQuery } from '@tanstack/react-query';
 import { KeyRound, PencilLine, UserRound } from 'lucide-react';
+import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 
 import {
   fetchOwnContext,
   studentContextQueryKey,
 } from '../../../api/studentContext';
+import { InsufficientInfo } from '../../../shared/components/InsufficientInfo';
 import { formatDate, humanizeEnum } from '../../../shared/lib/format';
 import { BentoCard } from '../../../shared/ui/BentoCard';
 import { PageHeader } from '../../../shared/ui/PageHeader';
@@ -30,7 +32,7 @@ function ProfileSummary() {
   const email = user?.email ?? stored?.email ?? null;
   const data = context.data;
 
-  const stats: [string, string][] = data
+  const stats: [string, ReactNode][] = data
     ? [
         [
           'Nivel',
@@ -64,7 +66,14 @@ function ProfileSummary() {
         ],
         [
           'Faltas seguidas',
-          status.data ? String(status.data.faltasConsecutivas) : '—',
+          status.data ? (
+            String(status.data.faltasConsecutivas)
+          ) : (
+            <InsufficientInfo
+              missing="faltas seguidas"
+              action="Todavía no se pudo calcular."
+            />
+          ),
         ],
       ]
     : [];
