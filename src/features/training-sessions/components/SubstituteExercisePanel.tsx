@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 
 import { getExercise, listCatalog } from '../../../api/catalog';
+import { LoadingState } from '../../../shared/ui/LoadingState';
 
 /**
  * Elige el ejercicio realizado (HU22): sustituto del prescripto o ejercicio de
@@ -113,7 +114,7 @@ export function SubstituteExercisePanel({
             Alternativas del mismo patrón de movimiento
           </h3>
           {prescribed.isPending || alternatives.isFetching ? (
-            <p role="status">Buscando alternativas…</p>
+            <LoadingState label="Buscando alternativas…" variant="inline" />
           ) : null}
           {prescribed.isError || alternatives.isError ? (
             <p role="alert" className="field-error">
@@ -127,7 +128,9 @@ export function SubstituteExercisePanel({
         </section>
       ) : null}
       <h3 className="text-xs font-semibold text-[#68675f]">Otros ejercicios</h3>
-      {results.isPending ? <p role="status">Buscando…</p> : null}
+      {results.isPending ? (
+        <LoadingState label="Buscando…" variant="inline" />
+      ) : null}
       {results.isError ? (
         <p role="alert" className="field-error">
           No pudimos buscar ejercicios.

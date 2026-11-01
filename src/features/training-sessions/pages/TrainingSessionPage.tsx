@@ -35,6 +35,7 @@ import {
   validateSeriesFields,
   type SeriesFieldErrors,
 } from '../lib/seriesValidation';
+import { LoadingState } from '../../../shared/ui/LoadingState';
 
 /** Reloj en vivo: emite la hora actual cada segundo mientras está activo. */
 function useNow(ticking: boolean): number {
@@ -609,7 +610,7 @@ export function TrainingSessionPage({ studentId }: TrainingSessionPageProps) {
           description="Registro de series, cargas y repeticiones de la sesión activa."
         />
         <main className="page-body flex flex-col gap-6">
-          <p role="status">Buscando tu sesión en curso…</p>
+          <LoadingState label="Buscando tu sesión en curso…" variant="card" />
         </main>
       </div>
     );

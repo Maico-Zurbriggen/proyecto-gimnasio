@@ -32,9 +32,7 @@ function RenewalNoticeSection() {
 
   if (isPending) {
     return (
-      <p role="status" className="text-xs text-[#77756d]">
-        Consultando tu rutina vigente…
-      </p>
+      <LoadingState label="Consultando tu rutina vigente…" variant="card" />
     );
   }
 
