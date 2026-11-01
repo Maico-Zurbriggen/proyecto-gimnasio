@@ -254,6 +254,40 @@ describe('TrainingSessionPage (RF-027, FL-05, FL-07)', () => {
     });
   });
 
+  it('tras finalizar, el 404 de /active quita Finalizar y Descartar (sin dato viejo)', async () => {
+    const session = activeSession();
+    let finished = false;
+    mockApi({
+      'GET /training-sessions/active': () =>
+        finished
+          ? { status: 404, body: { error: 'training_session_not_found' } }
+          : { body: session },
+      [`POST /students/${STUDENT_ID}/training-sessions/${SESSION_ID}/finish`]:
+        () => {
+          finished = true;
+          return {
+            body: {
+              ...session,
+              state: 'COMPLETADA',
+              completedAt: new Date().toISOString(),
+            },
+          };
+        },
+    });
+    renderPage();
+
+    fireEvent.click(await screen.findByRole('button', { name: /finalizar/i }));
+
+    expect(await screen.findByText(/sin sesión en curso/i)).toBeInTheDocument();
+    expect(screen.getByText(/sesión completada/i)).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: /finalizar/i }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: /descartar/i }),
+    ).not.toBeInTheDocument();
+  });
+
   it('no envía `position` en el cuerpo del registro (schema estricto)', async () => {
     const session = activeSession();
     let sentBody: Record<string, unknown> | null = null;

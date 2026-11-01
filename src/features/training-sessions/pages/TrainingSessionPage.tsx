@@ -512,11 +512,19 @@ export function TrainingSessionPage({ studentId }: TrainingSessionPageProps) {
   const [atypicalBody, setAtypicalBody] = useState<unknown>(null);
   const [closedMessage, setClosedMessage] = useState<string | null>(null);
 
+  // Al cerrar la sesión el refetch de /active responde 404 y TanStack Query
+  // conserva el último dato: sin esta guarda la pantalla seguiría mostrando la
+  // sesión ya cerrada con Finalizar / Descartar, que devuelven 409.
+  const sinSesionActiva =
+    active.isError &&
+    active.error instanceof ApiError &&
+    active.error.status === 404;
+
   const session = useMemo(() => {
-    if (!active.data) return null;
+    if (!active.data || sinSesionActiva) return null;
     const draft = readSessionDraft(studentId, active.data.id);
     return mergeDraftIntoSession(active.data, draft);
-  }, [active.data, studentId]);
+  }, [active.data, sinSesionActiva, studentId]);
 
   useEffect(() => {
     if (!active.data) return;
