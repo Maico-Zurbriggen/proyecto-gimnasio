@@ -286,7 +286,7 @@ export function TrainingHistoryPage({
                     <div className="flex flex-wrap items-baseline justify-between gap-2">
                       <h2 className="min-w-0 text-sm font-bold [overflow-wrap:anywhere]">
                         {formatOccurredOn(item.occurredOn)} ·{' '}
-                        {item.routineDayName}
+                        {item.routineDayName ?? 'Sesión sin detalle de rutina'}
                       </h2>
                       <span className="flex flex-wrap gap-1">
                         {item.simulated ? <SimulatedChip /> : null}

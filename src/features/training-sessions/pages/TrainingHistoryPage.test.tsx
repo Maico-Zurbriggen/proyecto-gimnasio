@@ -89,6 +89,27 @@ describe('TrainingHistoryPage (RF-035, D4/PD-02)', () => {
     expect(screen.getByText(/· 10 min/i)).toBeInTheDocument();
   });
 
+  it('lista sesiones sin snapshot de rutina (día nulo) sin romper la lista', async () => {
+    mockApi({
+      [`GET /students/${STUDENT_ID}/training-sessions`]: {
+        body: historyPage([
+          summary(),
+          summary({
+            id: '33333333-3333-4333-a333-333333333333',
+            routineDayName: null,
+            routineDayPosition: null,
+          }),
+        ]),
+      },
+    });
+    renderPage();
+
+    expect(
+      await screen.findByText(/sesión sin detalle de rutina/i),
+    ).toBeInTheDocument();
+    expect(screen.queryByText(/no pudimos cargar/i)).not.toBeInTheDocument();
+  });
+
   it('muestra reintentar ante error de consulta', async () => {
     mockApi({
       [`GET /students/${STUDENT_ID}/training-sessions`]: {
