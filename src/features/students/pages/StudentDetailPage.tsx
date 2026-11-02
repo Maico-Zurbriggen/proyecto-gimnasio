@@ -9,6 +9,7 @@ import { SectionTabs } from '../../../shared/ui/SectionTabs';
 import { RoutinePrescriptionPanel } from '../../prescriptions/components/RoutinePrescriptionPanel';
 import { TrainerConditionsCard } from '../../physical-conditions/components/TrainerConditionsCard';
 import { StudentPendingProposals } from '../../adaptation-proposals/components/StudentPendingProposals';
+import { RoutineHistoryTimeline } from '../../routine-history/components/RoutineHistoryTimeline';
 import { TrainingHistoryPage } from '../../training-sessions/pages/TrainingHistoryPage';
 import { ActiveRoutineCard } from '../components/ActiveRoutineCard';
 import { TrainerGoalsCard } from '../components/TrainerGoalsCard';
@@ -246,6 +247,18 @@ export function StudentDetailPage() {
               />
             </div>
           )
+        ) : null}
+
+        {tab === 'rutina' ? (
+          <section className="mt-6" aria-labelledby="historial-rutinas">
+            <h2
+              id="historial-rutinas"
+              className="font-display mb-3 text-xl font-semibold tracking-[-0.05em]"
+            >
+              Historial de rutinas
+            </h2>
+            <RoutineHistoryTimeline studentId={student.studentId} />
+          </section>
         ) : null}
 
         {tab === 'mediciones' ? statusCard : null}

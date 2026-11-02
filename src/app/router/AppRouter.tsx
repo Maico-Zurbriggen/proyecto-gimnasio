@@ -26,6 +26,7 @@ import { RoutineGenerationPanel } from '../../features/routine-generations/compo
 import { ProposalReviewPage } from '../../features/adaptation-proposals/pages/ProposalReviewPage';
 import { TrainerRoutinesPage } from '../../features/adaptation-proposals/pages/TrainerRoutinesPage';
 import { StudentOverviewPage } from '../../features/routines/pages/StudentOverviewPage';
+import { RoutineHistoryTimeline } from '../../features/routine-history/components/RoutineHistoryTimeline';
 import { TrainingHistoryPage } from '../../features/training-sessions/pages/TrainingHistoryPage';
 import { TrainingSessionPage } from '../../features/training-sessions/pages/TrainingSessionPage';
 import { StudentDetailPage } from '../../features/students/pages/StudentDetailPage';
@@ -73,7 +74,23 @@ function StudentSessionRoute() {
 
 function StudentHistoryRoute() {
   const { user } = useSession();
-  return user ? <TrainingHistoryPage studentId={user.id} /> : null;
+  return user ? (
+    <>
+      <TrainingHistoryPage studentId={user.id} />
+      <section
+        className="px-4 pb-10 sm:px-7 lg:px-9"
+        aria-labelledby="historial-rutinas"
+      >
+        <h2
+          id="historial-rutinas"
+          className="font-display mb-3 text-xl font-semibold tracking-[-0.05em]"
+        >
+          Historial de rutinas
+        </h2>
+        <RoutineHistoryTimeline studentId={user.id} />
+      </section>
+    </>
+  ) : null;
 }
 
 /** Rutas protegidas por sesión, rol y bloqueo de mediciones cuando corresponde. */
