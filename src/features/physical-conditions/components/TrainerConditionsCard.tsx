@@ -9,6 +9,7 @@ import {
 import { formatDate } from '../../../shared/lib/format';
 import { BentoCard } from '../../../shared/ui/BentoCard';
 import { ConditionsList } from './ConditionsList';
+import { LoadingState } from '../../../shared/ui/LoadingState';
 
 /**
  * Condiciones del alumno en la ficha del entrenador, en solo lectura
@@ -31,9 +32,7 @@ export function TrainerConditionsCard({ studentId }: { studentId: string }) {
         Condiciones físicas
       </h2>
       {status.isPending ? (
-        <p role="status" className="mt-4 text-sm text-[#68675f]">
-          Cargando…
-        </p>
+        <LoadingState label="Cargando…" variant="card" className="mt-4" />
       ) : status.isError ? (
         <div role="alert" className="mt-4 flex flex-col items-start gap-3">
           <p className="text-sm">No pudimos cargar las condiciones.</p>
@@ -51,9 +50,11 @@ export function TrainerConditionsCard({ studentId }: { studentId: string }) {
           pueden ver ni declarar condiciones.
         </p>
       ) : conditions.isPending ? (
-        <p role="status" className="mt-4 text-sm text-[#68675f]">
-          Cargando condiciones…
-        </p>
+        <LoadingState
+          label="Cargando condiciones…"
+          variant="list"
+          className="mt-4"
+        />
       ) : conditions.isError ? (
         <div role="alert" className="mt-4 flex flex-col items-start gap-3">
           <p className="text-sm">No pudimos cargar las condiciones.</p>

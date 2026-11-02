@@ -17,6 +17,7 @@ import {
   TemplateForm,
   type TemplateFormDay,
 } from '../components/TemplateForm';
+import { LoadingState } from '../../../shared/ui/LoadingState';
 
 type Mode =
   { view: 'list' } | { view: 'create' } | { view: 'edit'; templateId: string };
@@ -31,7 +32,8 @@ function EditView({
   const detail = useManagedRoutineTemplate(templateId);
   const update = useUpdateRoutineTemplate(templateId);
 
-  if (detail.isLoading) return <p className="text-sm">Cargando plantilla…</p>;
+  if (detail.isLoading)
+    return <LoadingState label="Cargando plantilla…" variant="card" />;
   if (detail.isError || !detail.data)
     return (
       <div className="space-y-3">
@@ -224,7 +226,9 @@ function TemplatesContent() {
           </button>
         </div>
 
-        {templates.isLoading && <p className="text-sm">Cargando plantillas…</p>}
+        {templates.isLoading && (
+          <LoadingState label="Cargando plantillas…" variant="list" />
+        )}
         {templates.isError && (
           <div className="space-y-3">
             <Banner variant="danger" title="No pudimos cargar las plantillas">

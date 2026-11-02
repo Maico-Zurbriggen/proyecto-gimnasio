@@ -1,3 +1,4 @@
+import { InsufficientInfo } from '../../../shared/components/InsufficientInfo';
 import { formatDate, humanizeEnum } from '../../../shared/lib/format';
 
 type AdjustmentType =
@@ -103,7 +104,11 @@ function SupportingDataList({
         <div key={key} className="flex gap-1">
           <dt className="font-bold text-[#3d3c36]">{humanizeKey(key)}:</dt>
           <dd className="min-w-0 flex-1 break-words">
-            {renderEvidenceValue(key, value)}
+            {value === null || (Array.isArray(value) && value.length === 0) ? (
+              <InsufficientInfo missing={humanizeKey(key).toLowerCase()} />
+            ) : (
+              renderEvidenceValue(key, value)
+            )}
           </dd>
         </div>
       ))}
@@ -237,7 +242,7 @@ function StructureEvidence({ data }: { data: Record<string, unknown> }) {
 }
 
 /**
- * Resumen de una línea para la bandeja (T2): primer criterio + dato clave,
+ * Resumen de una línea para la bandeja (T2): criterio + hasta 3 datos sustentantes,
  * sin abrir el detalle. Si no hay ajustes, lo declara (RN-73).
  */
 export function adjustmentEvidenceSummary(adjustment: {
@@ -249,33 +254,26 @@ export function adjustmentEvidenceSummary(adjustment: {
   const where = adjustment.exerciseName ?? 'Rutina completa';
   const base = `${where}: ${adjustment.criterion}`;
   if (!isRecord(adjustment.supportingData)) return base;
-  const data = adjustment.supportingData;
-  if (typeof data['objetivoNuevo'] === 'string') {
-    return `${base} (→ ${humanizeEnum(data['objetivoNuevo'])})`;
-  }
-  if (typeof data['datoFaltante'] === 'string') {
-    return `${base} (falta: ${data['datoFaltante']})`;
-  }
-  if (typeof data['motivo'] === 'string' && adjustment.type !== 'ESTRUCTURA') {
-    return `${base} (${humanizeEnum(data['motivo'])})`;
-  }
-  // Fallback genérico (T2): muestra la primera evidencia numérica/textual para
-  // que la bandeja también exponga el dato en CARGA/VOLUMEN/ESQUEMA/SUSTITUCION.
-  for (const [key, value] of Object.entries(data)) {
-    if (key.toLowerCase() === 'goalid' || key.toLowerCase() === 'id') continue;
-    if (typeof value === 'number') {
-      return `${base} (${humanizeKey(key)}: ${value.toLocaleString('es-AR')})`;
-    }
-    if (typeof value === 'string' && value.trim().length > 0) {
-      const short =
-        value.trim().length > 60
-          ? `${value.trim().slice(0, 60)}…`
-          : value.trim();
-      return `${base} (${humanizeKey(key)}: ${short})`;
-    }
-    if (typeof value === 'boolean') {
-      return `${base} (${humanizeKey(key)}: ${value ? 'sí' : 'no'})`;
-    }
-  }
-  return base;
+  // HU28: hasta 3 pares etiqueta: valor primitivos, sin claves técnicas.
+  const pairs = Object.entries(adjustment.supportingData).filter(
+    ([key, value]) =>
+      !HIDDEN_KEYS.has(key.toLowerCase()) &&
+      !/(^|_)id$|Id$/.test(key) &&
+      (typeof value === 'number' ||
+        typeof value === 'boolean' ||
+        (typeof value === 'string' && value.trim().length > 0)),
+  );
+  if (pairs.length === 0) return base;
+  const shown = pairs
+    .slice(0, 3)
+    .map(([key, value]) => {
+      const text = formatPrimitive(
+        typeof value === 'string' ? value.trim() : value,
+      );
+      const short = text.length > 60 ? `${text.slice(0, 60)}…` : text;
+      return `${humanizeKey(key)}: ${short}`;
+    })
+    .join(' · ');
+  const extra = pairs.length - 3;
+  return `${base} (${shown}${extra > 0 ? ` · +${extra} más` : ''})`;
 }

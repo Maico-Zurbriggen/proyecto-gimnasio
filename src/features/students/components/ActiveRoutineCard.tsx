@@ -6,6 +6,7 @@ import type { ActiveRoutine } from '../../../api/routines';
 import { humanizeEnum } from '../../../shared/lib/format';
 import { BentoCard } from '../../../shared/ui/BentoCard';
 import { useStudentActiveRoutine } from '../hooks/useStudentActiveRoutine';
+import { LoadingState } from '../../../shared/ui/LoadingState';
 
 export interface ActiveRoutineCardProps {
   /** UUID del alumno en el backend; sin él no hay nada que consultar. */
@@ -53,9 +54,11 @@ export function ActiveRoutineCard({
     );
   } else if (isPending) {
     content = (
-      <p role="status" className="mt-3 text-sm text-[#68675f]">
-        Consultando la rutina vigente…
-      </p>
+      <LoadingState
+        label="Consultando la rutina vigente…"
+        variant="card"
+        className="mt-3"
+      />
     );
   } else if (error) {
     const sinRutina =

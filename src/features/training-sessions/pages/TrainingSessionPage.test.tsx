@@ -6,12 +6,19 @@ import {
   screen,
   waitFor,
 } from '@testing-library/react';
+import { onlineManager } from '@tanstack/react-query';
 import { MemoryRouter } from 'react-router-dom';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { mockApi } from '../../../../test/apiMocks';
-import { readSessionDraft } from '../lib/sessionDraft';
+import { readSessionDraft, writeSessionDraft } from '../lib/sessionDraft';
 import { TrainingSessionPage } from './TrainingSessionPage';
+
+const catalog = vi.hoisted(() => ({ list: vi.fn() }));
+vi.mock('../../../api/catalog', () => ({
+  listCatalog: catalog.list,
+  getExercise: vi.fn(),
+}));
 
 const STUDENT_ID = '11111111-1111-4111-a111-111111111111';
 const SESSION_ID = '22222222-2222-4222-a222-222222222222';
@@ -84,6 +91,30 @@ function renderPageWithSession() {
   });
   return renderPage();
 }
+
+const DAY_ID = '33333333-3333-4333-a333-333333333333';
+const preloadRoute = {
+  [`GET /students/${STUDENT_ID}/routine-days/${DAY_ID}/set-preload`]: {
+    body: {
+      studentId: STUDENT_ID,
+      routineDayId: DAY_ID,
+      calculadoEl: '2026-09-08T10:00:00.000Z',
+      series: [
+        {
+          position: 1,
+          exerciseId: '66666666-6666-4666-a666-666666666666',
+          repeticionesMinimas: 6,
+          repeticionesMaximas: 12,
+          warmup: false,
+          carga: 12,
+          repeticiones: 10,
+          origen: 'CARGA_SUGERIDA',
+          antiguedadEnDias: null,
+        },
+      ],
+    },
+  },
+};
 
 describe('TrainingSessionPage (RF-027, FL-05, FL-07)', () => {
   afterEach(() => {
@@ -221,6 +252,40 @@ describe('TrainingSessionPage (RF-027, FL-05, FL-07)', () => {
     await waitFor(() => {
       expect(screen.getByText(/sesión completada/i)).toBeInTheDocument();
     });
+  });
+
+  it('tras finalizar, el 404 de /active quita Finalizar y Descartar (sin dato viejo)', async () => {
+    const session = activeSession();
+    let finished = false;
+    mockApi({
+      'GET /training-sessions/active': () =>
+        finished
+          ? { status: 404, body: { error: 'training_session_not_found' } }
+          : { body: session },
+      [`POST /students/${STUDENT_ID}/training-sessions/${SESSION_ID}/finish`]:
+        () => {
+          finished = true;
+          return {
+            body: {
+              ...session,
+              state: 'COMPLETADA',
+              completedAt: new Date().toISOString(),
+            },
+          };
+        },
+    });
+    renderPage();
+
+    fireEvent.click(await screen.findByRole('button', { name: /finalizar/i }));
+
+    expect(await screen.findByText(/sin sesión en curso/i)).toBeInTheDocument();
+    expect(screen.getByText(/sesión completada/i)).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: /finalizar/i }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: /descartar/i }),
+    ).not.toBeInTheDocument();
   });
 
   it('no envía `position` en el cuerpo del registro (schema estricto)', async () => {
@@ -373,6 +438,73 @@ describe('TrainingSessionPage (RF-027, FL-05, FL-07)', () => {
     }
   });
 
+  it('sin conexión muestra "pendiente de sincronizar" y lo quita al confirmarse', async () => {
+    const fetchMock = mockApi({
+      'GET /training-sessions/active': { body: activeSession() },
+      ...preloadRoute,
+      [`PATCH /students/${STUDENT_ID}/training-sessions/${SESSION_ID}/records/1`]:
+        () => ({ body: activeSession() }),
+    });
+    try {
+      renderPage();
+      const reps = await screen.findByLabelText(/repeticiones de la serie 1/i);
+      act(() => onlineManager.setOnline(false));
+      fireEvent.change(reps, { target: { value: '7' } });
+      expect(
+        await screen.findByText(
+          /guardamos 1 serie en este dispositivo/i,
+          {},
+          { timeout: 3000 },
+        ),
+      ).toBeInTheDocument();
+      expect(screen.queryByText(/guardando…/i)).not.toBeInTheDocument();
+      act(() => onlineManager.setOnline(true));
+      await waitFor(() => {
+        expect(
+          screen.queryByText(/guardamos 1 serie en este dispositivo/i),
+        ).not.toBeInTheDocument();
+      });
+      expect(
+        fetchMock.mock.calls.filter(([, init]) => init?.method === 'PATCH'),
+      ).toHaveLength(1);
+    } finally {
+      onlineManager.setOnline(true);
+    }
+  });
+
+  it('editar una serie omitida la reactiva con omissionReason null', async () => {
+    const session = { ...activeSession() };
+    session.setRecords = [
+      { ...session.setRecords[0]!, omissionReason: 'Máquina ocupada' },
+    ] as unknown as typeof session.setRecords;
+    const fetchMock = mockApi({
+      'GET /training-sessions/active': { body: session },
+      ...preloadRoute,
+      [`PATCH /students/${STUDENT_ID}/training-sessions/${SESSION_ID}/records/1`]:
+        () => ({ body: session }),
+    });
+    renderPage();
+    fireEvent.change(
+      await screen.findByLabelText(/repeticiones de la serie 1/i),
+      {
+        target: { value: '7' },
+      },
+    );
+    await waitFor(
+      () => {
+        expect(
+          fetchMock.mock.calls.filter(([, init]) => init?.method === 'PATCH'),
+        ).toHaveLength(1);
+      },
+      { timeout: 3000 },
+    );
+    const call = fetchMock.mock.calls.find(([, i]) => i?.method === 'PATCH');
+    expect(JSON.parse(String(call?.[1]?.body))).toMatchObject({
+      completed: true,
+      omissionReason: null,
+    });
+  });
+
   it('conserva lo tipeado sin enviar ante una recarga (RNF-10)', async () => {
     const { unmount } = renderPageWithSession();
     expect(
@@ -500,5 +632,167 @@ describe('TrainingSessionPage (RF-027, FL-05, FL-07)', () => {
     } finally {
       vi.useRealTimers();
     }
+  });
+
+  describe('HU22: precarga y acciones por serie', () => {
+    const RECORDS = `/students/${STUDENT_ID}/training-sessions/${SESSION_ID}/records`;
+    const patchCalls = (fetchMock: ReturnType<typeof mockApi>) =>
+      fetchMock.mock.calls.filter(([, init]) => init?.method === 'PATCH');
+
+    it('muestra la carga y reps precargadas con su procedencia, sin guardar solas', async () => {
+      const fetchMock = mockApi({
+        'GET /training-sessions/active': { body: activeSession() },
+        ...preloadRoute,
+      });
+      renderPage();
+
+      await waitFor(() => {
+        expect(screen.getByLabelText(/carga de la serie 1/i)).toHaveValue(12);
+      });
+      expect(screen.getByLabelText(/repeticiones de la serie 1/i)).toHaveValue(
+        10,
+      );
+      expect(
+        screen.getByText(/carga sugerida de tu rutina/i),
+      ).toBeInTheDocument();
+      expect(screen.getByText(/serie actual/i)).toBeInTheDocument();
+      await new Promise((resolve) => setTimeout(resolve, 900));
+      expect(patchCalls(fetchMock)).toHaveLength(0);
+    });
+
+    it('lo escrito en el borrador manda sobre la precarga', async () => {
+      writeSessionDraft({
+        sessionId: SESSION_ID,
+        studentId: STUDENT_ID,
+        updatedAt: new Date().toISOString(),
+        paused: false,
+        values: {
+          1: {
+            performedLoad: 30,
+            performedRepetitions: null,
+            perceivedEffort: null,
+            completed: true,
+          },
+        },
+      });
+      mockApi({
+        'GET /training-sessions/active': { body: activeSession() },
+        ...preloadRoute,
+      });
+      renderPage();
+
+      await screen.findByLabelText(/carga de la serie 1/i);
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      expect(screen.getByLabelText(/carga de la serie 1/i)).toHaveValue(30);
+      expect(screen.getByLabelText(/repeticiones de la serie 1/i)).toHaveValue(
+        null,
+      );
+    });
+
+    it('completa la serie en un toque con los valores precargados y no duplica', async () => {
+      const session = activeSession();
+      const fetchMock = mockApi({
+        'GET /training-sessions/active': { body: session },
+        ...preloadRoute,
+        [`PATCH ${RECORDS}/1`]: () => ({ body: session }),
+      });
+      renderPage();
+      await waitFor(() => {
+        expect(screen.getByLabelText(/carga de la serie 1/i)).toHaveValue(12);
+      });
+
+      const button = screen.getByRole('button', { name: /completar serie/i });
+      fireEvent.click(button);
+      fireEvent.click(button);
+
+      await waitFor(() => {
+        expect(patchCalls(fetchMock)).toHaveLength(1);
+      });
+      expect(
+        JSON.parse(String(patchCalls(fetchMock)[0]?.[1]?.body)),
+      ).toMatchObject({
+        performedLoad: 12,
+        performedRepetitions: 10,
+        completed: true,
+      });
+    });
+
+    it('omite la serie con motivo', async () => {
+      const session = activeSession();
+      const fetchMock = mockApi({
+        'GET /training-sessions/active': { body: session },
+        [`PATCH ${RECORDS}/1`]: () => ({ body: session }),
+      });
+      renderPage();
+      fireEvent.click(await screen.findByRole('button', { name: /^omitir$/i }));
+      fireEvent.change(screen.getByLabelText(/motivo de omisión/i), {
+        target: { value: 'Máquina ocupada' },
+      });
+      fireEvent.click(
+        screen.getByRole('button', { name: /confirmar omisión/i }),
+      );
+
+      await waitFor(() => {
+        expect(patchCalls(fetchMock)).toHaveLength(1);
+      });
+      expect(
+        JSON.parse(String(patchCalls(fetchMock)[0]?.[1]?.body)),
+      ).toMatchObject({ omissionReason: 'Máquina ocupada', completed: false });
+    });
+
+    it('agrega una serie adicional con el ejercicio de la última serie por defecto', async () => {
+      catalog.list.mockResolvedValue({ items: [] });
+      const session = activeSession();
+      const fetchMock = mockApi({
+        'GET /training-sessions/active': { body: session },
+        [`PATCH ${RECORDS}/2`]: () => ({ body: session }),
+      });
+      renderPage();
+      fireEvent.click(
+        await screen.findByRole('button', { name: /agregar serie/i }),
+      );
+      fireEvent.click(
+        await screen.findByRole('button', {
+          name: /mismo ejercicio que la última serie/i,
+        }),
+      );
+
+      await waitFor(() => {
+        expect(patchCalls(fetchMock)).toHaveLength(1);
+      });
+      expect(
+        JSON.parse(String(patchCalls(fetchMock)[0]?.[1]?.body)),
+      ).toMatchObject({
+        additional: true,
+        performedExerciseId: '66666666-6666-4666-a666-666666666666',
+        performedWarmup: false,
+      });
+    });
+
+    it('permite elegir otro ejercicio para la serie adicional', async () => {
+      const session = activeSession();
+      const OTHER = '77777777-7777-4777-a777-777777777777';
+      catalog.list.mockResolvedValue({
+        items: [{ id: OTHER, name: 'Press militar' }],
+      });
+      const fetchMock = mockApi({
+        'GET /training-sessions/active': { body: session },
+        [`PATCH ${RECORDS}/2`]: () => ({ body: session }),
+      });
+      renderPage();
+      fireEvent.click(
+        await screen.findByRole('button', { name: /agregar serie/i }),
+      );
+      fireEvent.click(
+        await screen.findByRole('button', { name: 'Press militar' }),
+      );
+
+      await waitFor(() => {
+        expect(patchCalls(fetchMock)).toHaveLength(1);
+      });
+      expect(
+        JSON.parse(String(patchCalls(fetchMock)[0]?.[1]?.body)),
+      ).toMatchObject({ additional: true, performedExerciseId: OTHER });
+    });
   });
 });

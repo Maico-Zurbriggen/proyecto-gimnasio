@@ -33,14 +33,14 @@ function summary(overrides: Record<string, unknown> = {}) {
   };
 }
 
-function renderPage() {
+function renderPage(readOnly = false) {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
   });
   return render(
     <QueryClientProvider client={queryClient}>
       <MemoryRouter>
-        <TrainingHistoryPage studentId={STUDENT_ID} />
+        <TrainingHistoryPage studentId={STUDENT_ID} readOnly={readOnly} />
       </MemoryRouter>
     </QueryClientProvider>,
   );
@@ -181,5 +181,113 @@ describe('TrainingHistoryPage (RF-035, D4/PD-02)', () => {
         ),
       ).toBe(true);
     });
+  });
+
+  it('marca simulada e interrumpida en el listado, y oculta acciones al entrenador', async () => {
+    mockApi({
+      [`GET /students/${STUDENT_ID}/training-sessions`]: {
+        body: historyPage([
+          summary({ simulated: true }),
+          summary({
+            id: '33333333-3333-4333-a333-333333333333',
+            state: 'ABANDONADA',
+          }),
+          summary({
+            id: '44444444-4444-4444-a444-444444444444',
+            state: 'EN_CURSO',
+          }),
+        ]),
+      },
+    });
+    renderPage(true);
+
+    expect(await screen.findByText('Simulada')).toBeInTheDocument();
+    expect(screen.getByText('Interrumpida')).toBeInTheDocument();
+    expect(screen.queryByText('Retomar')).not.toBeInTheDocument();
+    expect(
+      screen.queryByText('Tu entrenamiento, con contexto'),
+    ).not.toBeInTheDocument();
+  });
+
+  it('detalle: sustitución, adicional, omitida con motivo, simulada e interrumpida', async () => {
+    const id = '22222222-2222-4222-a222-222222222222';
+    const record = {
+      prescribedExerciseId: '77777777-7777-4777-a777-777777777777',
+      prescribedExerciseName: 'Sentadilla',
+      performedExerciseId: null,
+      performedExerciseName: null,
+      prescribedMinRepetitions: 6,
+      prescribedMaxRepetitions: 12,
+      prescribedLoad: null,
+      warmup: false,
+      performedLoad: null,
+      performedRepetitions: null,
+      perceivedEffort: null,
+      completed: false,
+      additional: false,
+      omissionReason: null,
+      atypicalConfirmed: false,
+    };
+    mockApi({
+      [`GET /students/${STUDENT_ID}/training-sessions`]: {
+        body: historyPage([summary({ state: 'ABANDONADA' })]),
+      },
+      [`GET /students/${STUDENT_ID}/training-sessions/${id}`]: {
+        body: {
+          id,
+          studentId: STUDENT_ID,
+          routineId: '44444444-4444-4444-a444-444444444444',
+          routineVersionId: '55555555-5555-4555-a555-555555555555',
+          routineDayId: '66666666-6666-4666-a666-666666666666',
+          routineDayName: 'Día 1',
+          routineDayPosition: 1,
+          state: 'ABANDONADA',
+          simulated: true,
+          startedAt: '2026-10-21T17:08:46.781Z',
+          completedAt: null,
+          occurredOn: '2026-10-21',
+          lastActivityAt: '2026-10-21T17:35:10.000Z',
+          aptitudeWarning: null,
+          compatibilityWarnings: [],
+          setRecords: [
+            {
+              ...record,
+              position: 1,
+              performedExerciseName: 'Prensa',
+              completed: true,
+            },
+            {
+              ...record,
+              position: 2,
+              additional: true,
+              completed: true,
+              prescribedExerciseId: null,
+              prescribedExerciseName: null,
+              prescribedMinRepetitions: null,
+              prescribedMaxRepetitions: null,
+              prescribedLoad: null,
+              performedExerciseName: 'Prensa',
+            },
+            { ...record, position: 3, omissionReason: 'Dolor de rodilla' },
+          ],
+        },
+      },
+    });
+    renderPage(true);
+
+    fireEvent.click(
+      await screen.findByRole('button', { name: /ver detalle/i }),
+    );
+
+    expect(
+      await screen.findByText(/prescripto: sentadilla → ejecutado: prensa/i),
+    ).toBeInTheDocument();
+    expect(screen.getByText('Adicional')).toBeInTheDocument();
+    expect(screen.getByText(/sin prescripción/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/→ ejecutado/i)).toHaveLength(1);
+    expect(screen.getByText('Omitida')).toBeInTheDocument();
+    expect(screen.getByText(/motivo: dolor de rodilla/i)).toBeInTheDocument();
+    expect(screen.getAllByText('Simulada').length).toBeGreaterThan(0);
+    expect(screen.getByText(/quedó interrumpida/i)).toBeInTheDocument();
   });
 });

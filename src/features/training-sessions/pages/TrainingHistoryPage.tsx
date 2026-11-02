@@ -11,6 +11,7 @@ import {
   useTrainingSessionDetail,
 } from '../hooks/useTrainingSession';
 import { formatDuration } from '../lib/sessionElapsed';
+import { LoadingState } from '../../../shared/ui/LoadingState';
 
 const STATE_FILTERS: { value: HistoryStateFilter; label: string }[] = [
   { value: 'TODAS', label: 'Todas' },
@@ -43,6 +44,10 @@ function formatOccurredOn(occurredOn: string): string {
   );
 }
 
+function SimulatedChip() {
+  return <span className="chip-neutral shrink-0">Simulada</span>;
+}
+
 function SessionDetail({
   studentId,
   sessionId,
@@ -53,7 +58,7 @@ function SessionDetail({
   const detail = useTrainingSessionDetail(studentId, sessionId);
 
   if (detail.isPending) {
-    return <p role="status">Cargando el detalle…</p>;
+    return <LoadingState label="Cargando el detalle…" variant="card" />;
   }
 
   if (detail.isError) {
@@ -80,37 +85,78 @@ function SessionDetail({
   const completed = detail.data.setRecords.filter((r) => r.completed).length;
   return (
     <div className="mt-4 border-t border-[#292823]/8 pt-4">
+      {detail.data.simulated ? (
+        <p className="mb-2">
+          <SimulatedChip />
+        </p>
+      ) : null}
+      {detail.data.state === 'ABANDONADA' ? (
+        <p className="mb-2 text-xs font-semibold text-[#8f2d2d]">
+          Esta sesión quedó interrumpida antes de completarse.
+        </p>
+      ) : null}
       <p className="text-xs font-semibold text-[#68675f]">
         {completed} de {detail.data.setRecords.length} series completadas
         {detail.data.aptitudeWarning ? ' · aptitud observada al iniciar' : ''}
       </p>
       <ul className="mt-3 grid gap-2 sm:grid-cols-2">
-        {detail.data.setRecords.map((record) => (
-          <li key={record.position} className="surface-muted p-3 text-xs">
-            <p className="font-semibold">
-              Serie {record.position} ·{' '}
-              {record.performedExerciseName ?? record.prescribedExerciseName}
-              {record.completed ? ' ✓' : ''}
-            </p>
-            <p className="mt-0.5 text-[#68675f]">
-              Prescripto: {record.prescribedMinRepetitions}–
-              {record.prescribedMaxRepetitions} reps
-              {record.prescribedLoad !== null
-                ? ` · ${record.prescribedLoad} kg`
-                : ''}
-            </p>
-            <p className="mt-0.5 text-[#68675f]">
-              Ejecutado:{' '}
-              {record.performedRepetitions !== null ||
-              record.performedLoad !== null
-                ? `${record.performedRepetitions ?? '–'} reps · ${record.performedLoad ?? '–'} kg`
-                : 'sin registro'}
-              {record.perceivedEffort !== null
-                ? ` · esfuerzo ${record.perceivedEffort}`
-                : ''}
-            </p>
-          </li>
-        ))}
+        {detail.data.setRecords.map((record) => {
+          const omitted =
+            !record.additional &&
+            !record.completed &&
+            record.omissionReason !== null;
+          const substituted =
+            record.prescribedExerciseName !== null &&
+            record.performedExerciseName !== null &&
+            record.performedExerciseName !== record.prescribedExerciseName;
+          return (
+            <li key={record.position} className="surface-muted p-3 text-xs">
+              <p className="font-semibold [overflow-wrap:anywhere]">
+                Serie {record.position} ·{' '}
+                {record.performedExerciseName ?? record.prescribedExerciseName}
+                {record.completed ? ' ✓' : ''}
+                {record.additional ? (
+                  <span className="chip-ok ml-2">Adicional</span>
+                ) : null}
+                {omitted ? (
+                  <span className="chip-warn ml-2">Omitida</span>
+                ) : null}
+              </p>
+              {substituted ? (
+                <p className="mt-0.5 [overflow-wrap:anywhere]">
+                  Prescripto: {record.prescribedExerciseName} → Ejecutado:{' '}
+                  {record.performedExerciseName}
+                </p>
+              ) : null}
+              {omitted ? (
+                <p className="mt-0.5 text-[#68675f]">
+                  Motivo: {record.omissionReason}
+                </p>
+              ) : null}
+              <p className="mt-0.5 text-[#68675f]">
+                {record.additional ||
+                record.prescribedMinRepetitions === null ||
+                record.prescribedMaxRepetitions === null
+                  ? 'Serie agregada por el alumno, sin prescripción'
+                  : `Prescripto: ${record.prescribedMinRepetitions}–${record.prescribedMaxRepetitions} reps${
+                      record.prescribedLoad !== null
+                        ? ` · ${record.prescribedLoad} kg`
+                        : ''
+                    }`}
+              </p>
+              <p className="mt-0.5 text-[#68675f]">
+                Ejecutado:{' '}
+                {record.performedRepetitions !== null ||
+                record.performedLoad !== null
+                  ? `${record.performedRepetitions ?? '–'} reps · ${record.performedLoad ?? '–'} kg`
+                  : 'sin registro'}
+                {record.perceivedEffort !== null
+                  ? ` · esfuerzo ${record.perceivedEffort}`
+                  : ''}
+              </p>
+            </li>
+          );
+        })}
       </ul>
     </div>
   );
@@ -118,6 +164,8 @@ function SessionDetail({
 
 export interface TrainingHistoryPageProps {
   studentId: string;
+  /** Vista del entrenador: sin cabecera propia ni acciones del alumno. */
+  readOnly?: boolean;
 }
 
 /**
@@ -125,7 +173,10 @@ export interface TrainingHistoryPageProps {
  * Cada sesión conserva su prescripción congelada junto a lo ejecutado:
  * el pasado no se reescribe aunque la rutina cambie de versión.
  */
-export function TrainingHistoryPage({ studentId }: TrainingHistoryPageProps) {
+export function TrainingHistoryPage({
+  studentId,
+  readOnly = false,
+}: TrainingHistoryPageProps) {
   const [filter, setFilter] = useState<HistoryStateFilter>('TODAS');
   const [page, setPage] = useState(1);
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -135,14 +186,21 @@ export function TrainingHistoryPage({ studentId }: TrainingHistoryPageProps) {
     Math.ceil((history.data?.total ?? 0) / (history.data?.pageSize ?? 10)),
   );
 
+  const Body = readOnly ? 'div' : 'main';
   return (
     <div>
-      <PageHeader
-        kicker="Historial"
-        title="Tu entrenamiento, con contexto"
-        description="Sesiones realizadas, con lo prescripto y lo ejecutado de cada una."
-      />
-      <main className="page-body flex flex-col gap-6">
+      {readOnly ? null : (
+        <PageHeader
+          kicker="Historial"
+          title="Tu entrenamiento, con contexto"
+          description="Sesiones realizadas, con lo prescripto y lo ejecutado de cada una."
+        />
+      )}
+      <Body
+        className={
+          readOnly ? 'flex flex-col gap-6' : 'page-body flex flex-col gap-6'
+        }
+      >
         <BentoCard>
           <label htmlFor="history-state-filter" className="field-label block">
             Filtrar por estado
@@ -165,7 +223,9 @@ export function TrainingHistoryPage({ studentId }: TrainingHistoryPageProps) {
           </select>
         </BentoCard>
 
-        {history.isPending ? <p role="status">Cargando tu historial…</p> : null}
+        {history.isPending ? (
+          <LoadingState label="Cargando tu historial…" variant="list" />
+        ) : null}
 
         {history.isError && !history.isPending ? (
           <Banner
@@ -199,12 +259,15 @@ export function TrainingHistoryPage({ studentId }: TrainingHistoryPageProps) {
               Sin sesiones todavía
             </h2>
             <p className="mt-2 max-w-2xl text-sm leading-relaxed text-[#68675f]">
-              Cuando completes tu primera sesión la vas a ver acá, con cada
-              serie prescripta y ejecutada.
+              {readOnly
+                ? 'Este alumno todavía no registró sesiones.'
+                : 'Cuando completes tu primera sesión la vas a ver acá, con cada serie prescripta y ejecutada.'}
             </p>
-            <Link to="/alumno/sesion" className="btn-primary mt-4">
-              Ir a la sesión
-            </Link>
+            {readOnly ? null : (
+              <Link to="/alumno/sesion" className="btn-primary mt-4">
+                Ir a la sesión
+              </Link>
+            )}
           </BentoCard>
         ) : null}
 
@@ -220,19 +283,27 @@ export function TrainingHistoryPage({ studentId }: TrainingHistoryPageProps) {
                     key={item.id}
                     className="row-interactive rounded-2xl border border-[#292823]/8 bg-white/70 p-4"
                   >
-                    <div className="flex items-baseline justify-between gap-2">
-                      <h2 className="text-sm font-bold">
+                    <div className="flex flex-wrap items-baseline justify-between gap-2">
+                      <h2 className="min-w-0 text-sm font-bold [overflow-wrap:anywhere]">
                         {formatOccurredOn(item.occurredOn)} ·{' '}
                         {item.routineDayName}
                       </h2>
-                      <span
-                        className={
-                          STATE_CHIPS[item.state] ?? 'chip-neutral shrink-0'
-                        }
-                      >
-                        {STATE_LABELS[item.state] ?? item.state}
+                      <span className="flex flex-wrap gap-1">
+                        {item.simulated ? <SimulatedChip /> : null}
+                        <span
+                          className={
+                            STATE_CHIPS[item.state] ?? 'chip-neutral shrink-0'
+                          }
+                        >
+                          {STATE_LABELS[item.state] ?? item.state}
+                        </span>
                       </span>
                     </div>
+                    {item.state === 'ABANDONADA' ? (
+                      <p className="mt-1 text-xs font-semibold text-[#8f2d2d]">
+                        Interrumpida
+                      </p>
+                    ) : null}
                     <p className="mt-1 text-xs text-[#68675f]">
                       {item.completedSeries} de {item.totalSeries} series
                       {formatDuration(item.startedAt, item.completedAt)
@@ -248,7 +319,7 @@ export function TrainingHistoryPage({ studentId }: TrainingHistoryPageProps) {
                       >
                         {expanded ? 'Ocultar detalle' : 'Ver detalle'}
                       </button>
-                      {item.state === 'EN_CURSO' ? (
+                      {item.state === 'EN_CURSO' && !readOnly ? (
                         <Link
                           to="/alumno/sesion"
                           className="btn-primary btn-sm"
@@ -291,7 +362,7 @@ export function TrainingHistoryPage({ studentId }: TrainingHistoryPageProps) {
             </div>
           </BentoCard>
         ) : null}
-      </main>
+      </Body>
     </div>
   );
 }

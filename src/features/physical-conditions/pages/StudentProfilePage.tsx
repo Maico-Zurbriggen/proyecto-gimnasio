@@ -1,11 +1,13 @@
 import { useQuery } from '@tanstack/react-query';
 import { KeyRound, PencilLine, UserRound } from 'lucide-react';
+import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 
 import {
   fetchOwnContext,
   studentContextQueryKey,
 } from '../../../api/studentContext';
+import { InsufficientInfo } from '../../../shared/components/InsufficientInfo';
 import { formatDate, humanizeEnum } from '../../../shared/lib/format';
 import { BentoCard } from '../../../shared/ui/BentoCard';
 import { PageHeader } from '../../../shared/ui/PageHeader';
@@ -14,6 +16,7 @@ import { initialsOf, readIdentity } from '../../auth/identity';
 import { useOwnMeasurementBlock } from '../../students/hooks/useOwnMeasurementBlock';
 import { StudentConditionsPanel } from '../components/StudentConditionsPanel';
 import { StudentGoalsPanel } from '../components/StudentGoalsPanel';
+import { LoadingState } from '../../../shared/ui/LoadingState';
 
 /** Ficha propia: identidad, entrenador y datos físicos que ve el entrenador. */
 function ProfileSummary() {
@@ -30,7 +33,7 @@ function ProfileSummary() {
   const email = user?.email ?? stored?.email ?? null;
   const data = context.data;
 
-  const stats: [string, string][] = data
+  const stats: [string, ReactNode][] = data
     ? [
         [
           'Nivel',
@@ -64,7 +67,14 @@ function ProfileSummary() {
         ],
         [
           'Faltas seguidas',
-          status.data ? String(status.data.faltasConsecutivas) : '—',
+          status.data ? (
+            String(status.data.faltasConsecutivas)
+          ) : (
+            <InsufficientInfo
+              missing="faltas seguidas"
+              action="Todavía no se pudo calcular."
+            />
+          ),
         ],
       ]
     : [];
@@ -97,7 +107,7 @@ function ProfileSummary() {
                 {data.trainer.displayName}
               </p>
             ) : context.isPending ? (
-              <p className="mt-1 text-sm text-[#77756d]">Cargando…</p>
+              <LoadingState label="Cargando…" variant="card" className="mt-1" />
             ) : (
               <span className="chip-warn mt-1">Esperando asignación</span>
             )}
@@ -110,9 +120,11 @@ function ProfileSummary() {
           Datos de entrenamiento
         </h2>
         {context.isPending ? (
-          <p role="status" className="mt-4 text-sm text-[#77756d]">
-            Cargando tus datos…
-          </p>
+          <LoadingState
+            label="Cargando tus datos…"
+            variant="card"
+            className="mt-4"
+          />
         ) : context.isError ? (
           <div className="mt-4 flex flex-col items-start gap-3">
             <p role="alert" className="field-error">

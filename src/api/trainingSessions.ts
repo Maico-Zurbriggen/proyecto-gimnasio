@@ -18,12 +18,12 @@ export const trainingSessionStateSchema = z.enum([
 
 export const sessionSetRecordSchema = z.object({
   position: z.number().int(),
-  prescribedExerciseId: z.string(),
-  prescribedExerciseName: z.string(),
+  prescribedExerciseId: z.string().nullable(),
+  prescribedExerciseName: z.string().nullable(),
   performedExerciseId: z.string().nullable(),
   performedExerciseName: z.string().nullable(),
-  prescribedMinRepetitions: z.number().int(),
-  prescribedMaxRepetitions: z.number().int(),
+  prescribedMinRepetitions: z.number().int().nullable(),
+  prescribedMaxRepetitions: z.number().int().nullable(),
   prescribedLoad: z.number().nullable(),
   warmup: z.boolean(),
   performedLoad: z.number().nullable(),
@@ -44,6 +44,7 @@ export const trainingSessionSchema = z.object({
   routineDayName: z.string(),
   routineDayPosition: z.number().int(),
   state: trainingSessionStateSchema,
+  simulated: z.boolean().default(false),
   startedAt: z.string(),
   completedAt: z.string().nullable(),
   occurredOn: z.string(),
@@ -65,6 +66,7 @@ export const trainingSessionSummarySchema = z.object({
   routineDayName: z.string(),
   routineDayPosition: z.number().int(),
   state: trainingSessionStateSchema,
+  simulated: z.boolean().default(false),
   startedAt: z.string(),
   completedAt: z.string().nullable(),
   occurredOn: z.string(),
@@ -93,6 +95,7 @@ export interface UpdateSeriesInput {
   perceivedEffort?: number | null;
   completed?: boolean;
   additional?: boolean;
+  performedWarmup?: boolean;
   omissionReason?: string | null;
   performedExerciseId?: string | null;
   atypicalConfirmed?: boolean;
@@ -133,6 +136,7 @@ export async function updateSeriesRecord(
     perceivedEffort,
     completed,
     additional,
+    performedWarmup,
     omissionReason,
     performedExerciseId,
     atypicalConfirmed,
@@ -145,6 +149,7 @@ export async function updateSeriesRecord(
       perceivedEffort,
       completed,
       additional,
+      performedWarmup,
       omissionReason,
       performedExerciseId,
       atypicalConfirmed,

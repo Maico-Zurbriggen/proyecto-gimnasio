@@ -1,6 +1,7 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 
 import { useSession } from '../hooks/useSession';
+import { LoadingState } from '../../../shared/ui/LoadingState';
 
 /**
  * Guarda de rutas privadas (HU07-T7).
@@ -17,9 +18,11 @@ export function RequireSession() {
 
   if (loading) {
     return (
-      <p role="status" className="px-4 py-10 text-xs text-[#77756d]">
-        Verificando tu sesión…
-      </p>
+      <LoadingState
+        label="Verificando tu sesión…"
+        variant="page"
+        className="px-4 py-10"
+      />
     );
   }
 

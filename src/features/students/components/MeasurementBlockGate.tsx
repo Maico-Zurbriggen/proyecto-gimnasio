@@ -6,13 +6,14 @@ import { PageHeader } from '../../../shared/ui/PageHeader';
 import { useSession } from '../../auth/hooks/useSession';
 import { RenewalMeasurementForm } from '../../routines/components/RenewalMeasurementForm';
 import { useOwnMeasurementBlock } from '../hooks/useOwnMeasurementBlock';
+import { LoadingState } from '../../../shared/ui/LoadingState';
 
 export function MeasurementBlockGate() {
   const { user } = useSession();
   const status = useOwnMeasurementBlock();
 
   if (status.isPending) {
-    return <PageHeader kicker="Estado de mediciones" title="Cargando…" />;
+    return <LoadingState label="Cargando…" variant="page" />;
   }
 
   if (status.error || !status.data || !user) {

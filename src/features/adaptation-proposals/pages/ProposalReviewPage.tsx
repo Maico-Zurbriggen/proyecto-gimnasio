@@ -4,6 +4,7 @@ import { Link, useParams } from 'react-router-dom';
 import { ApiError } from '../../../api/client';
 import type { ProposalResolution } from '../../../api/proposals';
 import { Banner } from '../../../shared/components/Banner';
+import { InsufficientInfo } from '../../../shared/components/InsufficientInfo';
 import { formatDate, humanizeEnum } from '../../../shared/lib/format';
 import { BentoCard } from '../../../shared/ui/BentoCard';
 import { PageHeader } from '../../../shared/ui/PageHeader';
@@ -18,6 +19,7 @@ import {
   formatAdjustmentValue,
   requiresManualIntervention,
 } from '../lib/adjustments';
+import { LoadingState } from '../../../shared/ui/LoadingState';
 
 function loadErrorMessage(error: unknown): string {
   if (error instanceof ApiError && error.status === 404) {
@@ -84,14 +86,7 @@ export function ProposalReviewPage() {
   );
 
   if (review.isPending) {
-    return (
-      <div>
-        <PageHeader
-          kicker="Revisión de propuesta"
-          title="Cargando propuesta…"
-        />
-      </div>
-    );
+    return <LoadingState label="Cargando propuesta…" variant="page" />;
   }
 
   if (review.error) {
@@ -140,6 +135,13 @@ export function ProposalReviewPage() {
       />
       <main className="page-body flex flex-col gap-4">
         <OutdatedDataWarning proposal={proposal.advertenciaDatos} />
+
+        {diagnostic.adherence === null ? (
+          <InsufficientInfo
+            missing="adherencia del período"
+            action="Se calcula cuando el alumno registra sesiones."
+          />
+        ) : null}
 
         {resolve.data ? (
           <Banner variant="info" title={resolutionTitle(resolve.data)} />

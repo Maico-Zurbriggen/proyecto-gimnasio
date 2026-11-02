@@ -17,6 +17,7 @@ import {
 import { formatDate } from '../../../shared/lib/format';
 import { BentoCard } from '../../../shared/ui/BentoCard';
 import { PageHeader } from '../../../shared/ui/PageHeader';
+import { LoadingState } from '../../../shared/ui/LoadingState';
 
 /** Texto e icono por estado: la información nunca depende sólo del color. */
 const ESTADO_INVITACION: Record<
@@ -374,9 +375,7 @@ export function GymsPage() {
       <main className="page-body">
         <BentoCard>
           {gyms.isPending ? (
-            <p role="status" className="text-sm text-[#77756d]">
-              Cargando gimnasios…
-            </p>
+            <LoadingState label="Cargando gimnasios…" variant="list" />
           ) : gyms.isError ? (
             <div role="alert" className="flex flex-col items-start gap-3">
               <p className="text-sm">No pudimos cargar los gimnasios.</p>

@@ -9,6 +9,7 @@ import {
 } from '../../../api/studentContext';
 import { formatDate, humanizeEnum } from '../../../shared/lib/format';
 import { BentoCard } from '../../../shared/ui/BentoCard';
+import { LoadingState } from '../../../shared/ui/LoadingState';
 
 type GoalType = (typeof GOAL_TYPES)[number];
 
@@ -59,9 +60,11 @@ export function StudentGoalsPanel({ studentId }: { studentId: string }) {
       </p>
 
       {goals.isPending ? (
-        <p role="status" className="mt-4 text-sm text-[#77756d]">
-          Cargando objetivo…
-        </p>
+        <LoadingState
+          label="Cargando objetivo…"
+          variant="card"
+          className="mt-4"
+        />
       ) : goals.isError ? (
         <div className="mt-4 flex flex-col items-start gap-3">
           <p role="alert" className="field-error">

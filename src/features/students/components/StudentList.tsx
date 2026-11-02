@@ -1,17 +1,14 @@
 import { useTrainerStudents } from '../hooks/useTrainerStudents';
 import { matchesStudentName } from '../lib/matchesStudentName';
 import { StudentRow } from './StudentRow';
+import { LoadingState } from '../../../shared/ui/LoadingState';
 
 /** Cartera del entrenador desde `GET /trainers/me/students`, con carga, vacío y error. */
 export function StudentList({ query = '' }: { query?: string }) {
   const { data, error, isPending, isFetching, refetch } = useTrainerStudents();
 
   if (isPending) {
-    return (
-      <p role="status" className="text-sm text-[#68675f]">
-        Cargando alumnos…
-      </p>
-    );
+    return <LoadingState label="Cargando alumnos…" variant="list" />;
   }
 
   if (error) {
