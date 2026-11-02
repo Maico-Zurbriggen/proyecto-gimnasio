@@ -727,7 +727,11 @@ export function TrainingSessionPage({ studentId }: TrainingSessionPageProps) {
     <div>
       <PageHeader
         kicker="Sesión en curso"
-        title={`${session.routineDayName} · Día ${session.routineDayPosition}`}
+        title={
+          session.routineDayName === null
+            ? 'Sesión sin detalle de rutina'
+            : `${session.routineDayName} · Día ${session.routineDayPosition}`
+        }
         description="Registro de series, cargas y repeticiones de la sesión activa."
       />
       <main className="page-body flex flex-col gap-6">

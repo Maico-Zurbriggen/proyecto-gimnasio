@@ -41,8 +41,9 @@ export const trainingSessionSchema = z.object({
   routineId: z.string(),
   routineVersionId: z.string(),
   routineDayId: z.string(),
-  routineDayName: z.string(),
-  routineDayPosition: z.number().int(),
+  // Null en sesiones sin snapshot de rutina (datos previos al snapshot).
+  routineDayName: z.string().nullable(),
+  routineDayPosition: z.number().int().nullable(),
   state: trainingSessionStateSchema,
   simulated: z.boolean().default(false),
   startedAt: z.string(),
@@ -63,8 +64,9 @@ export type TrainingSession = z.infer<typeof trainingSessionSchema>;
 export const trainingSessionSummarySchema = z.object({
   id: z.string(),
   studentId: z.string(),
-  routineDayName: z.string(),
-  routineDayPosition: z.number().int(),
+  // Null en sesiones sin snapshot de rutina (datos previos al snapshot).
+  routineDayName: z.string().nullable(),
+  routineDayPosition: z.number().int().nullable(),
   state: trainingSessionStateSchema,
   simulated: z.boolean().default(false),
   startedAt: z.string(),
