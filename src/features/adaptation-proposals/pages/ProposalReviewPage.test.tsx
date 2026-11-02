@@ -77,6 +77,22 @@ function renderPage() {
 }
 
 describe('ProposalReviewPage (HU04)', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it('avisa que la propuesta está bloqueada cuando el alumno no tiene entrenador', async () => {
+    mockApi({
+      [`GET /proposals/${PROPOSAL}`]: {
+        body: review({ state: 'BLOQUEADA' }),
+      },
+    });
+    renderPage();
+
+    expect(await screen.findByText('Propuesta bloqueada')).toBeVisible();
+    expect(screen.queryByRole('button', { name: /Aprobar/ })).toBeNull();
+  });
+
   it('lets the trainer request regeneration with feedback and disables approval while pending', async () => {
     const candidateRequestId = '70000000-0000-4000-8000-000000000001';
     let input: Record<string, unknown> | undefined;

@@ -97,3 +97,40 @@ describe('AdjustmentEvidence (T3 · RF-090)', () => {
     expect(screen.getByText('0')).toBeVisible();
   });
 });
+
+describe('ajustes de la tabla situación → ajuste', () => {
+  it('muestra el criterio en palabras y oculta datos técnicos', () => {
+    render(
+      <AdjustmentEvidence
+        type="VOLUMEN"
+        criterion="ESTANCAMIENTO_PRIMERO"
+        supportingData={{
+          situation: 'ESTANCAMIENTO',
+          exerciseId: 'ex-1',
+          exerciseName: 'Press banca',
+          consecutiveStagnations: 1,
+          tableVersion: 'adjustment-table-v1',
+        }}
+      />,
+    );
+    expect(
+      screen.getByText(/Estancamiento \(primer diagnóstico\)/),
+    ).toBeVisible();
+    expect(
+      screen.getByText(/Diagnósticos de estancamiento seguidos:/),
+    ).toBeVisible();
+    expect(screen.queryByText(/adjustment-table-v1/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/ex-1/)).not.toBeInTheDocument();
+  });
+
+  it('resume la bandeja con el criterio traducido', () => {
+    expect(
+      adjustmentEvidenceSummary({
+        type: 'CARGA',
+        exerciseName: 'Press banca',
+        criterion: 'ESTIMULO_INSUFICIENTE',
+        supportingData: {},
+      }),
+    ).toBe('Press banca: Estímulo insuficiente');
+  });
+});

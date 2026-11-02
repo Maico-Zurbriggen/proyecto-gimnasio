@@ -1,5 +1,6 @@
 import { InsufficientInfo } from '../../../shared/components/InsufficientInfo';
 import { formatDate, humanizeEnum } from '../../../shared/lib/format';
+import { criterionLabel } from '../lib/adjustments';
 
 type AdjustmentType =
   'CARGA' | 'VOLUMEN' | 'ESQUEMA' | 'SUSTITUCION' | 'ESTRUCTURA';
@@ -13,13 +14,32 @@ const HIDDEN_KEYS = new Set([
   'display_name',
   'id',
   'goalid',
+  'exerciseid',
+  'exercisename',
+  'routineexerciseids',
+  'tableversion',
 ]);
+
+const KEY_LABEL: Record<string, string> = {
+  consecutiveStagnations: 'Diagnósticos de estancamiento seguidos',
+  lowAdherenceWeeks: 'Semanas con adherencia baja',
+  adherence: 'Adherencia (%)',
+  thresholdPercent: 'Umbral de adherencia (%)',
+  situation: 'Situación',
+  metrics: 'Métricas',
+  muscleGroup: 'Grupo muscular',
+  kind: 'Tipo de desbalance',
+  stimulatingPattern: 'Patrón que lo estimula',
+  goalChange: 'Cambio de objetivo',
+};
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
 function humanizeKey(key: string): string {
+  const label = KEY_LABEL[key];
+  if (label) return label;
   const spaced = key
     .replace(/([a-z0-9])([A-Z])/g, '$1_$2')
     .replace(/([A-Z]+)([A-Z][a-z])/g, '$1_$2');
@@ -62,7 +82,7 @@ export function AdjustmentEvidence({
     <div className="mt-1">
       <p className="text-[11px] text-[#77756d]">
         <span className="font-bold text-[#3d3c36]">Criterio: </span>
-        {criterion}
+        {criterionLabel(criterion)}
       </p>
       <SupportingDataList supportingData={supportingData} type={type} />
     </div>
@@ -252,7 +272,7 @@ export function adjustmentEvidenceSummary(adjustment: {
   supportingData: unknown;
 }): string {
   const where = adjustment.exerciseName ?? 'Rutina completa';
-  const base = `${where}: ${adjustment.criterion}`;
+  const base = `${where}: ${criterionLabel(adjustment.criterion)}`;
   if (!isRecord(adjustment.supportingData)) return base;
   // HU28: hasta 3 pares etiqueta: valor primitivos, sin claves técnicas.
   const pairs = Object.entries(adjustment.supportingData).filter(
