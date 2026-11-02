@@ -11,6 +11,26 @@ const TYPE_LABEL: Record<AdjustmentType, string> = {
   ESTRUCTURA: 'Estructura',
 };
 
+const CRITERION_LABEL: Record<string, string> = {
+  ESTIMULO_INSUFICIENTE: 'Estímulo insuficiente',
+  ESTANCAMIENTO_PRIMERO: 'Estancamiento (primer diagnóstico)',
+  ESTANCAMIENTO_SEGUNDO_CONSECUTIVO:
+    'Estancamiento (segundo diagnóstico consecutivo)',
+  SOBREEXIGENCIA: 'Sobreexigencia',
+  INCOMPATIBLE: 'Ejercicio incompatible con el alumno',
+  EJERCICIO_DESACTIVADO: 'Ejercicio desactivado en el gimnasio',
+  ADHERENCIA_BAJA_SOSTENIDA:
+    'Adherencia baja sostenida (menos de 60 % durante 4 semanas)',
+  DESBALANCE_POR_DEFECTO: 'Desbalance muscular por defecto',
+  DESBALANCE_POR_EXCESO: 'Desbalance muscular por exceso',
+  CAMBIO_OBJETIVO: 'Cambio de objetivo',
+};
+
+/** Criterio de la tabla situación → ajuste en palabras; lo desconocido se muestra crudo. */
+export function criterionLabel(criterion: string): string {
+  return CRITERION_LABEL[criterion] ?? criterion;
+}
+
 export function adjustmentTypeLabel(type: AdjustmentType): string {
   return TYPE_LABEL[type];
 }
@@ -79,6 +99,22 @@ export function formatAdjustmentValue(
         field(value, 'target_weekly_frequency');
       if (typeof routineType === 'string' && typeof frequency === 'number') {
         return `${humanizeEnum(routineType)} · ${frequency} días por semana`;
+      }
+      if (field(value, 'action') === 'AGREGAR_EJERCICIO') {
+        const pattern = field(value, 'movement_pattern');
+        return typeof pattern === 'string'
+          ? `Agregar un ejercicio de ${humanizeEnum(pattern)}`
+          : 'Agregar un ejercicio';
+      }
+      if (typeof frequency === 'number') {
+        return `${frequency} días por semana`;
+      }
+      if (typeof routineType === 'string') {
+        return humanizeEnum(routineType);
+      }
+      const muscleGroup = field(value, 'muscle_group');
+      if (typeof muscleGroup === 'string') {
+        return humanizeEnum(muscleGroup);
       }
       break;
     }

@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest';
 
-import { adjustmentTypeLabel, formatAdjustmentValue } from './adjustments';
+import {
+  adjustmentTypeLabel,
+  criterionLabel,
+  formatAdjustmentValue,
+} from './adjustments';
 
 describe('formatAdjustmentValue', () => {
   it('formatea los valores con el mismo formato que usa el backend', () => {
@@ -27,5 +31,39 @@ describe('formatAdjustmentValue', () => {
 
   it('traduce el tipo de ajuste', () => {
     expect(adjustmentTypeLabel('SUSTITUCION')).toBe('Sustitución');
+  });
+});
+
+describe('criterionLabel', () => {
+  it('traduce los criterios de la tabla situación → ajuste', () => {
+    expect(criterionLabel('ESTIMULO_INSUFICIENTE')).toBe(
+      'Estímulo insuficiente',
+    );
+    expect(criterionLabel('ESTANCAMIENTO_SEGUNDO_CONSECUTIVO')).toMatch(
+      /segundo diagnóstico consecutivo/,
+    );
+  });
+
+  it('deja crudo un criterio desconocido', () => {
+    expect(criterionLabel('Texto libre (RN-79a).')).toBe(
+      'Texto libre (RN-79a).',
+    );
+  });
+});
+
+describe('ajustes de estructura de la tabla', () => {
+  it('formatea frecuencia, agregado de ejercicio y cambio de tipo', () => {
+    expect(
+      formatAdjustmentValue('ESTRUCTURA', { target_weekly_frequency: 3 }),
+    ).toBe('3 días por semana');
+    expect(
+      formatAdjustmentValue('ESTRUCTURA', {
+        action: 'AGREGAR_EJERCICIO',
+        movement_pattern: 'TRACCION_HORIZONTAL',
+      }),
+    ).toBe('Agregar un ejercicio de Traccion horizontal');
+    expect(
+      formatAdjustmentValue('ESTRUCTURA', { routine_type: 'FUERZA' }),
+    ).toBe('Fuerza');
   });
 });

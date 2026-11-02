@@ -147,6 +147,15 @@ export function ProposalReviewPage() {
           <Banner variant="info" title={resolutionTitle(resolve.data)} />
         ) : null}
 
+        {proposal.state === 'BLOQUEADA' ? (
+          <Banner variant="warning" title="Propuesta bloqueada">
+            <p>
+              El alumno no tiene un entrenador vigente. Un administrador debe
+              asignarle uno antes de que la propuesta pueda revisarse.
+            </p>
+          </Banner>
+        ) : null}
+
         <div className="flex flex-col gap-4 lg:grid lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start lg:gap-6">
           <div className="flex min-w-0 flex-col gap-4">
             {pending && proposal.regeneration ? (
