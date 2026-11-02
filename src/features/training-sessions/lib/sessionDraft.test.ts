@@ -19,6 +19,7 @@ function baseSession(): TrainingSession {
     routineDayName: 'Día 1',
     routineDayPosition: 1,
     state: 'EN_CURSO',
+    simulated: false,
     startedAt: new Date().toISOString(),
     completedAt: null,
     occurredOn: '2026-09-08',

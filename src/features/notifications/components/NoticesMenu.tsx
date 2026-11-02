@@ -12,6 +12,7 @@ import {
   type NoticeStatus,
 } from '../../../api/notices';
 import type { AppRole } from '../../auth/roles';
+import { LoadingState } from '../../../shared/ui/LoadingState';
 
 export const noticesQueryKey = (status: NoticeStatus) =>
   ['notices', 'me', status] as const;
@@ -152,7 +153,9 @@ export function NoticesMenu({ role }: { role: AppRole }) {
               Historial reciente
             </button>
           </div>
-          {notices.isPending ? <p className="p-3 text-xs">Cargando…</p> : null}
+          {notices.isPending ? (
+            <LoadingState label="Cargando…" variant="card" />
+          ) : null}
           {notices.error ? (
             <button
               className="btn-secondary btn-sm mt-3"

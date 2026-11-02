@@ -15,6 +15,7 @@ import {
   useRoutineContent,
 } from '../hooks/usePrescriptions';
 import { originLabel } from '../lib/origin';
+import { LoadingState } from '../../../shared/ui/LoadingState';
 
 const VOLVER = '/entrenador/rutinas/revisar';
 
@@ -85,9 +86,11 @@ export function RoutineReviewPage() {
         <BentoCard>
           <p className="eyebrow text-[#5f5d55]">Contenido</p>
           {content.isPending ? (
-            <p role="status" className="mt-4 text-sm text-[#5f5d55]">
-              Cargando la rutina…
-            </p>
+            <LoadingState
+              label="Cargando la rutina…"
+              variant="card"
+              className="mt-4"
+            />
           ) : content.isError ? (
             <div role="alert" className="mt-4 flex flex-col items-start gap-3">
               <p className="text-sm">

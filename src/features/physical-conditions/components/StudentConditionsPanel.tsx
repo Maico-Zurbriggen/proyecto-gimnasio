@@ -23,6 +23,7 @@ import {
 import { formatDate } from '../../../shared/lib/format';
 import { BentoCard } from '../../../shared/ui/BentoCard';
 import { ConditionsList } from './ConditionsList';
+import { LoadingState } from '../../../shared/ui/LoadingState';
 
 function hoy(): string {
   const d = new Date();
@@ -370,9 +371,7 @@ export function StudentConditionsPanel({ studentId }: { studentId: string }) {
       </p>
 
       {status.isPending ? (
-        <p role="status" className="mt-4 text-sm text-[#68675f]">
-          Cargando…
-        </p>
+        <LoadingState label="Cargando…" variant="card" className="mt-4" />
       ) : status.isError ? (
         <div role="alert" className="mt-4 flex flex-col items-start gap-3">
           <p className="text-sm">No pudimos cargar tus condiciones.</p>
@@ -412,9 +411,7 @@ export function StudentConditionsPanel({ studentId }: { studentId: string }) {
       ) : (
         <div className="mt-4 flex flex-col gap-6">
           {conditions.isPending ? (
-            <p role="status" className="text-sm text-[#68675f]">
-              Cargando condiciones…
-            </p>
+            <LoadingState label="Cargando condiciones…" variant="list" />
           ) : conditions.isError ? (
             <div role="alert" className="flex flex-col items-start gap-3">
               <p className="text-sm">No pudimos cargar tus condiciones.</p>

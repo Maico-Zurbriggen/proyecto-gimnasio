@@ -16,6 +16,7 @@ import {
   saveGenerationTracking,
   type GenerationTracking,
 } from '../lib/generationTracking';
+import { LoadingState } from '../../../shared/ui/LoadingState';
 
 export interface RoutineGenerationPanelProps {
   studentId: string;
@@ -298,12 +299,11 @@ export function RoutineGenerationPanel({
         ) : (
           <div className="mt-5 lg:mt-0">
             {generation.isPending ? (
-              <p
-                role="status"
-                className="surface-muted text-sm font-semibold text-[#68675f]"
-              >
-                Recuperando el estado de la generación…
-              </p>
+              <LoadingState
+                label="Recuperando el estado de la generación…"
+                variant="inline"
+                className="surface-muted font-semibold"
+              />
             ) : null}
 
             {generation.error ? (

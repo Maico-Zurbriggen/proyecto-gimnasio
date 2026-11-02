@@ -19,6 +19,7 @@ import {
   manualRoutineErrorMessage,
 } from './ManualRoutineForm';
 import { RoutineReviewForm } from './RoutineReviewForm';
+import { LoadingState } from '../../../shared/ui/LoadingState';
 
 function errorMessage(error: unknown): string {
   if (error instanceof ApiError) {
@@ -142,9 +143,10 @@ export function RoutinePrescriptionPanel({
               </span>
             </div>
             {contenidoVigente.isPending ? (
-              <p role="status" className="text-xs text-[#77756d]">
-                Cargando la rutina vigente completa…
-              </p>
+              <LoadingState
+                label="Cargando la rutina vigente completa…"
+                variant="card"
+              />
             ) : null}
             {contenidoVigente.error ? (
               <div className="flex flex-wrap items-center gap-2">
@@ -179,7 +181,7 @@ export function RoutinePrescriptionPanel({
             </div>
 
             {contenidoPropuesta.isLoading ? (
-              <p className="text-xs text-[#77756d]">Cargando la propuesta…</p>
+              <LoadingState label="Cargando la propuesta…" variant="card" />
             ) : null}
             {contenidoPropuesta.data ? (
               <RoutineContentView routine={contenidoPropuesta.data} />

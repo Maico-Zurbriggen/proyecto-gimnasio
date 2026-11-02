@@ -16,6 +16,7 @@ import { Banner } from '../../../shared/components/Banner';
 import { formatDate } from '../../../shared/lib/format';
 import { BentoCard } from '../../../shared/ui/BentoCard';
 import { PageHeader } from '../../../shared/ui/PageHeader';
+import { LoadingState } from '../../../shared/ui/LoadingState';
 
 const ROLES: { value: InvitableRole; label: string }[] = [
   { value: 'ALUMNO', label: 'Alumno' },
@@ -373,9 +374,11 @@ export function InvitationsPage({
             Invitaciones enviadas
           </h2>
           {invitations.isPending ? (
-            <p role="status" className="mt-4 text-sm text-[#5f5d55]">
-              Cargando invitaciones…
-            </p>
+            <LoadingState
+              label="Cargando invitaciones…"
+              variant="list"
+              className="mt-4"
+            />
           ) : invitations.isError ? (
             <div role="alert" className="mt-4 flex flex-col items-start gap-3">
               <p className="text-sm">No pudimos cargar las invitaciones.</p>

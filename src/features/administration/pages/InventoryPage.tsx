@@ -12,6 +12,7 @@ import { Banner } from '../../../shared/components/Banner';
 import { humanizeEnum } from '../../../shared/lib/format';
 import { BentoCard } from '../../../shared/ui/BentoCard';
 import { PageHeader } from '../../../shared/ui/PageHeader';
+import { LoadingState } from '../../../shared/ui/LoadingState';
 
 /** Nombre legible de los grupos de patrones mínimos (RN-118). */
 const PATRONES: Record<string, string> = {
@@ -105,9 +106,7 @@ export function InventoryPage() {
       <main className="page-body grid gap-4 lg:grid-cols-12">
         {inventory.isPending ? (
           <BentoCard className="lg:col-span-12">
-            <p role="status" className="text-sm text-[#77756d]">
-              Cargando inventario…
-            </p>
+            <LoadingState label="Cargando inventario…" variant="list" />
           </BentoCard>
         ) : inventory.isError ? (
           <BentoCard className="lg:col-span-12">

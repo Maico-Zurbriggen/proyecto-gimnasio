@@ -129,4 +129,26 @@ describe('StudentDetailPage (HU05)', () => {
 
     expect(await screen.findByText('Sin mediciones registradas')).toBeVisible();
   });
+
+  it('pestaña Historial: lista de sesiones en solo lectura', async () => {
+    mockApi({
+      [`GET /students/${JUAN}/status`]: {
+        body: { ...blockedStatus, bloqueado: false },
+      },
+      [`GET /students/${JUAN}/training-sessions`]: {
+        body: { items: [], total: 0, page: 1, pageSize: 10 },
+      },
+    });
+
+    renderRoute(
+      '/entrenador/alumnos/:studentId/historial',
+      `/entrenador/alumnos/${JUAN}/historial`,
+      <StudentDetailPage />,
+    );
+
+    expect(
+      await screen.findByText('Este alumno todavía no registró sesiones.'),
+    ).toBeVisible();
+    expect(screen.queryByText('Ir a la sesión')).not.toBeInTheDocument();
+  });
 });

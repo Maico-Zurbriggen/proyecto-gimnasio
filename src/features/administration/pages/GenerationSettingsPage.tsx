@@ -8,6 +8,7 @@ import {
 } from '../../../api/generation-settings';
 import { PageHeader } from '../../../shared/ui/PageHeader';
 import { BentoCard } from '../../../shared/ui/BentoCard';
+import { LoadingState } from '../../../shared/ui/LoadingState';
 
 const initialDraft: GenerationSettings = {
   minExercisesPerDay: 4,
@@ -83,7 +84,7 @@ export function GenerationSettingsPage() {
       <main className="page-body">
         <BentoCard>
           {query.isPending ? (
-            <p role="status">Cargando parámetros…</p>
+            <LoadingState label="Cargando parámetros…" variant="card" />
           ) : query.error ? (
             <div>
               <p role="alert">No pudimos cargar la configuración.</p>

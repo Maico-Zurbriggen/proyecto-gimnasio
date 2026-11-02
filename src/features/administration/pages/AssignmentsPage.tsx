@@ -11,6 +11,7 @@ import { apiMessage } from '../../../api/client';
 import { formatDate } from '../../../shared/lib/format';
 import { BentoCard } from '../../../shared/ui/BentoCard';
 import { PageHeader } from '../../../shared/ui/PageHeader';
+import { LoadingState } from '../../../shared/ui/LoadingState';
 
 type Student = AssignmentsOverview['students'][number];
 type Trainer = AssignmentsOverview['trainers'][number];
@@ -129,9 +130,7 @@ export function AssignmentsPage() {
       <main className="page-body">
         <BentoCard>
           {overview.isPending ? (
-            <p role="status" className="text-sm text-[#77756d]">
-              Cargando alumnos…
-            </p>
+            <LoadingState label="Cargando alumnos…" variant="list" />
           ) : overview.isError ? (
             <div role="alert" className="flex flex-col items-start gap-3">
               <p className="text-sm">No pudimos cargar las asignaciones.</p>
