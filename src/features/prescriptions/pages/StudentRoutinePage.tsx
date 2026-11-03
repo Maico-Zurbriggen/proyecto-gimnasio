@@ -144,7 +144,7 @@ export function StudentRoutinePage({
         description="Consultá los días, ejercicios y series de tus rutinas."
       />
       <main className="page-body flex flex-col gap-6">
-        {generationPanel}
+        {routines.isSuccess && !propuesta ? generationPanel : null}
         {routines.isLoading ? (
           <LoadingState label="Cargando tu rutina…" variant="card" />
         ) : null}

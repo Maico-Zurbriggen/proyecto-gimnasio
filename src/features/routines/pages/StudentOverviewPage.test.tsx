@@ -8,6 +8,20 @@ import { StudentOverviewPage } from './StudentOverviewPage';
 
 const STUDENT_ID = '20000000-0000-4000-8000-000000000004';
 
+function routineSummary(state: 'VIGENTE' | 'PROPUESTA' | 'BLOQUEADA') {
+  return {
+    id: '22222222-2222-4222-a222-222222222222',
+    studentId: STUDENT_ID,
+    routineType: 'HIPERTROFIA',
+    targetWeeklyFrequency: 4,
+    state,
+    origin: 'GENERADA',
+    requestedAt: '2026-09-30T18:00:00.000Z',
+    versionId: 'version-1',
+    versionNumber: 1,
+  };
+}
+
 function activeRoutine(diasRestantesRenovacion: number) {
   return {
     id: '22222222-2222-4222-a222-222222222222',
@@ -81,7 +95,11 @@ describe('StudentOverviewPage', () => {
   });
 
   it('no muestra aviso cuando el ciclo está lejos de vencer', async () => {
-    mockOverview({ body: activeRoutine(30) });
+    mockOverview({ body: activeRoutine(30) }, [routineSummary('VIGENTE')], {
+      ...routineSummary('VIGENTE'),
+      generationPrompt: null,
+      days: [],
+    });
 
     renderPage();
 
@@ -90,6 +108,9 @@ describe('StudentOverviewPage', () => {
       expect(screen.queryByRole('status')).not.toBeInTheDocument(),
     );
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Generar nueva rutina' }),
+    ).toBeVisible();
   });
 
   it('declara que no hay rutina vigente cuando el backend responde 404', async () => {
@@ -166,6 +187,12 @@ describe('StudentOverviewPage', () => {
     expect(
       screen.getByRole('link', { name: 'Ver rutina completa' }),
     ).toHaveAttribute('href', '/alumno/rutina');
+    expect(
+      screen.getByText('Ya tenés una rutina pendiente de revisión'),
+    ).toBeVisible();
+    expect(
+      screen.queryByRole('button', { name: 'Generar nueva rutina' }),
+    ).not.toBeInTheDocument();
     expect(screen.queryByText('Remo con barra')).not.toBeInTheDocument();
     expect(screen.queryByText('Vas 7 de 8')).not.toBeInTheDocument();
     expect(screen.queryByText('62,5 kg')).not.toBeInTheDocument();

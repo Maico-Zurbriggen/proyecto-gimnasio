@@ -354,9 +354,22 @@ export function RoutineGenerationPanel({
                       Ver rutina pendiente de revisión
                     </Link>
                   ) : snapshot.routineId || finalize.isSuccess ? (
-                    <Link to={revisionHref} className="btn-primary btn-sm">
-                      Ver rutina
-                    </Link>
+                    <div className="flex flex-wrap gap-2">
+                      <Link to={revisionHref} className="btn-primary btn-sm">
+                        Ver rutina
+                      </Link>
+                      {snapshot.routineId &&
+                      !finalize.isSuccess &&
+                      !esEntrenador ? (
+                        <button
+                          type="button"
+                          onClick={startAnother}
+                          className="btn-secondary btn-sm"
+                        >
+                          Solicitar nueva rutina
+                        </button>
+                      ) : null}
+                    </div>
                   ) : !isActive && !finalize.isPending ? (
                     <button
                       type="button"
