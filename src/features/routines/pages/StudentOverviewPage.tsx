@@ -9,6 +9,7 @@ import {
   fetchRoutineContent,
   studentRoutinesQueryKey,
   routineContentQueryKey,
+  type RoutineSummary,
 } from '../../../api/prescriptions';
 import { Banner } from '../../../shared/components/Banner';
 import { RoutinePrompt } from '../../../shared/components/RoutinePrompt';
@@ -123,12 +124,66 @@ export interface StudentOverviewPageProps {
   studentId: string;
 }
 
-function RoutinePreviewSection({ studentId }: StudentOverviewPageProps) {
-  const routines = useQuery({
-    queryKey: studentRoutinesQueryKey(studentId),
-    queryFn: ({ signal }) => fetchStudentRoutines(studentId, signal),
-    enabled: Boolean(studentId),
-  });
+interface RoutineListState {
+  data: RoutineSummary[] | undefined;
+  isPending: boolean;
+  isFetching: boolean;
+  isError: boolean;
+}
+
+function StudentGenerationSection({
+  studentId,
+  routines,
+}: StudentOverviewPageProps & { routines: RoutineListState }) {
+  if (routines.isPending || routines.isFetching) {
+    return (
+      <LoadingState
+        label="Verificando si tenés una propuesta pendiente…"
+        variant="card"
+      />
+    );
+  }
+
+  if (routines.isError) {
+    return (
+      <Banner
+        variant="danger"
+        title="No pudimos verificar si podés solicitar otra rutina"
+      >
+        <p>
+          Reintentá la consulta antes de crear una solicitud para evitar dos
+          propuestas pendientes.
+        </p>
+      </Banner>
+    );
+  }
+
+  const proposal = routines.data?.find(
+    (routine) => routine.state === 'PROPUESTA' || routine.state === 'BLOQUEADA',
+  );
+  if (proposal) {
+    return (
+      <Banner
+        variant="warning"
+        title="Ya tenés una rutina pendiente de revisión"
+        actions={
+          <Link to="/alumno/rutina" className="btn-primary btn-sm">
+            Ver rutina pendiente
+          </Link>
+        }
+      >
+        <p>Tu entrenador debe resolverla antes de que puedas solicitar otra.</p>
+      </Banner>
+    );
+  }
+
+  return <RoutineGenerationPanel studentId={studentId} />;
+}
+
+function RoutinePreviewSection({
+  studentId,
+  routines,
+}: StudentOverviewPageProps & { routines: RoutineListState }) {
   const routine =
     routines.data?.find(
       (item) => item.state === 'PROPUESTA' || item.state === 'BLOQUEADA',
@@ -230,6 +285,12 @@ function RoutinePreviewSection({ studentId }: StudentOverviewPageProps) {
 }
 
 export function StudentOverviewPage({ studentId }: StudentOverviewPageProps) {
+  const routines = useQuery({
+    queryKey: studentRoutinesQueryKey(studentId),
+    queryFn: ({ signal }) => fetchStudentRoutines(studentId, signal),
+    enabled: Boolean(studentId),
+  });
+
   return (
     <div>
       <PageHeader
@@ -240,9 +301,9 @@ export function StudentOverviewPage({ studentId }: StudentOverviewPageProps) {
       <main className="page-body flex flex-col gap-6">
         <RenewalNoticeSection />
 
-        <RoutineGenerationPanel studentId={studentId} />
+        <StudentGenerationSection studentId={studentId} routines={routines} />
 
-        <RoutinePreviewSection studentId={studentId} />
+        <RoutinePreviewSection studentId={studentId} routines={routines} />
       </main>
     </div>
   );
