@@ -62,7 +62,7 @@ function formatPrimitive(value: unknown): string {
       return humanizeEnum(value);
     return value;
   }
-  return JSON.stringify(value);
+  return 'Información complementaria';
 }
 
 /**
@@ -227,7 +227,9 @@ function StructureEvidence({ data }: { data: Record<string, unknown> }) {
       ) : null}
       {esquema !== undefined && isRecord(esquema) ? (
         <div className="flex gap-1">
-          <dt className="font-bold text-[#3d3c36]">Esquema:</dt>
+          <dt className="font-bold text-[#3d3c36]">
+            Series, repeticiones y descansos:
+          </dt>
           <dd>{renderEvidenceValue('esquemaPropuesto', esquema)}</dd>
         </div>
       ) : null}

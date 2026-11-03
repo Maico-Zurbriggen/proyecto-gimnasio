@@ -39,7 +39,7 @@ export function StudentPendingProposals({ studentId }: { studentId: string }) {
         Propuestas de adaptación pendientes
       </h2>
       <p className="mt-2 text-sm text-[#68675f]">
-        Abrí la propuesta para ver la planilla y los datos que la sustentan
+        Abrí la propuesta para ver la adaptación y los datos que la sustentan
         antes de aprobar.
       </p>
       <ul className="mt-3 space-y-2">

@@ -83,9 +83,12 @@ export function StructureProposalView({
   const settings = candidate.data.generationSettings?.settings;
 
   return (
-    <section className="mt-4 space-y-4" aria-label="Planilla de renovación">
+    <section
+      className="mt-4 space-y-4"
+      aria-label="Detalle de la adaptación de rutina"
+    >
       <h3 className="font-display text-lg font-semibold tracking-tight">
-        Planilla propuesta por IA
+        Adaptación de rutina propuesta
       </h3>
       <p className="text-sm text-[#68675f]">
         {humanizeEnum(candidate.data.routineType)} ·{' '}
@@ -106,12 +109,12 @@ export function StructureProposalView({
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
             <caption className="mb-2 text-left font-semibold">
-              Distribución vigente y propuesta
+              Distribución actual y propuesta
             </caption>
             <thead>
               <tr>
                 <th className="p-2">Ejercicio</th>
-                <th className="p-2">Antes</th>
+                <th className="p-2">Actual</th>
                 <th className="p-2">Propuesta</th>
               </tr>
             </thead>

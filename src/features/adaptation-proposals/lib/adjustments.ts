@@ -6,9 +6,9 @@ type AdjustmentType = ProposalAdjustment['type'];
 const TYPE_LABEL: Record<AdjustmentType, string> = {
   CARGA: 'Carga',
   VOLUMEN: 'Volumen',
-  ESQUEMA: 'Esquema',
+  ESQUEMA: 'Rango de repeticiones',
   SUSTITUCION: 'Sustitución',
-  ESTRUCTURA: 'Estructura',
+  ESTRUCTURA: 'Organización de la rutina',
 };
 
 const CRITERION_LABEL: Record<string, string> = {
@@ -28,7 +28,10 @@ const CRITERION_LABEL: Record<string, string> = {
 
 /** Criterio de la tabla situación → ajuste en palabras; lo desconocido se muestra crudo. */
 export function criterionLabel(criterion: string): string {
-  return CRITERION_LABEL[criterion] ?? criterion;
+  const label = CRITERION_LABEL[criterion] ?? criterion;
+  return label
+    .replace(/\s*\((?:RN|RF|RNF|RA|RI|CB|DD|PD|S)-[^)]*\)\.?/giu, '')
+    .trim();
 }
 
 export function adjustmentTypeLabel(type: AdjustmentType): string {
@@ -51,7 +54,8 @@ function field(value: unknown, key: string): unknown {
 
 /**
  * Texto legible de `previousValue`/`proposedValue`, con los mismos formatos que
- * aplica el backend al generar la versión nueva. Lo desconocido se muestra crudo.
+ * aplica el backend al generar la versión nueva. Los formatos internos no se
+ * exponen: si falta un presentador específico, se explica el tipo de cambio.
  */
 export function formatAdjustmentValue(
   type: AdjustmentType,
@@ -119,5 +123,12 @@ export function formatAdjustmentValue(
       break;
     }
   }
-  return JSON.stringify(value);
+  const fallback: Record<AdjustmentType, string> = {
+    CARGA: 'Cambio de carga propuesto',
+    VOLUMEN: 'Cambio en la cantidad de series',
+    ESQUEMA: 'Cambio en el rango de repeticiones',
+    SUSTITUCION: 'Cambio de ejercicio propuesto',
+    ESTRUCTURA: 'Cambio en la organización de la rutina',
+  };
+  return fallback[type];
 }

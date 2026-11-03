@@ -2,7 +2,10 @@ import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 
 import { ApiError } from '../../../api/client';
-import type { ProposalResolution } from '../../../api/proposals';
+import type {
+  ProposalAdjustment,
+  ProposalResolution,
+} from '../../../api/proposals';
 import { Banner } from '../../../shared/components/Banner';
 import { InsufficientInfo } from '../../../shared/components/InsufficientInfo';
 import { formatDate, humanizeEnum } from '../../../shared/lib/format';
@@ -31,19 +34,67 @@ function loadErrorMessage(error: unknown): string {
   return 'No pudimos cargar la propuesta.';
 }
 
-function resolutionErrorMessage(error: unknown): string {
+function errorDetail(error: ApiError, key: string): string | null {
+  if (typeof error.body !== 'object' || error.body === null) return null;
+  const value = (error.body as Record<string, unknown>)[key];
+  return typeof value === 'string' ? value : null;
+}
+
+function adjustmentReason(reason: string | null): string {
+  if (!reason) {
+    return 'La adaptación ya no coincide con la rutina vigente. Recargá la propuesta y revisá la rutina antes de volver a aprobarla.';
+  }
+  if (reason.includes('routine exercise is not part of the current version')) {
+    return 'El ejercicio ya no pertenece a la versión vigente. La adaptación quedó desactualizada; revisá la rutina actual antes de resolverla.';
+  }
+  if (reason.includes('carga_sugerida')) {
+    return 'La carga propuesta está fuera del rango permitido.';
+  }
+  if (reason.includes('requires the trainer to review')) {
+    return 'El cambio de objetivo requiere revisar la organización completa de la rutina.';
+  }
+  if (reason.includes('min_repetitions/max_repetitions')) {
+    return 'El rango de repeticiones propuesto no es válido.';
+  }
+  if (reason.includes('series_trabajo')) {
+    return 'La cantidad de series propuesta no es válida.';
+  }
+  if (reason.includes('no working sets')) {
+    return 'El ejercicio no tiene series de trabajo que puedan modificarse.';
+  }
+  if (reason.includes('exercise_id')) {
+    return 'No se encontró un ejercicio alternativo válido.';
+  }
+  if (reason.includes('structure adjustments must be applied manually')) {
+    return 'Este cambio de organización requiere una revisión manual del entrenador.';
+  }
+  return 'La adaptación ya no coincide con la rutina vigente. Recargá la propuesta y revisá la rutina antes de volver a aprobarla.';
+}
+
+function resolutionErrorMessage(
+  error: unknown,
+  adjustments: ProposalAdjustment[],
+): string {
   if (error instanceof ApiError) {
     switch (error.code) {
       case 'proposal_not_pending':
         return 'La propuesta ya fue resuelta.';
       case 'proposal_regeneration_pending':
-        return 'La nueva planilla se está generando. Esperá a que termine antes de decidir.';
+        return 'La nueva adaptación se está generando. Esperá a que termine antes de decidir.';
       case 'proposal_candidate_changed':
-        return 'La planilla cambió en otra sesión. Recargá la propuesta antes de decidir.';
+        return 'La adaptación cambió en otra sesión. Recargá la propuesta antes de decidir.';
       case 'generation_context_changed':
-        return 'Cambió el contexto o la configuración del gimnasio. Regenerá la planilla antes de aprobarla.';
-      case 'adjustment_not_applicable':
-        return 'Uno de los ajustes aceptados no se puede aplicar a la rutina actual.';
+        return 'Cambió el contexto o la configuración del gimnasio. Regenerá la adaptación antes de aprobarla.';
+      case 'adjustment_not_applicable': {
+        const adjustmentId = errorDetail(error, 'adjustmentId');
+        const adjustment = adjustments.find(
+          (candidate) => candidate.id === adjustmentId,
+        );
+        const subject = adjustment
+          ? `${adjustmentTypeLabel(adjustment.type)}${adjustment.exerciseName ? ` de ${adjustment.exerciseName}` : ''}`
+          : 'Ajuste seleccionado';
+        return `${subject}: ${adjustmentReason(errorDetail(error, 'reason'))}`;
+      }
       case 'routine_not_available':
         return 'La rutina del alumno ya no tiene una versión vigente.';
       case 'invalid_resolution':
@@ -93,7 +144,7 @@ export function ProposalReviewPage() {
     return (
       <div>
         <PageHeader
-          kicker="Revisión de propuesta"
+          kicker="Revisión de adaptación"
           title={loadErrorMessage(review.error)}
           actions={backLink}
         />
@@ -128,7 +179,7 @@ export function ProposalReviewPage() {
   return (
     <div>
       <PageHeader
-        kicker="Revisión de propuesta"
+        kicker="Revisión de adaptación"
         title={proposal.student.displayName}
         description={`${humanizeEnum(diagnostic.globalSituation)} · período ${formatDate(diagnostic.periodStart)} – ${formatDate(diagnostic.periodEnd)}${diagnostic.adherence !== null ? ` · adherencia ${diagnostic.adherence.toLocaleString('es-AR')} %` : ''}.`}
         actions={backLink}
@@ -160,17 +211,19 @@ export function ProposalReviewPage() {
           <div className="flex min-w-0 flex-col gap-4">
             {pending && proposal.regeneration ? (
               <BentoCard>
-                <p className="eyebrow text-[#77756d]">Regenerar con IA</p>
+                <p className="eyebrow text-[#77756d]">
+                  Regenerar adaptación con IA
+                </p>
                 <p className="mt-2 text-sm">
-                  Si esta planilla no te convence, indicá qué querés cambiar. La
-                  IA usará los ejercicios habilitados y los parámetros actuales
-                  del gimnasio.
+                  Si esta adaptación no te convence, indicá qué querés cambiar.
+                  La IA usará los ejercicios habilitados y los parámetros
+                  actuales del gimnasio.
                 </p>
                 <label
                   htmlFor="regeneration-feedback"
                   className="field-label mt-4"
                 >
-                  Qué debería mejorar la nueva planilla
+                  Qué debería mejorar la nueva adaptación
                 </label>
                 <textarea
                   id="regeneration-feedback"
@@ -186,25 +239,25 @@ export function ProposalReviewPage() {
                 />
                 {regeneration.status.data?.state === 'PENDIENTE' ? (
                   <p role="status" className="mt-3 text-sm">
-                    La IA está generando otra planilla. Podés volver a esta
+                    La IA está generando otra adaptación. Podés volver a esta
                     página; el proceso continuará.
                   </p>
                 ) : null}
                 {regeneration.status.data?.state === 'COMPLETADA' ? (
                   <p role="status" className="mt-3 text-sm">
-                    La nueva planilla está lista para tu revisión.
+                    La nueva adaptación está lista para tu revisión.
                   </p>
                 ) : null}
                 {regeneration.status.data?.state === 'NO_DISPONIBLE' ? (
                   <p role="alert" className="field-error mt-3">
                     No se pudo regenerar: {regeneration.status.data.error} La
-                    planilla anterior sigue disponible.
+                    adaptación anterior sigue disponible.
                   </p>
                 ) : null}
                 {regeneration.start.error ? (
                   <p role="alert" className="field-error mt-3">
-                    No pudimos solicitar la regeneración. Si la planilla cambió
-                    en otra sesión, recargá esta página.
+                    No pudimos solicitar la regeneración. Si la adaptación
+                    cambió en otra sesión, recargá esta página.
                   </p>
                 ) : null}
                 {regeneration.status.error ? (
@@ -234,7 +287,7 @@ export function ProposalReviewPage() {
                     })
                   }
                 >
-                  Regenerar planilla con IA
+                  Regenerar adaptación con IA
                 </button>
               </BentoCard>
             ) : null}
@@ -342,7 +395,10 @@ export function ProposalReviewPage() {
                 />
                 {resolve.error ? (
                   <p className="field-error mt-3">
-                    {resolutionErrorMessage(resolve.error)}
+                    {resolutionErrorMessage(
+                      resolve.error,
+                      proposal.adjustments,
+                    )}
                   </p>
                 ) : null}
                 <div className="mt-4 flex flex-wrap gap-2">
