@@ -25,12 +25,15 @@ describe('formatAdjustmentValue', () => {
     );
   });
 
-  it('muestra crudo lo que no reconoce', () => {
-    expect(formatAdjustmentValue('ESTRUCTURA', { dias: 4 })).toBe('{"dias":4}');
+  it('no expone JSON cuando no reconoce el formato interno', () => {
+    expect(formatAdjustmentValue('ESTRUCTURA', { dias: 4 })).toBe(
+      'Cambio en la organización de la rutina',
+    );
   });
 
   it('traduce el tipo de ajuste', () => {
     expect(adjustmentTypeLabel('SUSTITUCION')).toBe('Sustitución');
+    expect(adjustmentTypeLabel('ESQUEMA')).toBe('Rango de repeticiones');
   });
 });
 
@@ -44,10 +47,8 @@ describe('criterionLabel', () => {
     );
   });
 
-  it('deja crudo un criterio desconocido', () => {
-    expect(criterionLabel('Texto libre (RN-79a).')).toBe(
-      'Texto libre (RN-79a).',
-    );
+  it('conserva el criterio funcional y oculta referencias internas', () => {
+    expect(criterionLabel('Texto libre (RN-79a).')).toBe('Texto libre');
   });
 });
 

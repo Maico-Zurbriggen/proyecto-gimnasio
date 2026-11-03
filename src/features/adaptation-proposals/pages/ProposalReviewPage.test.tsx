@@ -120,10 +120,10 @@ describe('ProposalReviewPage (HU04)', () => {
     });
     renderPage();
     const textarea = await screen.findByLabelText(
-      'Qué debería mejorar la nueva planilla',
+      'Qué debería mejorar la nueva adaptación',
     );
     const button = screen.getByRole('button', {
-      name: 'Regenerar planilla con IA',
+      name: 'Regenerar adaptación con IA',
     });
     expect(button).toBeDisabled();
     fireEvent.change(textarea, {
@@ -131,7 +131,7 @@ describe('ProposalReviewPage (HU04)', () => {
     });
     fireEvent.click(button);
     expect(
-      await screen.findByText(/La IA está generando otra planilla/),
+      await screen.findByText(/La IA está generando otra adaptación/),
     ).toBeVisible();
     expect(screen.getByRole('button', { name: 'Aprobar' })).toBeDisabled();
     expect(input).toMatchObject({
@@ -162,7 +162,7 @@ describe('ProposalReviewPage (HU04)', () => {
     });
     renderPage();
     expect(await screen.findByText(/No se pudo regenerar:/)).toHaveTextContent(
-      'planilla anterior sigue disponible',
+      'adaptación anterior sigue disponible',
     );
     expect(screen.getByRole('button', { name: 'Aprobar' })).toBeEnabled();
   });
@@ -300,13 +300,15 @@ describe('ProposalReviewPage (HU04)', () => {
     const fetchMock = mockApi({ [`GET /proposals/${PROPOSAL}`]: { body } });
     renderPage();
     expect(
-      await screen.findByRole('heading', { name: 'Planilla propuesta por IA' }),
+      await screen.findByRole('heading', {
+        name: 'Adaptación de rutina propuesta',
+      }),
     ).toBeVisible();
     expect(
       screen.getAllByText('Serie 1: 8-12 rep · 10.5 kg · 90s de descanso'),
     ).toHaveLength(2);
     const table = screen.getByRole('table', {
-      name: 'Distribución vigente y propuesta',
+      name: 'Distribución actual y propuesta',
     });
     const row = within(table).getByText('Curl de bíceps').closest('tr')!;
     expect(
@@ -356,6 +358,32 @@ describe('ProposalReviewPage (HU04)', () => {
       decision: 'ACEPTADA_PARCIAL',
       acceptedAdjustmentIds: [ADJ_LOAD],
     });
+  });
+
+  it('identifica el ajuste desactualizado sin exponer ids ni motivos técnicos', async () => {
+    mockApi({
+      [`GET /proposals/${PROPOSAL}`]: { body: review() },
+      [`POST /proposals/${PROPOSAL}/resolution`]: {
+        status: 422,
+        body: {
+          error: 'adjustment_not_applicable',
+          adjustmentId: ADJ_SCHEME,
+          reason: 'routine exercise is not part of the current version',
+        },
+      },
+    });
+
+    renderPage();
+    fireEvent.click(await screen.findByRole('button', { name: 'Aprobar' }));
+
+    const error = await screen.findByText(
+      /Rango de repeticiones de Press de banca plano:/,
+    );
+    expect(error).toHaveTextContent(
+      'El ejercicio ya no pertenece a la versión vigente',
+    );
+    expect(error).not.toHaveTextContent(ADJ_SCHEME);
+    expect(error).not.toHaveTextContent('routine exercise');
   });
 
   it('Esc. 4: rechazar exige motivo y lo envía', async () => {
