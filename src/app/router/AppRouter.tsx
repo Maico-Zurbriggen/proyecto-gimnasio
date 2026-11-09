@@ -33,6 +33,7 @@ import { StudentDetailPage } from '../../features/students/pages/StudentDetailPa
 import { MeasurementBlockGate } from '../../features/students/components/MeasurementBlockGate';
 import { TrainerPortfolioPage } from '../../features/students/pages/TrainerPortfolioPage';
 import { TrainerStudentsListPage } from '../../features/students/pages/TrainerStudentsListPage';
+import { StudentProgressPage } from '../../features/progress/pages/StudentProgressPage';
 import { PlaceholderPage } from '../../shared/ui/PlaceholderPage';
 import { AppShell } from '../layout/AppShell';
 
@@ -70,6 +71,11 @@ function StudentRoutineRoute() {
 function StudentSessionRoute() {
   const { user } = useSession();
   return user ? <TrainingSessionPage studentId={user.id} /> : null;
+}
+
+function StudentProgressRoute() {
+  const { user } = useSession();
+  return user ? <StudentProgressPage studentId={user.id} /> : null;
 }
 
 function StudentHistoryRoute() {
@@ -123,16 +129,7 @@ export function AppRouter() {
               <Route path="/alumno" element={<StudentOverviewRoute />} />
               <Route path="/alumno/rutina" element={<StudentRoutineRoute />} />
               <Route path="/alumno/sesion" element={<StudentSessionRoute />} />
-              <Route
-                path="/alumno/progreso"
-                element={
-                  <PlaceholderPage
-                    kicker="Progreso"
-                    title="La tendencia juega a tu favor."
-                    description="Evolución de fuerza, mapa muscular, mediciones y adherencia."
-                  />
-                }
-              />
+              <Route path="/alumno/progreso" element={<StudentProgressRoute />} />
               <Route
                 path="/alumno/historial"
                 element={<StudentHistoryRoute />}

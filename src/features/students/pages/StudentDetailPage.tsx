@@ -13,6 +13,7 @@ import { RoutineHistoryTimeline } from '../../routine-history/components/Routine
 import { TrainingHistoryPage } from '../../training-sessions/pages/TrainingHistoryPage';
 import { ActiveRoutineCard } from '../components/ActiveRoutineCard';
 import { TrainerGoalsCard } from '../components/TrainerGoalsCard';
+import { TrainerSignalsCard } from '../components/TrainerSignalsCard';
 import { UnlockPanel } from '../components/UnlockPanel';
 import { useStudentStatus } from '../hooks/useStudentStatus';
 import { useUnlockStudent } from '../hooks/useUnlockStudent';
@@ -218,6 +219,8 @@ export function StudentDetailPage() {
                 className="xl:col-span-4"
               />
             </div>
+            {/* HU35: Señales en pantalla para el entrenador (estancamiento, caída, desbalance) */}
+            <TrainerSignalsCard studentId={student.studentId} />
             {/* HU11: condiciones declaradas por el alumno, sólo lectura. */}
             <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
               <TrainerGoalsCard studentId={student.studentId} />
