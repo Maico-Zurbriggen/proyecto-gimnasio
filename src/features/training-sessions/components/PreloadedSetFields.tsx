@@ -1,4 +1,3 @@
-import { cn } from '../../../shared/lib/cn';
 import type { SeriePrecargada } from '../../../api/trainingSessions';
 
 /** Lo mínimo de una serie para pintar los campos (la agregada no tiene rango). */
@@ -91,7 +90,7 @@ export function PreloadedSetFields({
 
       <div className="flex gap-3">
         <div className="flex flex-1 flex-col gap-1">
-          <label className="text-xs text-slate-600" htmlFor={idCarga}>
+          <label className="field-label" htmlFor={idCarga}>
             Carga (kg)
           </label>
           <input
@@ -110,10 +109,7 @@ export function PreloadedSetFields({
             onBlur={onBlur}
             aria-label={`Carga de la serie ${String(serie.position)}`}
             aria-invalid={Boolean(errorCarga)}
-            className={cn(
-              'min-h-11 rounded border px-3 py-2 text-base',
-              'border-slate-300 focus:border-slate-500 focus:outline-none',
-            )}
+            className="field min-h-11 text-base font-bold"
           />
           {errorCarga ? (
             <span role="alert" className="field-error">
@@ -123,7 +119,7 @@ export function PreloadedSetFields({
         </div>
 
         <div className="flex flex-1 flex-col gap-1">
-          <label className="text-xs text-slate-600" htmlFor={idReps}>
+          <label className="field-label" htmlFor={idReps}>
             Repeticiones
           </label>
           <input
@@ -140,10 +136,7 @@ export function PreloadedSetFields({
             onBlur={onBlur}
             aria-label={`Repeticiones de la serie ${String(serie.position)}`}
             aria-invalid={Boolean(errorRepeticiones)}
-            className={cn(
-              'min-h-11 rounded border px-3 py-2 text-base',
-              'border-slate-300 focus:border-slate-500 focus:outline-none',
-            )}
+            className="field min-h-11 text-base font-bold"
           />
           {errorRepeticiones ? (
             <span role="alert" className="field-error">

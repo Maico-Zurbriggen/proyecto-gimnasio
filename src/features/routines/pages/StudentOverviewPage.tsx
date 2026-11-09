@@ -1,5 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
-import { ArrowUpRight } from 'lucide-react';
+import {
+  ArrowUpRight,
+  Dumbbell,
+  History,
+  TrendingUp,
+  UserRound,
+} from 'lucide-react';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 
@@ -210,18 +216,29 @@ function RoutinePreviewSection({
       ) : null}
       {routine ? (
         <div className="flex flex-col gap-4">
-          <div>
-            <p className="eyebrow text-[#77756d]">Tu rutina</p>
-            <h2 className="font-display mt-2 text-xl font-semibold tracking-[-0.04em]">
-              {routine.state === 'VIGENTE'
-                ? 'Rutina vigente'
-                : 'Rutina pendiente de revisión'}
-            </h2>
-            <p className="mt-2 text-sm text-[#55534c]">
+          <div className="border-b border-[#292823]/10 pb-4">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <p className="eyebrow text-[#77756d]">Tu rutina</p>
+                <h2 className="font-display mt-1 text-xl font-bold tracking-[-0.04em] text-ink">
+                  {routine.state === 'VIGENTE'
+                    ? 'Rutina vigente'
+                    : 'Rutina pendiente de revisión'}
+                </h2>
+              </div>
+              <span
+                className={
+                  routine.state === 'VIGENTE' ? 'chip-ok' : 'chip-warn'
+                }
+              >
+                {routine.state === 'VIGENTE' ? 'Activa' : 'Pendiente'}
+              </span>
+            </div>
+            <p className="mt-2 text-sm font-medium text-[#44423b]">
               {routine.targetWeeklyFrequency} días por semana
             </p>
             {routine.state !== 'VIGENTE' ? (
-              <p className="mt-2 text-sm text-[#77756d]">
+              <p className="mt-1 text-xs text-[#77756d]">
                 Tu entrenador debe aprobarla antes de que puedas entrenar con
                 ella.
               </p>
@@ -247,25 +264,34 @@ function RoutinePreviewSection({
               {content.data.days.map((day) => (
                 <li
                   key={day.position}
-                  className="card-interactive flex gap-3 rounded-2xl border border-[#292823]/8 bg-white/70 p-4 hover:bg-white"
+                  className="card-interactive flex gap-3.5 rounded-2xl border border-[#292823]/10 bg-[#fbfaf6] p-4.5 shadow-xs hover:border-[#292823]/30 hover:bg-white hover:shadow-md"
                 >
                   <span
                     aria-hidden="true"
-                    className="font-display flex size-8 shrink-0 items-center justify-center rounded-lg bg-graphite text-xs font-bold text-lime"
+                    className="font-display flex size-9 shrink-0 items-center justify-center rounded-xl bg-graphite text-xs font-bold text-lime shadow-xs"
                   >
                     {day.position}
                   </span>
-                  <div className="min-w-0">
-                    <h3 className="font-display text-base font-semibold tracking-tight">
+                  <div className="min-w-0 flex-1">
+                    <h3 className="font-display text-base font-bold tracking-tight text-ink">
                       Día {day.position} · {day.name}
                     </h3>
                     <p className="chip-neutral mt-2">
                       {day.exercises.length} ejercicios
                     </p>
-                    <ul className="mt-3 space-y-1 text-sm text-[#68675f]">
-                      {day.exercises.slice(0, 3).map((exercise) => (
-                        <li key={exercise.position} className="truncate">
-                          {exercise.exerciseName}
+                    <ul className="mt-3 space-y-1.5 text-xs text-[#55534c]">
+                      {day.exercises.map((exercise) => (
+                        <li
+                          key={exercise.position}
+                          className="flex items-center gap-2 truncate font-medium"
+                        >
+                          <span
+                            className="size-1 rounded-full bg-graphite/40 shrink-0"
+                            aria-hidden="true"
+                          />
+                          <span className="truncate">
+                            {exercise.exerciseName}
+                          </span>
                         </li>
                       ))}
                     </ul>
@@ -274,7 +300,7 @@ function RoutinePreviewSection({
               ))}
             </ul>
           ) : null}
-          <Link to="/alumno/rutina" className="btn-primary btn-sm w-fit">
+          <Link to="/alumno/rutina" className="btn-primary btn-sm w-fit mt-2">
             Ver rutina completa{' '}
             <ArrowUpRight className="size-4" aria-hidden="true" />
           </Link>
@@ -299,6 +325,64 @@ export function StudentOverviewPage({ studentId }: StudentOverviewPageProps) {
         description="Consultá tu rutina y seguí las solicitudes de generación."
       />
       <main className="page-body flex flex-col gap-6">
+        {/* Accesos rápidos de entrenamiento */}
+        <section
+          aria-label="Accesos rápidos"
+          className="grid grid-cols-2 gap-3.5 sm:grid-cols-4"
+        >
+          <Link
+            to="/alumno/sesion"
+            className="card-interactive flex items-center gap-3 rounded-2xl border border-[#292823]/10 bg-white/80 p-3.5 shadow-xs hover:border-graphite"
+          >
+            <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-graphite text-lime shadow-xs">
+              <Dumbbell className="size-4.5" aria-hidden="true" />
+            </span>
+            <div className="min-w-0">
+              <p className="text-xs font-bold text-ink">Sesión de hoy</p>
+              <p className="text-[11px] text-[#77756d]">Registrar series</p>
+            </div>
+          </Link>
+
+          <Link
+            to="/alumno/progreso"
+            className="card-interactive flex items-center gap-3 rounded-2xl border border-[#292823]/10 bg-white/80 p-3.5 shadow-xs hover:border-graphite"
+          >
+            <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-lime text-graphite shadow-xs">
+              <TrendingUp className="size-4.5" aria-hidden="true" />
+            </span>
+            <div className="min-w-0">
+              <p className="text-xs font-bold text-ink">Mi progreso</p>
+              <p className="text-[11px] text-[#77756d]">Adherencia y volumen</p>
+            </div>
+          </Link>
+
+          <Link
+            to="/alumno/historial"
+            className="card-interactive flex items-center gap-3 rounded-2xl border border-[#292823]/10 bg-white/80 p-3.5 shadow-xs hover:border-graphite"
+          >
+            <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-[#292823]/6 text-ink shadow-xs">
+              <History className="size-4.5" aria-hidden="true" />
+            </span>
+            <div className="min-w-0">
+              <p className="text-xs font-bold text-ink">Historial</p>
+              <p className="text-[11px] text-[#77756d]">Sesiones pasadas</p>
+            </div>
+          </Link>
+
+          <Link
+            to="/alumno/perfil"
+            className="card-interactive flex items-center gap-3 rounded-2xl border border-[#292823]/10 bg-white/80 p-3.5 shadow-xs hover:border-graphite"
+          >
+            <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-[#292823]/6 text-ink shadow-xs">
+              <UserRound className="size-4.5" aria-hidden="true" />
+            </span>
+            <div className="min-w-0">
+              <p className="text-xs font-bold text-ink">Mi ficha</p>
+              <p className="text-[11px] text-[#77756d]">Objetivos y medidas</p>
+            </div>
+          </Link>
+        </section>
+
         <RenewalNoticeSection />
 
         <StudentGenerationSection studentId={studentId} routines={routines} />

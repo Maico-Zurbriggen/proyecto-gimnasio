@@ -74,19 +74,27 @@ describe('TrainerSignalsCard (HU35 - T1)', () => {
 
     // Estancamiento detectado
     expect(screen.getByText('Press de banca')).toBeInTheDocument();
-    expect(screen.getByText(/Variación: 0% en 4 sesiones consideradas/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/Variación: 0% en 4 sesiones consideradas/i),
+    ).toBeInTheDocument();
 
     // Caída de adherencia
     expect(screen.getByText(/Caída de 50 puntos/i)).toBeInTheDocument();
-    expect(screen.getByText(/Pasó del 100% previo al 50% reciente/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/Pasó del 100% previo al 50% reciente/i),
+    ).toBeInTheDocument();
 
     // Desbalance muscular
     expect(screen.getByText(/Pectoral/i)).toBeInTheDocument();
-    expect(screen.getByText(/2 series\/sem \(por defecto, mín\. 6\)/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/2 series\/sem \(por defecto, mín\. 6\)/i),
+    ).toBeInTheDocument();
 
     // Series sin clasificar
     expect(screen.getByText(/El alumno ejecutó/i)).toBeInTheDocument();
-    expect(screen.getByText(/sin clasificación muscular asignada/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/sin clasificación muscular asignada/i),
+    ).toBeInTheDocument();
   });
 
   it('muestra estado verde cuando no hay señales detectadas', async () => {
@@ -118,9 +126,15 @@ describe('TrainerSignalsCard (HU35 - T1)', () => {
       expect(screen.getByText('Sin señales críticas')).toBeInTheDocument();
     });
 
-    expect(screen.getByText(/Sentadilla: progresión normal/i)).toBeInTheDocument();
-    expect(screen.getByText(/Adherencia estable sin caídas significativas/i)).toBeInTheDocument();
-    expect(screen.getByText(/Volumen muscular equilibrado/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/Sentadilla: progresión normal/i),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/Adherencia estable sin caídas significativas/i),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/Volumen muscular equilibrado/i),
+    ).toBeInTheDocument();
   });
 
   it('informa datos insuficientes con InsufficientInfo sin mostrar falsas alertas', async () => {
@@ -166,9 +180,17 @@ describe('TrainerSignalsCard (HU35 - T1)', () => {
     renderCard();
 
     await waitFor(() => {
-      expect(screen.getByText(/Hacen falta 4 sesiones \(sesiones del ejercicio\)/i)).toBeInTheDocument();
-      expect(screen.getByText(/Hacen falta 4 semanas \(frecuencia objetivo vigente\)/i)).toBeInTheDocument();
-      expect(screen.getByText(/Falta información: clasificación muscular/i)).toBeInTheDocument();
+      expect(
+        screen.getByText(/Hacen falta 4 sesiones \(sesiones del ejercicio\)/i),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText(
+          /Hacen falta 4 semanas \(frecuencia objetivo vigente\)/i,
+        ),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText(/Falta información: clasificación muscular/i),
+      ).toBeInTheDocument();
     });
   });
 });

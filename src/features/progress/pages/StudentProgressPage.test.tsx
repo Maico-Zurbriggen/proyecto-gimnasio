@@ -142,7 +142,9 @@ describe('StudentProgressPage (HU34 - T1, T2, T3)', () => {
     });
 
     // Volumen y frecuencia por grupo muscular (T2)
-    expect(screen.getByText(/Volumen y frecuencia por grupo muscular/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/Volumen y frecuencia por grupo muscular/i),
+    ).toBeInTheDocument();
     expect(screen.getByText('Pectoral')).toBeInTheDocument();
     expect(screen.getByText(/16 series ef\./i)).toBeInTheDocument();
     expect(screen.getByText(/4 sesiones/i)).toBeInTheDocument();
@@ -213,16 +215,32 @@ describe('StudentProgressPage (HU34 - T1, T2, T3)', () => {
 
     await waitFor(() => {
       // Debe aparecer InsufficientInfo en adherencia
-      expect(screen.getByText(/Hacen falta 2 semanas \(historial de rutina vigente\)/i)).toBeInTheDocument();
-      expect(screen.getByText(/Esperá a completar al menos dos semanas\./i)).toBeInTheDocument();
+      expect(
+        screen.getByText(
+          /Hacen falta 2 semanas \(historial de rutina vigente\)/i,
+        ),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText(/Esperá a completar al menos dos semanas\./i),
+      ).toBeInTheDocument();
     });
 
     // Debe aparecer InsufficientInfo en cumplimiento de sesión
-    expect(screen.getByText(/sesión de entrenamiento completada/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/sesión de entrenamiento completada/i),
+    ).toBeInTheDocument();
 
     // Debe aparecer InsufficientInfo en volumen por grupo muscular
-    expect(screen.getByText(/Hacen falta 1 sesiones \(sesiones completadas en el período\)/i)).toBeInTheDocument();
-    expect(screen.getByText(/Elegí otro período o registrá una sesión completada\./i)).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        /Hacen falta 1 sesiones \(sesiones completadas en el período\)/i,
+      ),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        /Elegí otro período o registrá una sesión completada\./i,
+      ),
+    ).toBeInTheDocument();
 
     // No debe haber porcentajes engañosos en el documento
     expect(screen.queryByText('0%')).not.toBeInTheDocument();
@@ -233,7 +251,12 @@ describe('StudentProgressPage (HU34 - T1, T2, T3)', () => {
       [`GET /students/${STUDENT_ID}/indicators/adherence`]: {
         body: {
           studentId: STUDENT_ID,
-          adherencia: { disponible: true, porcentaje: 100, sesionesCompletadas: 4, sesionesEsperadas: 4 },
+          adherencia: {
+            disponible: true,
+            porcentaje: 100,
+            sesionesCompletadas: 4,
+            sesionesEsperadas: 4,
+          },
           calculadoEl: '2026-11-09T12:00:00Z',
         },
       },
@@ -251,14 +274,21 @@ describe('StudentProgressPage (HU34 - T1, T2, T3)', () => {
             insufficientData: null,
             unclassifiedSets: 0,
             unit: 'SERIES_EFECTIVAS',
-            groups: [{ group: 'BICEPS', status: 'CALCULADO', volume: 8, frequency: 2 }],
+            groups: [
+              { group: 'BICEPS', status: 'CALCULADO', volume: 8, frequency: 2 },
+            ],
             exerciseVolumes: [],
             calculatedAt: '2026-11-09T12:00:00Z',
           },
         };
       },
       'GET /catalog/taxonomies': {
-        body: { muscles: [{ code: 'BICEPS', name: 'Bíceps' }], equipment: [], movementPatterns: [], joints: [] },
+        body: {
+          muscles: [{ code: 'BICEPS', name: 'Bíceps' }],
+          equipment: [],
+          movementPatterns: [],
+          joints: [],
+        },
       },
     });
 

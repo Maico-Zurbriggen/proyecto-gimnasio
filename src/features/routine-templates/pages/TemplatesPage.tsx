@@ -254,7 +254,7 @@ function TemplatesContent() {
             {templates.data.map((template) => (
               <li
                 key={template.id}
-                className="card-interactive flex flex-col justify-between gap-4 rounded-2xl border border-[#292823]/8 bg-white/70 p-4 hover:bg-white"
+                className="card-interactive flex flex-col justify-between gap-4 rounded-2xl border border-[#292823]/12 bg-white p-5 shadow-xs hover:border-[#292823]/30 hover:shadow-md"
               >
                 <div className="space-y-2">
                   <p className="text-sm font-bold">{template.name}</p>
@@ -263,7 +263,7 @@ function TemplatesContent() {
                     {template.exerciseCount} ejercicios
                   </p>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                   <button
                     type="button"
                     className="btn-secondary btn-sm"
@@ -276,7 +276,7 @@ function TemplatesContent() {
                   </button>
                   <button
                     type="button"
-                    className="btn-secondary btn-sm"
+                    className="btn-secondary btn-sm text-[#a42616] hover:bg-[#feebe8] hover:border-[#e36a5b]/40"
                     disabled={
                       toggleActive.isPending && togglingId === template.id
                     }

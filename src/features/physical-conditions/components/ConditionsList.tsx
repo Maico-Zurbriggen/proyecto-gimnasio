@@ -58,7 +58,7 @@ export function ConditionsList({
             {vigentes.map((c) => (
               <li
                 key={c.id}
-                className="card-interactive flex flex-col gap-2 rounded-2xl border border-[#292823]/8 bg-white/70 p-4 hover:bg-white"
+                className="card-interactive flex flex-col gap-2 rounded-2xl border border-[#292823]/12 bg-white p-4 shadow-xs hover:border-[#292823]/25 hover:shadow-md"
               >
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <p className="text-sm font-bold">

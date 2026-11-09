@@ -110,51 +110,65 @@ export function StudentDetailPage() {
     ? `última medición ${formatDate(student.fechaUltimaMedicion)}`
     : 'sin mediciones registradas';
 
-  // Bloqueo o seguimiento: prioridad en Resumen y base de Mediciones.
-  const statusCard = student.bloqueado ? (
-    <div className="xl:col-span-8">
-      <UnlockPanel
-        student={student}
-        submitting={unlock.isPending}
-        errorMessage={unlock.error ? unlockErrorMessage(unlock.error) : null}
-        onUnlock={() => unlock.mutate()}
-      />
-    </div>
-  ) : (
-    <BentoCard className="xl:col-span-8">
-      <p className="eyebrow text-[#77756d]">Seguimiento</p>
-      <h2 className="font-display mt-2 text-lg font-semibold tracking-tight">
-        Alumno sin bloqueo
-      </h2>
-      <dl className="mt-5 grid gap-3 sm:grid-cols-3">
-        {[
-          ['Faltas consecutivas', String(student.faltasConsecutivas)],
-          [
-            'Altura',
-            student.alturaCm === null
-              ? 'Sin declarar'
-              : `${String(student.alturaCm)} cm`,
-          ],
-          [
-            'Última medición',
-            student.fechaUltimaMedicion
-              ? formatDate(student.fechaUltimaMedicion)
-              : 'Sin registrar',
-          ],
-        ].map(([label, value]) => (
-          <div
-            key={label}
-            className="surface-muted flex items-center justify-between gap-3 sm:block"
-          >
-            <dt className="eyebrow text-[#77756d]">{label}</dt>
-            <dd className="font-display text-base font-semibold tracking-tight sm:mt-2 sm:text-xl">
-              {value}
-            </dd>
+  // Panel principal de seguimiento / regularización
+  const renderStatusSection = (inMedicionesTab = false) => {
+    if (student.bloqueado) {
+      return (
+        <UnlockPanel
+          student={student}
+          submitting={unlock.isPending}
+          errorMessage={unlock.error ? unlockErrorMessage(unlock.error) : null}
+          onUnlock={() => unlock.mutate()}
+        />
+      );
+    }
+    return (
+      <BentoCard className="h-full">
+        <p className="eyebrow text-[#77756d]">
+          {inMedicionesTab ? 'Seguimiento de mediciones' : 'Seguimiento'}
+        </p>
+        <h2 className="font-display mt-2 text-lg font-semibold tracking-tight">
+          {inMedicionesTab
+            ? 'Control de asistencia y mediciones corporales'
+            : 'Alumno sin bloqueo'}
+        </h2>
+        <dl className="mt-5 grid gap-3 sm:grid-cols-3">
+          {[
+            ['Faltas consecutivas', String(student.faltasConsecutivas)],
+            [
+              'Altura',
+              student.alturaCm === null
+                ? 'Sin declarar'
+                : `${String(student.alturaCm)} cm`,
+            ],
+            [
+              'Última medición',
+              student.fechaUltimaMedicion
+                ? formatDate(student.fechaUltimaMedicion)
+                : 'Sin registrar',
+            ],
+          ].map(([label, value]) => (
+            <div
+              key={label}
+              className="surface-muted flex items-center justify-between gap-3 sm:block"
+            >
+              <dt className="eyebrow text-[#77756d]">{label}</dt>
+              <dd className="font-display text-base font-semibold tracking-tight sm:mt-2 sm:text-xl">
+                {value}
+              </dd>
+            </div>
+          ))}
+        </dl>
+        {inMedicionesTab ? (
+          <div className="surface-muted mt-5 text-xs text-[#68675f] leading-relaxed">
+            Las mediciones corporales periódicas (peso y altura) son requeridas
+            para calibrar las intensidades y detectar oportunamente
+            estancamiento o desbalances en el progreso del alumno.
           </div>
-        ))}
-      </dl>
-    </BentoCard>
-  );
+        ) : null}
+      </BentoCard>
+    );
+  };
 
   return (
     <div>
@@ -211,18 +225,20 @@ export function StudentDetailPage() {
 
         {tab === 'resumen' ? (
           <div className="space-y-6">
-            <div className="grid grid-cols-1 gap-5 xl:grid-cols-12">
-              {statusCard}
-              <ActiveRoutineCard
-                studentUserId={student.studentId}
-                routineHref={`/entrenador/alumnos/${student.studentId}/rutina`}
-                className="xl:col-span-4"
-              />
+            <div className="grid grid-cols-1 items-stretch gap-5 xl:grid-cols-12">
+              <div className="xl:col-span-8">{renderStatusSection(false)}</div>
+              <div className="xl:col-span-4">
+                <ActiveRoutineCard
+                  studentUserId={student.studentId}
+                  routineHref={`/entrenador/alumnos/${student.studentId}/rutina`}
+                  className="h-full"
+                />
+              </div>
             </div>
             {/* HU35: Señales en pantalla para el entrenador (estancamiento, caída, desbalance) */}
             <TrainerSignalsCard studentId={student.studentId} />
             {/* HU11: condiciones declaradas por el alumno, sólo lectura. */}
-            <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+            <div className="grid grid-cols-1 items-stretch gap-5 lg:grid-cols-2">
               <TrainerGoalsCard studentId={student.studentId} />
               <TrainerConditionsCard studentId={student.studentId} />
             </div>
@@ -253,18 +269,55 @@ export function StudentDetailPage() {
         ) : null}
 
         {tab === 'rutina' ? (
-          <section className="mt-6" aria-labelledby="historial-rutinas">
-            <h2
-              id="historial-rutinas"
-              className="font-display mb-3 text-xl font-semibold tracking-[-0.05em]"
-            >
-              Historial de rutinas
-            </h2>
-            <RoutineHistoryTimeline studentId={student.studentId} />
-          </section>
+          <BentoCard className="mt-6">
+            <section aria-labelledby="historial-rutinas">
+              <div className="mb-4 border-b border-[#292823]/10 pb-3">
+                <p className="eyebrow text-[#77756d]">Auditoría y versiones</p>
+                <h2
+                  id="historial-rutinas"
+                  className="font-display mt-1 text-xl font-semibold tracking-[-0.05em]"
+                >
+                  Historial de rutinas
+                </h2>
+              </div>
+              <RoutineHistoryTimeline studentId={student.studentId} />
+            </section>
+          </BentoCard>
         ) : null}
 
-        {tab === 'mediciones' ? statusCard : null}
+        {tab === 'mediciones' ? (
+          <div className="grid grid-cols-1 items-stretch gap-5 xl:grid-cols-12">
+            <div className="xl:col-span-8">{renderStatusSection(true)}</div>
+            <div className="xl:col-span-4">
+              <BentoCard className="flex h-full flex-col justify-between">
+                <div>
+                  <p className="eyebrow text-[#77756d]">
+                    Estado de regularización
+                  </p>
+                  <h3 className="font-display mt-2 text-base font-bold tracking-tight">
+                    {student.bloqueado
+                      ? 'Acceso bloqueado por faltas'
+                      : 'Situación regular'}
+                  </h3>
+                  <p className="mt-2.5 text-xs leading-relaxed text-[#68675f]">
+                    {student.bloqueado
+                      ? 'El alumno adeuda mediciones consecutivas de control. Una vez que cargue sus datos de peso y altura, podrás autorizar su desbloqueo desde el panel principal.'
+                      : 'El alumno registra sus mediciones dentro de los plazos esperados y cuenta con acceso activo a su plan de entrenamiento.'}
+                  </p>
+                </div>
+                <div className="mt-5 border-t border-[#292823]/10 pt-4">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-[#77756d]">Faltas acumuladas:</span>
+                    <span className="font-display text-sm font-bold text-ink">
+                      {student.faltasConsecutivas}{' '}
+                      {student.faltasConsecutivas === 1 ? 'falta' : 'faltas'}
+                    </span>
+                  </div>
+                </div>
+              </BentoCard>
+            </div>
+          </div>
+        ) : null}
 
         {tab === 'historial' ? (
           <TrainingHistoryPage studentId={student.studentId} readOnly />

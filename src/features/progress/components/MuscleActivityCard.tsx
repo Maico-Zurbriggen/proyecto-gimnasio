@@ -74,7 +74,8 @@ export function MuscleActivityCard({ studentId }: { studentId: string }) {
         </div>
       ) : activityQuery.isError ? (
         <div className="mt-4 rounded-xl border border-[#fbe1dc] bg-[#fff5f4] p-4 text-sm text-[#9b2c1f]">
-          No pudimos calcular la actividad muscular del período. Intentá nuevamente.
+          No pudimos calcular la actividad muscular del período. Intentá
+          nuevamente.
         </div>
       ) : activityQuery.data.insufficientData ? (
         <div className="mt-6">
@@ -92,9 +93,10 @@ export function MuscleActivityCard({ studentId }: { studentId: string }) {
             <div className="flex items-start gap-2 rounded-xl border border-[#fbeccb] bg-[#fffcf5] p-3 text-xs text-[#8a5a00]">
               <AlertTriangle className="mt-0.5 size-4 shrink-0 text-[#8a5a00]" />
               <p>
-                Hay <strong>{activityQuery.data.unclassifiedSets}</strong> series completadas
-                cuyos ejercicios aún no tienen clasificación muscular en el catálogo. No suman
-                volumen a ningún grupo pero están registradas.
+                Hay <strong>{activityQuery.data.unclassifiedSets}</strong>{' '}
+                series completadas cuyos ejercicios aún no tienen clasificación
+                muscular en el catálogo. No suman volumen a ningún grupo pero
+                están registradas.
               </p>
             </div>
           )}
@@ -110,13 +112,18 @@ export function MuscleActivityCard({ studentId }: { studentId: string }) {
             );
 
             // Músculos activos para el mapa 2D
-            const primaryCodes = groupsWithVolume.slice(0, 3).map((g) => g.group);
-            const secondaryCodes = groupsWithVolume.slice(3).map((g) => g.group);
+            const primaryCodes = groupsWithVolume
+              .slice(0, 3)
+              .map((g) => g.group);
+            const secondaryCodes = groupsWithVolume
+              .slice(3)
+              .map((g) => g.group);
 
             if (groupsWithVolume.length === 0) {
               return (
                 <div className="rounded-xl border border-[#e4e1d6] bg-[#fdfdfc] p-6 text-center text-sm text-[#77756d]">
-                  No se registraron series de trabajo en los ejercicios clasificados durante este período.
+                  No se registraron series de trabajo en los ejercicios
+                  clasificados durante este período.
                 </div>
               );
             }
@@ -146,10 +153,12 @@ export function MuscleActivityCard({ studentId }: { studentId: string }) {
                             </span>
                             <div className="flex items-center gap-3 text-xs">
                               <span className="font-semibold text-[#1f1e1a]">
-                                {volume} {volume === 1 ? 'serie ef.' : 'series ef.'}
+                                {volume}{' '}
+                                {volume === 1 ? 'serie ef.' : 'series ef.'}
                               </span>
                               <span className="text-[#77756d]">
-                                {frequency} {frequency === 1 ? 'sesión' : 'sesiones'}
+                                {frequency}{' '}
+                                {frequency === 1 ? 'sesión' : 'sesiones'}
                               </span>
                             </div>
                           </div>

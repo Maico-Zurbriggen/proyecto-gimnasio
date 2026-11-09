@@ -59,47 +59,51 @@ export function LoginPage() {
   return (
     <main className="grid min-h-dvh lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
       {/* Panel de marca: sólo en pantallas anchas, el formulario no depende de él. */}
-      <aside className="technical-notch relative m-4 hidden flex-col justify-between overflow-hidden rounded-[2rem] bg-graphite p-10 text-white lg:flex">
+      <aside className="technical-notch relative m-4 hidden flex-col justify-between overflow-hidden rounded-[2rem] bg-graphite p-10 text-white shadow-xl lg:flex">
         <div className="flex items-center gap-3">
-          <span className="bg-lime text-graphite font-display flex size-9 items-center justify-center rounded-[11px] text-sm font-black">
-            P
+          <span className="flex size-9 shrink-0 items-center justify-center rounded-[11px] bg-lime font-display text-sm font-black text-graphite shadow-[0_0_12px_rgba(198,255,54,0.4)]">
+            V
           </span>
-          <span className="font-display text-[1.05rem] font-black tracking-[-0.08em]">
+          <span className="font-display text-[1.15rem] font-black tracking-[-0.06em]">
             Vivaz Adaptive
           </span>
         </div>
         <div>
-          <p className="eyebrow text-lime">Entrenamiento adaptativo</p>
-          <p className="font-display mt-4 max-w-md text-4xl leading-[1.05] font-semibold tracking-[-0.04em]">
-            Una rutina que se ajusta a vos, revisada por tu entrenador.
+          <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1">
+            <span className="size-2 rounded-full bg-lime animate-pulse" />
+            <p className="eyebrow text-lime">Entrenamiento adaptativo</p>
+          </div>
+          <p className="font-display mt-5 max-w-md text-4xl leading-[1.08] font-bold tracking-[-0.04em]">
+            Una rutina que se ajusta a vos, supervisada por tu entrenador.
           </p>
-          <ul className="mt-8 space-y-3 text-sm text-white/70">
+          <ul className="mt-8 space-y-3.5 text-sm text-white/80">
             {[
-              'Rutinas generadas con IA sobre el equipamiento del gimnasio.',
-              'Seguimiento de mediciones y condiciones físicas.',
-              'Cada cambio pasa por la revisión de un profesional.',
+              'Rutinas inteligentes basadas en el inventario real del gimnasio.',
+              'Seguimiento en vivo de series, repeticiones y descansos.',
+              'Detección preventiva de estancamiento, adherencia y desbalance.',
             ].map((item) => (
-              <li key={item} className="flex items-start gap-2.5">
-                <Check
-                  aria-hidden="true"
-                  className="mt-0.5 size-4 shrink-0 text-lime"
-                />
-                {item}
+              <li key={item} className="flex items-start gap-3">
+                <span className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full bg-lime/15 text-lime">
+                  <Check aria-hidden="true" className="size-3.5" />
+                </span>
+                <span>{item}</span>
               </li>
             ))}
           </ul>
         </div>
-        <p className="text-[11px] text-white/40">Vivaz Adaptive · load 01</p>
+        <p className="text-[11px] text-white/50 tracking-wider">
+          Vivaz Adaptive · load 01
+        </p>
       </aside>
 
       <div className="flex items-center justify-center px-4 py-10">
         <div className="w-full max-w-md">
           <div className="mb-7 flex items-center gap-3 lg:hidden">
-            <span className="bg-lime text-graphite font-display flex size-9 shrink-0 items-center justify-center rounded-[11px] text-sm font-black">
-              P
+            <span className="flex size-9 shrink-0 items-center justify-center rounded-[11px] bg-lime font-display text-sm font-black text-graphite shadow-[0_0_12px_rgba(198,255,54,0.4)]">
+              V
             </span>
             <div>
-              <p className="font-display text-[1.05rem] leading-none font-black tracking-[-0.08em]">
+              <p className="font-display text-[1.1rem] leading-none font-black tracking-[-0.06em]">
                 Vivaz Adaptive
               </p>
               <p className="mt-1 text-[9px] font-semibold tracking-[0.2em] text-[#77756d] uppercase">
@@ -111,13 +115,13 @@ export function LoginPage() {
           <form
             onSubmit={(event) => void handleSubmit(event)}
             aria-label="Iniciar sesión"
-            className="flex flex-col gap-4 rounded-3xl border border-[#292823]/8 bg-white p-6 shadow-[0_12px_32px_-22px_rgb(20_20_18/0.25)] sm:p-8"
+            className="flex flex-col gap-4.5 rounded-3xl border border-[#292823]/12 bg-white p-7 shadow-[0_16px_40px_-20px_rgb(20_20_18/0.2)] sm:p-9"
           >
-            <div className="mb-1">
-              <h1 className="font-display text-2xl font-semibold tracking-tight">
+            <div className="mb-2">
+              <h1 className="font-display text-2xl font-bold tracking-tight text-ink sm:text-3xl">
                 Te damos la bienvenida
               </h1>
-              <p className="mt-1 text-sm text-[#68675f]">
+              <p className="mt-1.5 text-sm text-[#68675f]">
                 Ingresá con el correo de tu cuenta del gimnasio.
               </p>
             </div>

@@ -129,7 +129,10 @@ export function AppRouter() {
               <Route path="/alumno" element={<StudentOverviewRoute />} />
               <Route path="/alumno/rutina" element={<StudentRoutineRoute />} />
               <Route path="/alumno/sesion" element={<StudentSessionRoute />} />
-              <Route path="/alumno/progreso" element={<StudentProgressRoute />} />
+              <Route
+                path="/alumno/progreso"
+                element={<StudentProgressRoute />}
+              />
               <Route
                 path="/alumno/historial"
                 element={<StudentHistoryRoute />}

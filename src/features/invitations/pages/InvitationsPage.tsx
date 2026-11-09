@@ -73,7 +73,13 @@ function motivoDeRechazo(error: unknown): string {
  * Revocar (con confirmación) y reenviar una invitación vigente (criterios
  * front 5, 12 a 14). Sólo se ofrecen en invitaciones VIGENTES.
  */
-function AccionesInvitacion({ invitation }: { invitation: ListedInvitation }) {
+function AccionesInvitacion({
+  invitation,
+  showDash = true,
+}: {
+  invitation: ListedInvitation;
+  showDash?: boolean;
+}) {
   const queryClient = useQueryClient();
   const [confirmando, setConfirmando] = useState(false);
   const refrescar = () =>
@@ -100,11 +106,15 @@ function AccionesInvitacion({ invitation }: { invitation: ListedInvitation }) {
       <p role="alert" className="field-error">
         {motivoDeRechazo(revocar.error)}
       </p>
+    ) : showDash ? (
+      <span className="text-xs font-semibold text-[#8c8a82] select-none">
+        —
+      </span>
     ) : null;
   }
 
   return (
-    <div className="flex flex-col items-start gap-2">
+    <div className="flex flex-col items-start sm:items-end gap-2">
       {confirmando ? (
         <div
           role="alertdialog"
@@ -133,7 +143,7 @@ function AccionesInvitacion({ invitation }: { invitation: ListedInvitation }) {
           </div>
         </div>
       ) : (
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <button
             type="button"
             disabled={reenviar.isPending}
@@ -146,7 +156,7 @@ function AccionesInvitacion({ invitation }: { invitation: ListedInvitation }) {
           <button
             type="button"
             onClick={() => setConfirmando(true)}
-            className="btn-secondary btn-sm"
+            className="btn-secondary btn-sm text-[#a42616] hover:bg-[#feebe8] hover:border-[#e36a5b]/40"
           >
             Revocar
           </button>
@@ -239,7 +249,7 @@ export function InvitationsPage({
         }
       />
       <main className="page-body grid gap-5 lg:grid-cols-12">
-        <BentoCard className="self-start lg:col-span-4 xl:col-span-3">
+        <BentoCard className="self-start lg:col-span-5 xl:col-span-4">
           <h2 className="font-display text-lg font-semibold tracking-tight">
             Nueva invitación
           </h2>
@@ -369,7 +379,7 @@ export function InvitationsPage({
           </form>
         </BentoCard>
 
-        <BentoCard className="lg:col-span-8 xl:col-span-9">
+        <BentoCard className="lg:col-span-7 xl:col-span-8">
           <h2 className="font-display text-lg font-semibold tracking-tight">
             Invitaciones enviadas
           </h2>
@@ -413,30 +423,45 @@ export function InvitationsPage({
               <div className="mt-4 hidden overflow-x-auto md:block">
                 <table className="w-full text-left text-sm">
                   <caption className="sr-only">Invitaciones enviadas</caption>
-                  <thead className="text-xs text-[#68675f]">
+                  <thead className="border-b border-[#292823]/15 text-xs text-[#68675f]">
                     <tr>
-                      <th scope="col" className="py-2 pr-4 font-semibold">
+                      <th
+                        scope="col"
+                        className="py-2.5 pr-4 font-bold uppercase tracking-wider text-[11px] text-[#77756d]"
+                      >
                         Correo y roles
                       </th>
-                      <th scope="col" className="py-2 pr-4 font-semibold">
+                      <th
+                        scope="col"
+                        className="py-2.5 pr-4 font-bold uppercase tracking-wider text-[11px] text-[#77756d]"
+                      >
                         Emisor
                       </th>
-                      <th scope="col" className="py-2 pr-4 font-semibold">
+                      <th
+                        scope="col"
+                        className="py-2.5 pr-4 font-bold uppercase tracking-wider text-[11px] text-[#77756d]"
+                      >
                         Vence
                       </th>
-                      <th scope="col" className="py-2 pr-4 font-semibold">
+                      <th
+                        scope="col"
+                        className="py-2.5 pr-4 font-bold uppercase tracking-wider text-[11px] text-[#77756d]"
+                      >
                         Estado
                       </th>
-                      <th scope="col" className="py-2 text-right font-semibold">
+                      <th
+                        scope="col"
+                        className="py-2.5 pr-2 text-right font-bold uppercase tracking-wider text-[11px] text-[#77756d]"
+                      >
                         Acciones
                       </th>
                     </tr>
                   </thead>
-                  <tbody>
+                  <tbody className="divide-y divide-[#292823]/10">
                     {lista.map((item) => (
                       <tr
                         key={item.id}
-                        className="border-t border-[#292823]/8 align-middle"
+                        className="align-middle hover:bg-[#faf9f4] transition-colors"
                       >
                         <td className="py-3.5 pr-4">
                           <p className="font-semibold [overflow-wrap:anywhere]">
@@ -447,20 +472,25 @@ export function InvitationsPage({
                           </p>
                         </td>
                         <td className="py-3.5 pr-4">
-                          <p>{item.issuedByName ?? '—'}</p>
+                          <p className="font-medium text-ink">
+                            {item.issuedByName ?? '—'}
+                          </p>
                           <p className="mt-0.5 text-xs whitespace-nowrap text-[#77756d]">
                             Emitida el {formatDate(item.issuedAt)}
                           </p>
                         </td>
-                        <td className="py-3.5 pr-4 whitespace-nowrap">
+                        <td className="py-3.5 pr-4 whitespace-nowrap text-[#55534c]">
                           {formatDate(item.expiresAt)}
                         </td>
                         <td className="py-3.5 pr-4">
                           <EstadoChip status={item.status} />
                         </td>
-                        <td className="py-3.5">
-                          <div className="flex justify-end">
-                            <AccionesInvitacion invitation={item} />
+                        <td className="py-3.5 pr-2">
+                          <div className="flex justify-end items-center min-h-[32px]">
+                            <AccionesInvitacion
+                              invitation={item}
+                              showDash={true}
+                            />
                           </div>
                         </td>
                       </tr>
@@ -477,7 +507,7 @@ export function InvitationsPage({
                 {lista.map((item) => (
                   <li
                     key={item.id}
-                    className="flex flex-col gap-3 rounded-2xl border border-[#292823]/8 bg-white/70 p-4"
+                    className="flex flex-col gap-3 rounded-2xl border border-[#292823]/12 bg-white p-4 shadow-xs"
                   >
                     <div className="flex items-start justify-between gap-2">
                       <p className="text-sm font-bold break-all">
@@ -497,7 +527,7 @@ export function InvitationsPage({
                       <dt className="font-semibold">Vence</dt>
                       <dd>{formatDate(item.expiresAt)}</dd>
                     </dl>
-                    <AccionesInvitacion invitation={item} />
+                    <AccionesInvitacion invitation={item} showDash={false} />
                   </li>
                 ))}
               </ul>

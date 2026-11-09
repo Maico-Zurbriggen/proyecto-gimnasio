@@ -1,4 +1,10 @@
-import { AlertCircle, AlertTriangle, CheckCircle2, TrendingDown, Activity } from 'lucide-react';
+import {
+  AlertCircle,
+  AlertTriangle,
+  CheckCircle2,
+  TrendingDown,
+  Activity,
+} from 'lucide-react';
 
 import { InsufficientInfo } from '../../../shared/components/InsufficientInfo';
 import { humanizeEnum } from '../../../shared/lib/format';
@@ -41,7 +47,9 @@ export function TrainerSignalsCard({ studentId }: { studentId: string }) {
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-2">
           <Activity className="size-4 text-[#586d26]" />
-          <p className="eyebrow text-[#77756d]">Seguimiento preventivo (6 semanas)</p>
+          <p className="eyebrow text-[#77756d]">
+            Seguimiento preventivo (6 semanas)
+          </p>
         </div>
         <span
           className={`inline-flex items-center gap-1.5 self-start rounded-full px-2.5 py-0.5 text-xs font-semibold ${
@@ -85,7 +93,10 @@ export function TrainerSignalsCard({ studentId }: { studentId: string }) {
                 </p>
               ) : (
                 estancamiento.map((senal, index) => {
-                  const subject = senal.sobre ?? senal.detalle?.exerciseId ?? `Ejercicio ${index + 1}`;
+                  const subject =
+                    senal.sobre ??
+                    senal.detalle?.exerciseId ??
+                    `Ejercicio ${index + 1}`;
                   if (senal.estado === 'DETECTADA' && senal.detalle) {
                     return (
                       <div
@@ -97,7 +108,8 @@ export function TrainerSignalsCard({ studentId }: { studentId: string }) {
                         </p>
                         <p className="mt-1">
                           Variación: {senal.detalle.variacionPorcentual}% en{' '}
-                          {senal.detalle.sesionesConsideradas} sesiones consideradas (umbral +2,5%).
+                          {senal.detalle.sesionesConsideradas} sesiones
+                          consideradas (umbral +2,5%).
                         </p>
                       </div>
                     );
@@ -140,29 +152,37 @@ export function TrainerSignalsCard({ studentId }: { studentId: string }) {
             </div>
 
             <div className="mt-2.5">
-              {caidaDeAdherencia.estado === 'DETECTADA' && caidaDeAdherencia.detalle ? (
+              {caidaDeAdherencia.estado === 'DETECTADA' &&
+              caidaDeAdherencia.detalle ? (
                 <div className="rounded-lg border border-[#fbeccb] bg-[#fffcf5] p-2.5 text-xs text-[#8a5a00]">
                   <div className="flex items-center gap-1.5 font-semibold text-sm">
                     <TrendingDown className="size-4" />
-                    <span>Caída de {caidaDeAdherencia.detalle.caidaEnPuntos} puntos</span>
+                    <span>
+                      Caída de {caidaDeAdherencia.detalle.caidaEnPuntos} puntos
+                    </span>
                   </div>
                   <p className="mt-1 text-xs">
-                    Pasó del {caidaDeAdherencia.detalle.adherenciaPrevia}% previo al{' '}
-                    {caidaDeAdherencia.detalle.adherenciaReciente}% reciente (umbral ≥ 25 pts).
+                    Pasó del {caidaDeAdherencia.detalle.adherenciaPrevia}%
+                    previo al {caidaDeAdherencia.detalle.adherenciaReciente}%
+                    reciente (umbral ≥ 25 pts).
                   </p>
                 </div>
               ) : caidaDeAdherencia.estado === 'SIN_SENAL' ? (
                 <div className="flex items-start gap-1.5 text-xs text-[#3f6b1f]">
                   <CheckCircle2 className="size-3.5 shrink-0 mt-0.5" />
                   <span>
-                    {caidaDeAdherencia.sobre?.includes('adherencia nula sostenida')
+                    {caidaDeAdherencia.sobre?.includes(
+                      'adherencia nula sostenida',
+                    )
                       ? 'Adherencia nula sostenida sin variación de caída.'
                       : 'Adherencia estable sin caídas significativas.'}
                   </span>
                 </div>
               ) : (
                 <InsufficientInfo
-                  missing={caidaDeAdherencia.missing ?? 'frecuencia objetivo vigente'}
+                  missing={
+                    caidaDeAdherencia.missing ?? 'frecuencia objetivo vigente'
+                  }
                   required={caidaDeAdherencia.required}
                   available={caidaDeAdherencia.available}
                   unit={caidaDeAdherencia.unit}
@@ -190,8 +210,10 @@ export function TrainerSignalsCard({ studentId }: { studentId: string }) {
                       key={item.grupo}
                       className="rounded-lg border border-[#fbeccb] bg-[#fffcf5] p-2 text-xs text-[#8a5a00]"
                     >
-                      <span className="font-semibold">{humanizeEnum(item.grupo)}</span>:{' '}
-                      {item.seriesSemanales} series/sem (
+                      <span className="font-semibold">
+                        {humanizeEnum(item.grupo)}
+                      </span>
+                      : {item.seriesSemanales} series/sem (
                       {item.tipo === 'POR_DEFECTO'
                         ? 'por defecto, mín. 6'
                         : 'por exceso, máx. 22'}
@@ -202,7 +224,10 @@ export function TrainerSignalsCard({ studentId }: { studentId: string }) {
               ) : desbalance.estado === 'SIN_SENAL' ? (
                 <div className="flex items-start gap-1.5 text-xs text-[#3f6b1f]">
                   <CheckCircle2 className="size-3.5 shrink-0 mt-0.5" />
-                  <span>Volumen muscular equilibrado (entre 6 y 22 series semanales por grupo).</span>
+                  <span>
+                    Volumen muscular equilibrado (entre 6 y 22 series semanales
+                    por grupo).
+                  </span>
                 </div>
               ) : (
                 <InsufficientInfo
@@ -222,8 +247,9 @@ export function TrainerSignalsCard({ studentId }: { studentId: string }) {
         <div className="mt-4 flex items-center gap-2 rounded-xl border border-[#fbeccb] bg-[#fffcf5] p-3 text-xs text-[#8a5a00]">
           <AlertCircle className="size-4 shrink-0" />
           <span>
-            Atención: El alumno ejecutó <strong>{seriesSinClasificar}</strong> series de ejercicios
-            sin clasificación muscular asignada en el catálogo (RN-30).
+            Atención: El alumno ejecutó <strong>{seriesSinClasificar}</strong>{' '}
+            series de ejercicios sin clasificación muscular asignada en el
+            catálogo (RN-30).
           </span>
         </div>
       )}

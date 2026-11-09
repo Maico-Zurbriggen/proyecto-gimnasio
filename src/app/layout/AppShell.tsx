@@ -126,9 +126,9 @@ function UserBadge({
       to="/cuenta/contrasena"
       title={identity.email ?? 'Mi cuenta'}
       aria-label={`Mi cuenta: ${identity.name}, ${roleName}`}
-      className="flex min-w-0 items-center gap-2.5 rounded-full border border-black/8 bg-white/75 py-1 pr-1 pl-1 transition hover:border-black/15 hover:bg-white sm:pr-3.5"
+      className="flex min-w-0 items-center gap-2.5 rounded-full border border-black/8 bg-white/85 py-1 pr-1 pl-1 shadow-xs transition hover:border-black/20 hover:bg-white hover:shadow-sm sm:pr-3.5"
     >
-      <span className="avatar size-8 text-[10px]" aria-hidden="true">
+      <span className="avatar size-8 text-[10px] shadow-xs" aria-hidden="true">
         {identity.initials}
       </span>
       <span className="hidden min-w-0 flex-col leading-tight sm:flex">
@@ -152,16 +152,16 @@ const TODAY_LABEL = new Intl.DateTimeFormat('es-AR', {
 function Wordmark({ role }: { role: ReturnType<typeof resolveAppRole> }) {
   const home = `/${role}`;
   return (
-    <Link to={home} className="flex items-center gap-3 px-1 py-2">
-      <span className="flex size-9 shrink-0 items-center justify-center rounded-[11px] bg-lime font-display text-sm font-black text-graphite">
-        P
+    <Link to={home} className="group flex items-center gap-3 px-1 py-2">
+      <span className="flex size-9 shrink-0 items-center justify-center rounded-[11px] bg-lime font-display text-sm font-black text-graphite shadow-[0_0_14px_rgba(198,255,54,0.35)] transition-transform duration-200 group-hover:scale-105">
+        V
       </span>
       <div className="min-w-0">
-        <p className="font-display text-[1.05rem] leading-none font-black tracking-[-0.08em] text-white">
+        <p className="font-display text-[1.05rem] leading-none font-black tracking-[-0.06em] text-white">
           Vivaz Adaptive
         </p>
-        <p className="mt-1 text-[9px] font-semibold tracking-[0.2em] text-white/45 uppercase">
-          load 01
+        <p className="mt-1 text-[9px] font-semibold tracking-[0.2em] text-lime/80 uppercase">
+          load 01 · active
         </p>
       </div>
     </Link>
@@ -181,15 +181,15 @@ function RoleSwitcher({
   }
 
   return (
-    <div className="flex items-center gap-1 rounded-full border border-black/8 bg-white/75 p-1">
+    <div className="flex items-center gap-1 rounded-full border border-black/8 bg-white/80 p-1 shadow-xs backdrop-blur-xs">
       {availableRoles.map((item) => (
         <Link
           key={item.appRole}
           to={item.home}
-          className={`rounded-full px-3 py-1.5 text-[11px] font-bold transition ${
+          className={`rounded-full px-3 py-1.5 text-[11px] font-bold transition-all ${
             active === item.appRole
-              ? 'bg-graphite text-white'
-              : 'text-[#6c6a62] hover:bg-black/5'
+              ? 'bg-graphite text-white shadow-xs'
+              : 'text-[#6c6a62] hover:bg-black/5 hover:text-ink'
           }`}
         >
           {item.label}
@@ -200,10 +200,10 @@ function RoleSwitcher({
 }
 
 function navLinkClass({ isActive }: { isActive: boolean }) {
-  return `relative flex h-10 items-center gap-3 rounded-xl px-3 text-[13px] font-medium transition ${
+  return `relative flex h-10 items-center gap-3 rounded-xl px-3 text-[13px] font-medium transition-all duration-150 ${
     isActive
-      ? 'bg-white/10 text-white before:absolute before:inset-y-2.5 before:left-0 before:w-[3px] before:rounded-full before:bg-lime'
-      : 'text-white/65 hover:bg-white/6 hover:text-white'
+      ? 'bg-white/12 text-white shadow-xs before:absolute before:inset-y-2 before:left-0 before:w-[3px] before:rounded-full before:bg-lime before:shadow-[0_0_8px_#c6ff36]'
+      : 'text-white/65 hover:bg-white/8 hover:text-white'
   }`;
 }
 
@@ -221,7 +221,7 @@ function Sidebar({
   const meta = ROLE_META[role];
   return (
     <aside
-      className={`fixed inset-y-0 left-0 z-30 flex w-64 shrink-0 flex-col bg-graphite px-3 pb-4 pt-4 transition-transform lg:sticky lg:top-0 lg:h-svh lg:translate-x-0 ${
+      className={`fixed inset-y-0 left-0 z-30 flex w-64 shrink-0 flex-col border-r border-white/10 bg-[#1a1a17] px-3.5 pb-4 pt-4 shadow-2xl transition-transform lg:sticky lg:top-0 lg:h-svh lg:translate-x-0 ${
         mobileOpen ? 'translate-x-0' : '-translate-x-full'
       }`}
     >
@@ -350,7 +350,7 @@ export function AppShell() {
       ) : null}
 
       <div className="min-w-0 flex-1">
-        <header className="sticky top-0 z-10 h-[68px] shrink-0 border-b border-[#292823]/8 bg-[#f4f3ee]/85 backdrop-blur-md">
+        <header className="sticky top-0 z-10 h-[68px] shrink-0 border-b border-[#d8d5cb] bg-white/85 shadow-xs backdrop-blur-md">
           <div className="mx-auto flex h-full w-full max-w-7xl items-center justify-between gap-3 px-4 sm:px-7 lg:px-9">
             <div className="flex items-center gap-3">
               <button
