@@ -32,10 +32,14 @@ function review(overrides: Record<string, unknown> = {}) {
         type: 'CARGA',
         routineExerciseId: 're-1',
         exerciseName: 'Sentadilla con barra',
-        criterion: 'Estancamiento de la carga máxima estimada.',
+        criterion:
+          'Estancamiento: variación de carga máxima estimada +0,8% < +2,5% (RN-79a).',
         previousValue: { carga_sugerida: 60 },
         proposedValue: { carga_sugerida: 62.5 },
-        supportingData: {},
+        supportingData: {
+          sesionesConsideradas: 6,
+          variacionE1RM: 0.8,
+        },
         state: 'PENDIENTE',
       },
       {
@@ -43,10 +47,14 @@ function review(overrides: Record<string, unknown> = {}) {
         type: 'ESQUEMA',
         routineExerciseId: 're-2',
         exerciseName: 'Press de banca plano',
-        criterion: 'Cumplimiento en el tope del rango.',
+        criterion:
+          'Estímulo insuficiente: tope del rango en las últimas 2 sesiones con esfuerzo ≤ 5 (RN-79a).',
         previousValue: { min_repetitions: 3, max_repetitions: 6 },
         proposedValue: { min_repetitions: 4, max_repetitions: 6 },
-        supportingData: {},
+        supportingData: {
+          sesionesConsideradas: 4,
+          cumplimientoTopes: true,
+        },
         state: 'PENDIENTE',
       },
     ],
@@ -69,6 +77,22 @@ function renderPage() {
 }
 
 describe('ProposalReviewPage (HU04)', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it('avisa que la propuesta está bloqueada cuando el alumno no tiene entrenador', async () => {
+    mockApi({
+      [`GET /proposals/${PROPOSAL}`]: {
+        body: review({ state: 'BLOQUEADA' }),
+      },
+    });
+    renderPage();
+
+    expect(await screen.findByText('Propuesta bloqueada')).toBeVisible();
+    expect(screen.queryByRole('button', { name: /Aprobar/ })).toBeNull();
+  });
+
   it('lets the trainer request regeneration with feedback and disables approval while pending', async () => {
     const candidateRequestId = '70000000-0000-4000-8000-000000000001';
     let input: Record<string, unknown> | undefined;
@@ -96,10 +120,10 @@ describe('ProposalReviewPage (HU04)', () => {
     });
     renderPage();
     const textarea = await screen.findByLabelText(
-      'Qué debería mejorar la nueva planilla',
+      'Qué debería mejorar la nueva adaptación',
     );
     const button = screen.getByRole('button', {
-      name: 'Regenerar planilla con IA',
+      name: 'Regenerar adaptación con IA',
     });
     expect(button).toBeDisabled();
     fireEvent.change(textarea, {
@@ -107,7 +131,7 @@ describe('ProposalReviewPage (HU04)', () => {
     });
     fireEvent.click(button);
     expect(
-      await screen.findByText(/La IA está generando otra planilla/),
+      await screen.findByText(/La IA está generando otra adaptación/),
     ).toBeVisible();
     expect(screen.getByRole('button', { name: 'Aprobar' })).toBeDisabled();
     expect(input).toMatchObject({
@@ -138,7 +162,7 @@ describe('ProposalReviewPage (HU04)', () => {
     });
     renderPage();
     expect(await screen.findByText(/No se pudo regenerar:/)).toHaveTextContent(
-      'planilla anterior sigue disponible',
+      'adaptación anterior sigue disponible',
     );
     expect(screen.getByRole('button', { name: 'Aprobar' })).toBeEnabled();
   });
@@ -157,6 +181,13 @@ describe('ProposalReviewPage (HU04)', () => {
     ).toBeVisible();
     expect(screen.getByText('Carga · Sentadilla con barra')).toBeVisible();
     expect(screen.getByText('62,5 kg')).toBeVisible();
+    // T3 (RF-090, FL-10): cada ajuste muestra su criterio y el dato que lo sustenta.
+    expect(
+      screen.getByText(/variación de carga máxima estimada/i),
+    ).toBeVisible();
+    expect(
+      screen.getAllByText(/Sesiones consideradas:/).length,
+    ).toBeGreaterThan(0);
     expect(screen.getByRole('button', { name: 'Aprobar' })).toBeEnabled();
     expect(
       screen.getByRole('button', { name: 'Aprobar parcialmente' }),
@@ -269,13 +300,15 @@ describe('ProposalReviewPage (HU04)', () => {
     const fetchMock = mockApi({ [`GET /proposals/${PROPOSAL}`]: { body } });
     renderPage();
     expect(
-      await screen.findByRole('heading', { name: 'Planilla propuesta por IA' }),
+      await screen.findByRole('heading', {
+        name: 'Adaptación de rutina propuesta',
+      }),
     ).toBeVisible();
     expect(
       screen.getAllByText('Serie 1: 8-12 rep · 10.5 kg · 90s de descanso'),
     ).toHaveLength(2);
     const table = screen.getByRole('table', {
-      name: 'Distribución vigente y propuesta',
+      name: 'Distribución actual y propuesta',
     });
     const row = within(table).getByText('Curl de bíceps').closest('tr')!;
     expect(
@@ -327,6 +360,32 @@ describe('ProposalReviewPage (HU04)', () => {
     });
   });
 
+  it('identifica el ajuste desactualizado sin exponer ids ni motivos técnicos', async () => {
+    mockApi({
+      [`GET /proposals/${PROPOSAL}`]: { body: review() },
+      [`POST /proposals/${PROPOSAL}/resolution`]: {
+        status: 422,
+        body: {
+          error: 'adjustment_not_applicable',
+          adjustmentId: ADJ_SCHEME,
+          reason: 'routine exercise is not part of the current version',
+        },
+      },
+    });
+
+    renderPage();
+    fireEvent.click(await screen.findByRole('button', { name: 'Aprobar' }));
+
+    const error = await screen.findByText(
+      /Rango de repeticiones de Press de banca plano:/,
+    );
+    expect(error).toHaveTextContent(
+      'El ejercicio ya no pertenece a la versión vigente',
+    );
+    expect(error).not.toHaveTextContent(ADJ_SCHEME);
+    expect(error).not.toHaveTextContent('routine exercise');
+  });
+
   it('Esc. 4: rechazar exige motivo y lo envía', async () => {
     const fetchMock = mockApi({
       [`GET /proposals/${PROPOSAL}`]: { body: review() },
@@ -364,6 +423,48 @@ describe('ProposalReviewPage (HU04)', () => {
       decision: 'RECHAZADA',
       reason: 'Dolor de rodilla reportado',
     });
+  });
+
+  it('keeps manual substitutions visible and prevents automatic approval', async () => {
+    mockApi({
+      [`GET /proposals/${PROPOSAL}`]: {
+        body: review({
+          adjustments: [
+            {
+              id: ADJ_LOAD,
+              type: 'SUSTITUCION',
+              routineExerciseId: 're-1',
+              exerciseName: 'Press militar',
+              criterion: 'Condición moderada en hombro.',
+              previousValue: {
+                exercise_id: 'old',
+                exercise_name: 'Press militar',
+              },
+              proposedValue: { requires_manual_intervention: true },
+              supportingData: {
+                motivo: 'Condición moderada en hombro.',
+                requires_manual_intervention: true,
+              },
+              state: 'PENDIENTE',
+            },
+          ],
+        }),
+      },
+    });
+
+    renderPage();
+
+    expect(
+      await screen.findByText('Hay ejercicios sin reemplazo automático'),
+    ).toBeVisible();
+    expect(screen.getByText('Selección manual requerida')).toBeVisible();
+    expect(screen.getByRole('button', { name: 'Aprobar' })).toBeDisabled();
+    expect(
+      screen.getByRole('link', { name: 'Editar rutina manualmente' }),
+    ).toHaveAttribute(
+      'href',
+      '/entrenador/alumnos/20000000-0000-4000-8000-000000000005/rutina',
+    );
   });
 
   it('muestra el error del backend si la propuesta ya fue resuelta', async () => {

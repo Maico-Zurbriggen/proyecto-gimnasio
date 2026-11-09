@@ -19,11 +19,7 @@ import {
   manualRoutineErrorMessage,
 } from './ManualRoutineForm';
 import { RoutineReviewForm } from './RoutineReviewForm';
-
-const SELECT_CLASS =
-  'rounded-xl border border-[#292823]/15 bg-white px-3 py-2 text-sm font-medium text-ink outline-none transition focus:border-graphite';
-const PRIMARY_BUTTON =
-  'bg-graphite rounded-full px-4 py-2 text-sm font-bold text-white transition hover:brightness-110 disabled:opacity-60';
+import { LoadingState } from '../../../shared/ui/LoadingState';
 
 function errorMessage(error: unknown): string {
   if (error instanceof ApiError) {
@@ -78,7 +74,8 @@ export function RoutinePrescriptionPanel({
   const lista: RoutineSummary[] = routines.data ?? [];
   const propuesta = lista.find((routine) => routine.state === 'PROPUESTA');
   const vigente = lista.find((routine) => routine.state === 'VIGENTE');
-  const contenido = useRoutineContent(studentId, propuesta?.id);
+  const contenidoPropuesta = useRoutineContent(studentId, propuesta?.id);
+  const contenidoVigente = useRoutineContent(studentId, vigente?.id);
 
   const seleccion = templateId || (templates.data?.[0]?.id ?? '');
   const operando = assign.isPending || review.isPending;
@@ -86,13 +83,13 @@ export function RoutinePrescriptionPanel({
 
   return (
     <>
-      <BentoCard className="mt-4 flex flex-col gap-4">
+      <BentoCard className="flex flex-col gap-4">
         <div>
           <p className="eyebrow text-[#77756d]">Prescripción</p>
-          <h2 className="font-display mt-2 text-2xl font-semibold tracking-[-0.06em]">
+          <h2 className="font-display mt-2 text-lg font-semibold tracking-tight">
             Rutina del alumno
           </h2>
-          <p className="mt-2 text-xs text-[#77756d]">
+          <p className="mt-2 text-sm text-[#68675f]">
             {vigente
               ? `Rutina vigente: ${vigente.routineType.toLowerCase()} · ${String(vigente.targetWeeklyFrequency)} días por semana.`
               : 'El alumno todavía no tiene una rutina vigente.'}
@@ -100,13 +97,13 @@ export function RoutinePrescriptionPanel({
         </div>
 
         {error ? (
-          <p role="alert" className="text-coral-strong text-xs font-medium">
+          <p role="alert" className="field-error">
             {errorMessage(error)}
             <button
               type="button"
-              className="ml-2 underline"
+              className="btn-secondary btn-sm ml-2"
               onClick={() => {
-                void contenido.refetch();
+                void contenidoPropuesta.refetch();
                 review.reset();
               }}
             >
@@ -135,12 +132,47 @@ export function RoutinePrescriptionPanel({
           </Banner>
         ) : null}
 
-        {propuesta ? (
-          <section className="flex flex-col gap-3">
+        {vigente ? (
+          <section className="flex flex-col gap-4 rounded-2xl border border-[#292823]/8 bg-white/60 p-4 sm:p-5">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="eyebrow rounded-full bg-[#fdf3e0] px-2.5 py-1 text-[#5a3d0c]">
-                Propuesta sin resolver
+              <span className="chip-ok">Rutina vigente</span>
+              <span className="text-xs font-medium text-[#77756d]">
+                {vigente.routineType.toLowerCase()} ·{' '}
+                {String(vigente.targetWeeklyFrequency)} días · versión{' '}
+                {String(vigente.versionNumber)}
               </span>
+            </div>
+            {contenidoVigente.isPending ? (
+              <LoadingState
+                label="Cargando la rutina vigente completa…"
+                variant="card"
+              />
+            ) : null}
+            {contenidoVigente.error ? (
+              <div className="flex flex-wrap items-center gap-2">
+                <p role="alert" className="field-error">
+                  No pudimos cargar los días, ejercicios y series de la rutina
+                  vigente.
+                </p>
+                <button
+                  type="button"
+                  className="btn-secondary btn-sm"
+                  onClick={() => void contenidoVigente.refetch()}
+                >
+                  Reintentar
+                </button>
+              </div>
+            ) : null}
+            {contenidoVigente.data ? (
+              <RoutineContentView routine={contenidoVigente.data} />
+            ) : null}
+          </section>
+        ) : null}
+
+        {propuesta ? (
+          <section className="flex flex-col gap-4">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="chip-warn">Propuesta sin resolver</span>
               <span className="text-xs font-medium text-[#77756d]">
                 {propuesta.routineType.toLowerCase()} ·{' '}
                 {String(propuesta.targetWeeklyFrequency)} días · versión{' '}
@@ -148,19 +180,19 @@ export function RoutinePrescriptionPanel({
               </span>
             </div>
 
-            {contenido.isLoading ? (
-              <p className="text-xs text-[#77756d]">Cargando la propuesta…</p>
+            {contenidoPropuesta.isLoading ? (
+              <LoadingState label="Cargando la propuesta…" variant="card" />
             ) : null}
-            {contenido.data ? (
-              <RoutineContentView routine={contenido.data} />
+            {contenidoPropuesta.data ? (
+              <RoutineContentView routine={contenidoPropuesta.data} />
             ) : null}
 
             <RoutineReviewForm
               pending={review.isPending}
               error={review.error}
               approveDisabled={
-                !contenido.data ||
-                contenido.data.days.some((day) =>
+                !contenidoPropuesta.data ||
+                contenidoPropuesta.data.days.some((day) =>
                   day.exercises.some(
                     (exercise) => exercise.available === false,
                   ),
@@ -169,23 +201,21 @@ export function RoutinePrescriptionPanel({
               onDecide={(decision) => {
                 review.mutate({
                   routineId: propuesta.id,
-                  reviewToken: contenido.data?.reviewToken,
+                  reviewToken: contenidoPropuesta.data?.reviewToken,
                   ...decision,
                 });
               }}
             />
           </section>
         ) : (
-          <section className="flex flex-col gap-3">
+          <section className="surface-muted flex flex-col gap-3">
             <label className="flex flex-col gap-1.5">
-              <span className="eyebrow text-[#77756d]">
-                Plantilla para asignar
-              </span>
+              <span className="field-label">Plantilla para asignar</span>
               <select
                 value={seleccion}
                 disabled={templates.isLoading || operando}
                 onChange={(event) => setTemplateId(event.target.value)}
-                className={SELECT_CLASS}
+                className="field"
               >
                 {(templates.data ?? []).map((template) => (
                   <option key={template.id} value={template.id}>
@@ -205,7 +235,7 @@ export function RoutinePrescriptionPanel({
             <button
               type="button"
               disabled={!seleccion || operando}
-              className={`${PRIMARY_BUTTON} self-start`}
+              className="btn-primary self-start"
               onClick={() => {
                 assign.mutate(seleccion);
               }}
@@ -227,10 +257,10 @@ export function RoutinePrescriptionPanel({
             revisionHref={`/entrenador/alumnos/${studentId}/rutina`}
             nombreAlumno={nombreAlumno ?? 'el alumno'}
           />
-          <BentoCard className="mt-4 flex flex-col gap-4">
+          <BentoCard className="flex flex-col gap-4">
             <div>
               <p className="eyebrow text-[#77756d]">Rutina manual</p>
-              <h3 className="font-display mt-2 text-xl font-semibold tracking-[-0.06em]">
+              <h3 className="font-display mt-2 text-lg font-semibold tracking-tight">
                 Armar la rutina a mano
               </h3>
               <p className="mt-2 text-xs text-[#77756d]">
@@ -239,7 +269,7 @@ export function RoutinePrescriptionPanel({
               </p>
             </div>
             {manual.isError ? (
-              <p role="alert" className="text-coral-strong text-xs font-medium">
+              <p role="alert" className="field-error">
                 {manualRoutineErrorMessage(manual.error)}
               </p>
             ) : null}

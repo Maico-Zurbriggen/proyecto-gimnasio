@@ -15,9 +15,6 @@ import {
 
 export const ROUTINE_TYPES = TRAINING_PURPOSES;
 
-const INPUT_CLASS =
-  'w-full rounded-xl border border-[#292823]/15 bg-white px-3 py-2 text-sm text-ink outline-none transition focus:border-graphite';
-
 export type {
   RoutineDayForm as TemplateFormDay,
   RoutineExerciseForm as TemplateFormExercise,
@@ -105,15 +102,12 @@ export function TemplateForm({
     <form onSubmit={guardar} className="space-y-4">
       <div className="grid gap-3 sm:grid-cols-2">
         <div>
-          <label
-            className="mb-1 block text-xs font-bold"
-            htmlFor="plantilla-nombre"
-          >
+          <label className="field-label" htmlFor="plantilla-nombre">
             Nombre de la plantilla
           </label>
           <input
             id="plantilla-nombre"
-            className={INPUT_CLASS}
+            className="field"
             value={name}
             onChange={(event) => setName(event.target.value)}
             maxLength={120}
@@ -121,15 +115,12 @@ export function TemplateForm({
           />
         </div>
         <div>
-          <label
-            className="mb-1 block text-xs font-bold"
-            htmlFor="plantilla-tipo"
-          >
+          <label className="field-label" htmlFor="plantilla-tipo">
             Tipo de rutina
           </label>
           <select
             id="plantilla-tipo"
-            className={INPUT_CLASS}
+            className="field"
             value={routineType}
             onChange={(event) =>
               setRoutineType(event.target.value as WriteTemplate['routineType'])
@@ -146,7 +137,7 @@ export function TemplateForm({
 
       {allProblems.length > 0 && (
         <ul
-          className="rounded-xl border border-red-800/30 bg-red-50 px-4 py-2 text-xs text-red-900"
+          className="field-error rounded-2xl border border-[#b23f2f]/30 bg-[#fbe7e5] px-4 py-3"
           role="alert"
         >
           {allProblems.map((problem) => (
@@ -158,11 +149,7 @@ export function TemplateForm({
       <RoutineDaysEditor days={days} onChange={setDays} />
 
       <div className="flex flex-wrap gap-2">
-        <button
-          type="submit"
-          disabled={pending}
-          className="bg-graphite rounded-full px-4 py-2 text-sm font-bold text-white transition hover:brightness-110 disabled:opacity-60"
-        >
+        <button type="submit" disabled={pending} className="btn-primary">
           {pending ? 'Guardando…' : submitLabel}
         </button>
       </div>

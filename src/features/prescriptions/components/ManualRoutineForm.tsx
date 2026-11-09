@@ -13,9 +13,6 @@ import {
   type RoutineDayForm,
 } from '../../../shared/lib/routine-days';
 
-const INPUT_CLASS =
-  'w-full rounded-xl border border-[#292823]/15 bg-white px-3 py-2 text-sm text-ink outline-none transition focus:border-graphite';
-
 export function manualRoutineErrorMessage(error: unknown): string {
   if (error instanceof ApiError) {
     switch (error.code) {
@@ -78,15 +75,12 @@ export function ManualRoutineForm({
       aria-label="Crear rutina manual"
     >
       <div>
-        <label
-          className="mb-1 block text-xs font-bold"
-          htmlFor="rutina-manual-tipo"
-        >
+        <label className="field-label" htmlFor="rutina-manual-tipo">
           Tipo de rutina
         </label>
         <select
           id="rutina-manual-tipo"
-          className={INPUT_CLASS}
+          className="field"
           value={routineType}
           onChange={(event) =>
             setRoutineType(
@@ -104,7 +98,7 @@ export function ManualRoutineForm({
 
       {allProblems.length > 0 && (
         <ul
-          className="rounded-xl border border-red-800/30 bg-red-50 px-4 py-2 text-xs text-red-900"
+          className="field-error rounded-2xl border border-[#b23f2f]/30 bg-[#fbe7e5] px-4 py-3"
           role="alert"
         >
           {allProblems.map((problem) => (
@@ -115,11 +109,7 @@ export function ManualRoutineForm({
 
       <RoutineDaysEditor days={days} onChange={setDays} />
 
-      <button
-        type="submit"
-        disabled={pending}
-        className="bg-graphite rounded-full px-4 py-2 text-sm font-bold text-white transition hover:brightness-110 disabled:opacity-60"
-      >
+      <button type="submit" disabled={pending} className="btn-primary">
         {pending ? 'Creando…' : 'Crear rutina manual'}
       </button>
     </form>

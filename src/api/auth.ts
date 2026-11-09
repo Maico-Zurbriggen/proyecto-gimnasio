@@ -12,6 +12,9 @@ export const authenticatedUserSchema = z.object({
   roles: z.array(
     z.enum(['ALUMNO', 'ENTRENADOR', 'ADMINISTRADOR', 'SUPERADMIN']),
   ),
+  /** Opcionales: el backend todavía no los manda; si llegan, tienen prioridad. */
+  displayName: z.string().optional(),
+  email: z.string().optional(),
 });
 
 export const loginResponseSchema = z.object({

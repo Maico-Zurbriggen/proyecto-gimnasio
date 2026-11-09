@@ -102,21 +102,16 @@ export function RenewalMeasurementForm({
     }
   };
 
-  const inputClass = (invalido: boolean) =>
-    `rounded-xl border px-3.5 py-2.5 text-sm font-medium text-ink outline-none transition focus:border-graphite ${
-      invalido ? 'border-coral-strong' : 'border-[#292823]/15 bg-white'
-    }`;
-
   return (
     <form
       onSubmit={(event) => void handleSubmit(event)}
       aria-label="Cargar medidas"
       className="flex flex-col gap-4"
     >
-      <div className="flex flex-col gap-4 sm:flex-row">
-        <div className="flex flex-1 flex-col gap-1.5">
-          <label className="flex flex-col gap-1.5" htmlFor="renewal-weight">
-            <span className="eyebrow text-[#77756d]">Peso (kg)</span>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div className="flex flex-col gap-1.5">
+          <label className="field-label" htmlFor="renewal-weight">
+            Peso (kg)
           </label>
           <input
             id="renewal-weight"
@@ -133,12 +128,12 @@ export function RenewalMeasurementForm({
             aria-describedby={
               errorDeCampo('weightKg') ? 'renewal-weight-error' : undefined
             }
-            className={inputClass(Boolean(errorDeCampo('weightKg')))}
+            className="field"
           />
           {errorDeCampo('weightKg') ? (
             <span
               id="renewal-weight-error"
-              className="text-coral-strong text-xs font-medium"
+              className="field-error"
               role="alert"
             >
               {errorDeCampo('weightKg')}
@@ -146,9 +141,9 @@ export function RenewalMeasurementForm({
           ) : null}
         </div>
 
-        <div className="flex flex-1 flex-col gap-1.5">
-          <label className="flex flex-col gap-1.5" htmlFor="renewal-height">
-            <span className="eyebrow text-[#77756d]">Altura (cm)</span>
+        <div className="flex flex-col gap-1.5">
+          <label className="field-label" htmlFor="renewal-height">
+            Altura (cm)
           </label>
           <input
             id="renewal-height"
@@ -165,12 +160,12 @@ export function RenewalMeasurementForm({
             aria-describedby={
               errorDeCampo('heightCm') ? 'renewal-height-error' : undefined
             }
-            className={inputClass(Boolean(errorDeCampo('heightCm')))}
+            className="field"
           />
           {errorDeCampo('heightCm') ? (
             <span
               id="renewal-height-error"
-              className="text-coral-strong text-xs font-medium"
+              className="field-error"
               role="alert"
             >
               {errorDeCampo('heightCm')}
@@ -180,7 +175,7 @@ export function RenewalMeasurementForm({
       </div>
 
       {errorGeneral ? (
-        <p role="alert" className="text-coral-strong text-xs font-medium">
+        <p role="alert" className="field-error">
           {errorGeneral}
         </p>
       ) : null}
@@ -189,7 +184,7 @@ export function RenewalMeasurementForm({
         <button
           type="submit"
           disabled={mutation.isPending}
-          className="bg-graphite rounded-full px-4 py-2 text-xs font-bold text-white transition hover:brightness-110 disabled:opacity-60"
+          className="btn-primary btn-sm"
         >
           {mutation.isPending ? 'Guardando…' : 'Guardar medidas'}
         </button>
@@ -197,7 +192,7 @@ export function RenewalMeasurementForm({
           <button
             type="button"
             onClick={onCancelar}
-            className="rounded-full px-3 py-2 text-xs font-semibold text-[#77756d] transition hover:text-ink"
+            className="btn-ghost btn-sm"
           >
             Cancelar
           </button>

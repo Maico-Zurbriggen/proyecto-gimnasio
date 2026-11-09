@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { ApiError } from '../../../api/client';
+import { studentRoutinesQueryKey } from '../../../api/prescriptions';
 import { finalizeRoutineGeneration } from '../../../api/routineGenerations';
 import { studentQueryKey } from '../../students/hooks/useStudentStatus';
 import { routineGenerationQueryKey } from './useRoutineGeneration';
@@ -21,6 +22,9 @@ export function useFinalizeRoutineGeneration(
       await queryClient.invalidateQueries({
         queryKey: studentQueryKey(studentId),
       });
+      await queryClient.invalidateQueries({
+        queryKey: studentRoutinesQueryKey(studentId),
+      });
     },
     onError: async (error) => {
       if (
@@ -29,6 +33,9 @@ export function useFinalizeRoutineGeneration(
       ) {
         await queryClient.invalidateQueries({
           queryKey: studentQueryKey(studentId),
+        });
+        await queryClient.invalidateQueries({
+          queryKey: studentRoutinesQueryKey(studentId),
         });
       }
     },

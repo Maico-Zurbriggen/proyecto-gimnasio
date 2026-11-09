@@ -299,6 +299,13 @@ describe('RoutineGenerationPanel', () => {
     expect(
       await screen.findByRole('link', { name: 'Ver rutina' }),
     ).toHaveAttribute('href', '/alumno/rutina');
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Solicitar nueva rutina' }),
+    );
+    expect(
+      screen.getByRole('button', { name: 'Generar nueva rutina' }),
+    ).toBeVisible();
+    expect(localStorage.getItem(STORAGE_KEY)).toBeNull();
     expect(
       fetchMock.mock.calls.filter(([, init]) => init?.method === 'POST'),
     ).toHaveLength(0);

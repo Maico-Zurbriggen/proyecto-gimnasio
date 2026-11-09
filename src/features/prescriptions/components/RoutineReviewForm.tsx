@@ -3,13 +3,6 @@ import { useId, useState } from 'react';
 import { ApiError, fieldErrors } from '../../../api/client';
 import type { ReviewResult } from '../../../api/prescriptions';
 
-const INPUT_CLASS =
-  'w-full rounded-xl border bg-white px-3 py-2 text-sm font-medium text-ink outline-none transition focus:border-graphite';
-const PRIMARY_BUTTON =
-  'bg-graphite rounded-full px-4 py-2 text-sm font-bold text-white transition hover:brightness-110 disabled:opacity-60';
-const SECONDARY_BUTTON =
-  'rounded-full border border-[#292823]/15 bg-white px-4 py-2 text-sm font-bold transition hover:brightness-95 disabled:opacity-60';
-
 export interface RoutineReviewDecision {
   result: ReviewResult;
   observation?: string;
@@ -78,7 +71,7 @@ export function RoutineReviewForm({
   return (
     <div className="flex flex-col gap-3">
       <div className="flex flex-col gap-1.5">
-        <label htmlFor={idObservacion} className="eyebrow text-[#5f5d55]">
+        <label htmlFor={idObservacion} className="field-label">
           Observación para el alumno
         </label>
         <textarea
@@ -92,17 +85,14 @@ export function RoutineReviewForm({
             setObservation(event.target.value);
             setMotivoFaltante(false);
           }}
-          className={`${INPUT_CLASS} ${errorDeMotivo ? 'border-coral-strong' : 'border-[#292823]/15'}`}
+          className="field"
         />
-        <p id={`${idObservacion}-ayuda`} className="text-xs text-[#5f5d55]">
+        <p id={`${idObservacion}-ayuda`} className="field-hint">
           Opcional al aprobar. Obligatoria al rechazar: es el motivo que va a
           leer el alumno.
         </p>
         {errorDeMotivo ? (
-          <p
-            id={`${idObservacion}-error`}
-            className="text-coral-text text-xs font-semibold"
-          >
+          <p id={`${idObservacion}-error`} className="field-error">
             <span aria-hidden="true">✕ </span>
             Para rechazar la rutina indicá el motivo.
           </p>
@@ -125,7 +115,7 @@ export function RoutineReviewForm({
               type="checkbox"
               checked={confirmado}
               onChange={(event) => setConfirmado(event.target.checked)}
-              className="mt-0.5 size-4"
+              className="check mt-0.5"
             />
             Lo revisé y quiero aprobarla igual.
           </label>
@@ -145,7 +135,7 @@ export function RoutineReviewForm({
             pending || approveDisabled || (pideConfirmacion && !confirmado)
           }
           aria-busy={pending}
-          className={PRIMARY_BUTTON}
+          className="btn-primary"
           onClick={() =>
             onDecide({
               result: 'APROBADA',
@@ -159,7 +149,7 @@ export function RoutineReviewForm({
         <button
           type="button"
           disabled={pending}
-          className={SECONDARY_BUTTON}
+          className="btn-danger"
           onClick={() => {
             if (!observation.trim()) {
               setMotivoFaltante(true);

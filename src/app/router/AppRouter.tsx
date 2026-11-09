@@ -8,7 +8,9 @@ import { InventoryPage } from '../../features/administration/pages/InventoryPage
 import { RequireRole } from '../../features/auth/components/RequireRole';
 import { RequireSession } from '../../features/auth/components/RequireSession';
 import { useSession } from '../../features/auth/hooks/useSession';
+import { ChangePasswordPage } from '../../features/auth/pages/ChangePasswordPage';
 import { LoginPage } from '../../features/auth/pages/LoginPage';
+import { RecoverPasswordPage } from '../../features/auth/pages/RecoverPasswordPage';
 import { NoAssignedRolePage } from '../../features/auth/pages/NoAssignedRolePage';
 import { homeForRoles } from '../../features/auth/roles';
 import { CompleteAccountPage } from '../../features/invitations/pages/CompleteAccountPage';
@@ -16,6 +18,7 @@ import { InvitationsPage } from '../../features/invitations/pages/InvitationsPag
 import { StudentOnboardingPage } from '../../features/onboarding/pages/StudentOnboardingPage';
 import { CreateGymPage } from '../../features/platform/pages/CreateGymPage';
 import { GymsPage } from '../../features/platform/pages/GymsPage';
+import { StudentProfilePage } from '../../features/physical-conditions/pages/StudentProfilePage';
 import { RoutineReviewPage } from '../../features/prescriptions/pages/RoutineReviewPage';
 import { StudentRoutinePage } from '../../features/prescriptions/pages/StudentRoutinePage';
 import { TemplatesPage } from '../../features/routine-templates/pages/TemplatesPage';
@@ -23,6 +26,9 @@ import { RoutineGenerationPanel } from '../../features/routine-generations/compo
 import { ProposalReviewPage } from '../../features/adaptation-proposals/pages/ProposalReviewPage';
 import { TrainerRoutinesPage } from '../../features/adaptation-proposals/pages/TrainerRoutinesPage';
 import { StudentOverviewPage } from '../../features/routines/pages/StudentOverviewPage';
+import { RoutineHistoryTimeline } from '../../features/routine-history/components/RoutineHistoryTimeline';
+import { TrainingHistoryPage } from '../../features/training-sessions/pages/TrainingHistoryPage';
+import { TrainingSessionPage } from '../../features/training-sessions/pages/TrainingSessionPage';
 import { StudentDetailPage } from '../../features/students/pages/StudentDetailPage';
 import { MeasurementBlockGate } from '../../features/students/components/MeasurementBlockGate';
 import { TrainerPortfolioPage } from '../../features/students/pages/TrainerPortfolioPage';
@@ -47,12 +53,43 @@ function StudentOnboardingRoute() {
   return user ? <StudentOnboardingPage studentId={user.id} /> : null;
 }
 
+function StudentProfileRoute() {
+  const { user } = useSession();
+  return user ? <StudentProfilePage studentId={user.id} /> : null;
+}
+
 function StudentRoutineRoute() {
   const { user } = useSession();
   return user ? (
     <StudentRoutinePage
       generationPanel={<RoutineGenerationPanel studentId={user.id} />}
     />
+  ) : null;
+}
+
+function StudentSessionRoute() {
+  const { user } = useSession();
+  return user ? <TrainingSessionPage studentId={user.id} /> : null;
+}
+
+function StudentHistoryRoute() {
+  const { user } = useSession();
+  return user ? (
+    <>
+      <TrainingHistoryPage studentId={user.id} />
+      <section
+        className="px-4 pb-10 sm:px-7 lg:px-9"
+        aria-labelledby="historial-rutinas"
+      >
+        <h2
+          id="historial-rutinas"
+          className="font-display mb-3 text-xl font-semibold tracking-[-0.05em]"
+        >
+          Historial de rutinas
+        </h2>
+        <RoutineHistoryTimeline studentId={user.id} />
+      </section>
+    </>
   ) : null;
 }
 
@@ -64,12 +101,16 @@ export function AppRouter() {
           públicas. La invitación es la credencial de quien todavía no tiene cuenta. */}
       <Route path="/ingresar" element={<LoginPage />} />
       <Route path="/invitacion/:token" element={<CompleteAccountPage />} />
+      {/* HU09: recuperación sin sesión; el token viaja en el enlace del correo. */}
+      <Route path="/recuperar-contrasena" element={<RecoverPasswordPage />} />
 
       {/* HU07-T7: el resto exige sesión; sin ella se redirige al login. */}
       <Route element={<RequireSession />}>
         <Route path="/sin-acceso" element={<NoAssignedRolePage />} />
         <Route element={<AppShell />}>
           <Route path="/" element={<HomeForSession />} />
+          {/* HU09 - RF-003: cada usuario cambia sólo su propia contraseña. */}
+          <Route path="/cuenta/contrasena" element={<ChangePasswordPage />} />
 
           {/* Alumno */}
           <Route element={<RequireRole role="ALUMNO" />}>
@@ -81,16 +122,7 @@ export function AppRouter() {
             <Route element={<MeasurementBlockGate />}>
               <Route path="/alumno" element={<StudentOverviewRoute />} />
               <Route path="/alumno/rutina" element={<StudentRoutineRoute />} />
-              <Route
-                path="/alumno/sesion"
-                element={
-                  <PlaceholderPage
-                    kicker="Sesión en curso"
-                    title="Espalda & Bíceps"
-                    description="Registro de series, cargas y repeticiones de la sesión activa."
-                  />
-                }
-              />
+              <Route path="/alumno/sesion" element={<StudentSessionRoute />} />
               <Route
                 path="/alumno/progreso"
                 element={
@@ -103,25 +135,11 @@ export function AppRouter() {
               />
               <Route
                 path="/alumno/historial"
-                element={
-                  <PlaceholderPage
-                    kicker="Historial"
-                    title="Tu entrenamiento, con contexto."
-                    description="Sesiones realizadas, récords y rutinas archivadas."
-                  />
-                }
+                element={<StudentHistoryRoute />}
               />
               <Route path="/alumno/catalogo" element={<CatalogPage />} />
-              <Route
-                path="/alumno/perfil"
-                element={
-                  <PlaceholderPage
-                    kicker="Mi perfil"
-                    title="Tus datos de entrenamiento."
-                    description="Objetivos, restricciones y mediciones declaradas."
-                  />
-                }
-              />
+              {/* HU11 - T3: condiciones físicas declaradas por el alumno. */}
+              <Route path="/alumno/perfil" element={<StudentProfileRoute />} />
             </Route>
           </Route>
 
@@ -142,6 +160,10 @@ export function AppRouter() {
             />
             <Route
               path="/entrenador/alumnos/:studentId/mediciones"
+              element={<StudentDetailPage />}
+            />
+            <Route
+              path="/entrenador/alumnos/:studentId/historial"
               element={<StudentDetailPage />}
             />
             <Route

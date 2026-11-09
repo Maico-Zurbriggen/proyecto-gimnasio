@@ -18,9 +18,6 @@ import { PageHeader } from '../../../shared/ui/PageHeader';
 type Campo = keyof ProvisionGymInput;
 type Errores = Partial<Record<Campo, string[]>>;
 
-const INPUT_CLASS =
-  'w-full rounded-xl border bg-white px-3.5 py-2.5 text-sm font-medium text-ink outline-none transition focus:border-graphite';
-
 /** Validación de forma del correo; la definitiva es del backend. */
 const FORMATO_CORREO = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -128,17 +125,17 @@ export function CreateGymPage() {
       .join(' ');
     return (
       <div className="flex flex-col gap-1.5">
-        <label htmlFor={id} className="eyebrow text-[#5f5d55]">
+        <label htmlFor={id} className="field-label">
           {etiqueta} <span aria-hidden="true">*</span>
         </label>
         {control({
           id,
           'aria-invalid': conError || undefined,
           'aria-describedby': describedBy || undefined,
-          className: `${INPUT_CLASS} ${conError ? 'border-coral-strong' : 'border-[#292823]/15'}`,
+          className: 'field',
         })}
         {ayuda ? (
-          <p id={`${id}-ayuda`} className="text-xs text-[#5f5d55]">
+          <p id={`${id}-ayuda`} className="field-hint">
             {ayuda}
           </p>
         ) : null}
@@ -165,8 +162,8 @@ export function CreateGymPage() {
         title="Alta de gimnasio."
         description="El gimnasio queda creado con su zona horaria y la invitación a su primer administrador."
       />
-      <main className="px-4 pb-10 sm:px-7 lg:px-9">
-        <BentoCard className="max-w-xl">
+      <main className="page-body">
+        <BentoCard className="mx-auto max-w-xl p-5 sm:p-6">
           {alta.isSuccess ? (
             <div className="mb-5">
               <Banner variant="info" title="Gimnasio creado">
@@ -243,7 +240,7 @@ export function CreateGymPage() {
                 <button
                   type="button"
                   onClick={() => void timezones.refetch()}
-                  className="rounded-full border border-[#292823]/15 px-3 py-1 font-bold"
+                  className="btn-secondary btn-sm"
                 >
                   Reintentar
                 </button>
@@ -276,7 +273,7 @@ export function CreateGymPage() {
                 type="submit"
                 disabled={alta.isPending}
                 aria-busy={alta.isPending}
-                className="bg-graphite rounded-full px-4 py-2.5 text-sm font-bold text-white transition hover:brightness-110 disabled:opacity-60"
+                className="btn-primary"
               >
                 {alta.isPending ? 'Creando gimnasio…' : 'Crear gimnasio'}
               </button>
@@ -287,7 +284,7 @@ export function CreateGymPage() {
                 Ver gimnasios
               </Link>
             </div>
-            <p className="text-[11px] text-[#5f5d55]">
+            <p className="text-[11px] text-[#77756d]">
               <span aria-hidden="true">*</span> Campos obligatorios.
             </p>
           </form>

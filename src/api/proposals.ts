@@ -41,6 +41,8 @@ export const proposalSummarySchema = z.object({
   student: studentRefSchema,
   globalSituation: z.string(),
   adjustmentsCount: z.number().int(),
+  /** T2: criterio y dato por ajuste visibles en bandeja sin abrir el detalle. */
+  adjustments: z.array(proposalAdjustmentSchema).default([]),
   advertenciaDatos: advertenciaDatosSchema,
 });
 

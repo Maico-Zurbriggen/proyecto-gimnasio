@@ -17,10 +17,8 @@ export const patterns: ExerciseInput['movementPattern'][] = [
   'AISLAMIENTO_INFERIOR',
 ];
 export const label = (code: string) => code.toLowerCase().replaceAll('_', ' ');
-export const fieldClass =
-  'mt-1 w-full rounded-xl border border-[#cbc9bd] bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#567322]';
-export const buttonClass =
-  'rounded-xl bg-[#252720] px-4 py-2 text-sm font-semibold text-white disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#567322]';
+export const fieldClass = 'field mt-1';
+export const buttonClass = 'btn-primary';
 
 export function CodeChoices({
   title,
@@ -34,7 +32,7 @@ export function CodeChoices({
   onChange: (value: string[]) => void;
 }) {
   return (
-    <fieldset className="rounded-xl border border-[#d7d5ca] p-3">
+    <fieldset className="rounded-2xl border border-[#292823]/8 bg-white/70 p-4">
       <legend className="px-1 text-sm font-semibold">{title}</legend>
       <div className="grid max-h-48 grid-cols-1 gap-2 overflow-auto sm:grid-cols-2">
         {options.map((item) => (
@@ -49,7 +47,7 @@ export function CodeChoices({
                     : value.filter((code) => code !== item.code),
                 )
               }
-              className="mt-1 accent-[#567322]"
+              className="check mt-1"
             />
             {item.name}
           </label>
@@ -132,15 +130,15 @@ export function ExerciseForm({
   return (
     <form
       onSubmit={submit}
-      className="space-y-5 rounded-2xl bg-[#f7f6ef] p-4 sm:p-6"
+      className="space-y-5 rounded-3xl border border-[#292823]/8 bg-white p-5 sm:p-6"
       aria-label={
         item ? 'Editar ejercicio propio' : 'Proponer ejercicio propio'
       }
     >
-      <h2 className="text-xl font-semibold">
+      <h2 className="font-display text-lg font-semibold tracking-tight">
         {item ? 'Editar ejercicio' : 'Proponer ejercicio propio'}
       </h2>
-      <p className="text-sm text-[#706e65]">
+      <p className="text-sm text-[#68675f]">
         La ficha requiere revisión del administrador antes de habilitarla.
       </p>
       <label className="block text-sm font-medium">
@@ -230,6 +228,7 @@ export function ExerciseForm({
       <label className="flex gap-2 text-sm">
         <input
           type="checkbox"
+          className="check"
           checked={form.unilateral}
           onChange={(event) => update('unilateral', event.target.checked)}
         />
@@ -316,7 +315,7 @@ export function ExerciseForm({
             {form.media.length > 1 && (
               <button
                 type="button"
-                className="self-end px-2 py-2 text-sm underline"
+                className="btn-ghost btn-sm self-end"
                 onClick={() =>
                   update(
                     'media',
@@ -332,7 +331,7 @@ export function ExerciseForm({
         <button
           type="button"
           disabled={form.media.length >= 6}
-          className="text-sm underline disabled:opacity-50"
+          className="btn-secondary btn-sm"
           onClick={() =>
             update('media', [...form.media, { pose: 'PRINCIPAL', url: '' }])
           }
@@ -341,7 +340,7 @@ export function ExerciseForm({
         </button>
       </fieldset>
       {error && (
-        <p role="alert" className="text-sm text-red-800">
+        <p role="alert" className="field-error">
           {error}
         </p>
       )}
@@ -350,7 +349,7 @@ export function ExerciseForm({
           {pending ? 'Guardando…' : 'Enviar a revisión'}
         </button>
         <button
-          className="px-3 py-2 text-sm underline"
+          className="btn-secondary"
           type="button"
           disabled={pending}
           onClick={onCancel}

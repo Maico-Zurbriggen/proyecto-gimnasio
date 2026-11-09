@@ -83,16 +83,19 @@ export function StructureProposalView({
   const settings = candidate.data.generationSettings?.settings;
 
   return (
-    <section className="mt-4 space-y-4" aria-label="Planilla de renovación">
-      <h3 className="font-display text-lg font-bold">
-        Planilla propuesta por IA
+    <section
+      className="mt-4 space-y-4"
+      aria-label="Detalle de la adaptación de rutina"
+    >
+      <h3 className="font-display text-lg font-semibold tracking-tight">
+        Adaptación de rutina propuesta
       </h3>
-      <p className="text-xs text-[#77756d]">
+      <p className="text-sm text-[#68675f]">
         {humanizeEnum(candidate.data.routineType)} ·{' '}
         {candidate.data.targetWeeklyFrequency} días por semana.
       </p>
       {settings ? (
-        <p className="rounded-xl bg-[#f0efe8] p-3 text-xs">
+        <p className="surface-muted text-xs">
           Parámetros del gimnasio usados: {settings.minExercisesPerDay}–
           {settings.maxExercisesPerDay} ejercicios por día ·{' '}
           {settings.minWorkSetsPerExercise}–{settings.maxWorkSetsPerExercise}{' '}
@@ -106,12 +109,12 @@ export function StructureProposalView({
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
             <caption className="mb-2 text-left font-semibold">
-              Distribución vigente y propuesta
+              Distribución actual y propuesta
             </caption>
             <thead>
               <tr>
                 <th className="p-2">Ejercicio</th>
-                <th className="p-2">Antes</th>
+                <th className="p-2">Actual</th>
                 <th className="p-2">Propuesta</th>
               </tr>
             </thead>
@@ -134,7 +137,7 @@ export function StructureProposalView({
       ) : null}
       <RoutineContentView routine={candidate.data} />
       {measurements ? (
-        <section className="rounded-xl bg-[#f0efe8] p-4 text-xs">
+        <section className="surface-muted text-xs">
           <h3 className="font-semibold">
             Mediciones que sustentan la renovación
           </h3>

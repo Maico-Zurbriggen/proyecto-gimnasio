@@ -16,7 +16,7 @@ export function BlockedStudentBanner({ student }: BlockedStudentBannerProps) {
   }
 
   return (
-    <Banner variant="danger" title="Alumno bloqueado">
+    <Banner variant="warning" title="Alumno bloqueado">
       <p>
         Motivo:{' '}
         {student.motivoBloqueo ??

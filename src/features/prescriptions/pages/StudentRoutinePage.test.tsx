@@ -166,12 +166,15 @@ describe('StudentRoutinePage (RF-026)', () => {
   });
 
   it('muestra una propuesta con su contenido y el aviso de revisión pendiente', async () => {
-    renderPage({
-      [`GET /students/${STUDENT}/routines`]: { body: [rutina('PROPUESTA')] },
-      [`GET /students/${STUDENT}/routines/${ROUTINE}`]: {
-        body: { ...CONTENIDO, state: 'PROPUESTA' },
+    renderPage(
+      {
+        [`GET /students/${STUDENT}/routines`]: { body: [rutina('PROPUESTA')] },
+        [`GET /students/${STUDENT}/routines/${ROUTINE}`]: {
+          body: { ...CONTENIDO, state: 'PROPUESTA' },
+        },
       },
-    });
+      true,
+    );
 
     expect(await screen.findByText('Día 1 · Superior A')).toBeInTheDocument();
     expect(screen.getByText('Pendiente de revisión')).toBeInTheDocument();
@@ -187,6 +190,9 @@ describe('StudentRoutinePage (RF-026)', () => {
     ).not.toBeInTheDocument();
     expect(
       screen.queryByRole('button', { name: /aprobar|iniciar|entrenar/i }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Generar nueva rutina' }),
     ).not.toBeInTheDocument();
   });
 
@@ -318,15 +324,12 @@ describe('StudentRoutinePage (RF-026)', () => {
       expect(await screen.findByText('Día 1 · Superior A')).toBeVisible();
       expect(screen.getByText('Pendiente de revisión')).toBeVisible();
       expect(
-        await screen.findByRole('link', {
-          name:
-            status === 201 ? 'Ver rutina' : 'Ver rutina pendiente de revisión',
-        }),
-      ).toHaveAttribute('href', '/alumno/rutina');
+        screen.queryByRole('button', { name: 'Generar nueva rutina' }),
+      ).not.toBeInTheDocument();
     },
   );
 
-  it('retoma una regeneración completada desde Mi rutina y reemplaza el contenido anterior', async () => {
+  it('no retoma una regeneración paralela cuando ya existe una propuesta', async () => {
     const requestId = '50000000-0000-4000-8000-000000000001';
     const newRoutineId = '60000000-0000-4000-8000-000000000002';
     localStorage.setItem(
@@ -337,13 +340,10 @@ describe('StudentRoutinePage (RF-026)', () => {
         regenerate: true,
       }),
     );
-    let finalized = false;
-    renderPage(
+    const fetchMock = renderPage(
       {
         [`GET /students/${STUDENT}/routines`]: () => ({
-          body: [
-            { ...rutina('PROPUESTA'), id: finalized ? newRoutineId : ROUTINE },
-          ],
+          body: [rutina('PROPUESTA')],
         }),
         [`GET /students/${STUDENT}/routines/${ROUTINE}`]: {
           body: { ...CONTENIDO, state: 'PROPUESTA' },
@@ -369,7 +369,6 @@ describe('StudentRoutinePage (RF-026)', () => {
         },
         [`POST /students/${STUDENT}/routine-generations/${requestId}/finalize`]:
           () => {
-            finalized = true;
             return {
               status: 201,
               body: { routineId: newRoutineId, status: 'PROPUESTA' },
@@ -378,9 +377,12 @@ describe('StudentRoutinePage (RF-026)', () => {
       },
       true,
     );
+    expect(await screen.findByText('Día 1 · Superior A')).toBeVisible();
     expect(
-      await screen.findByText('Día 1 · Rutina nueva desde API'),
-    ).toBeVisible();
-    expect(screen.queryByText('Día 1 · Superior A')).not.toBeInTheDocument();
+      screen.queryByText('Día 1 · Rutina nueva desde API'),
+    ).not.toBeInTheDocument();
+    expect(fetchMock.mock.calls.some(([url]) => url.includes(requestId))).toBe(
+      false,
+    );
   });
 });

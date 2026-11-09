@@ -6,11 +6,13 @@ import { RoutinePrompt } from '../../../shared/components/RoutinePrompt';
 import { BentoCard } from '../../../shared/ui/BentoCard';
 import { PageHeader } from '../../../shared/ui/PageHeader';
 import { useSession } from '../../auth/hooks/useSession';
+import { RoutineChangeRequestPanel } from '../../routine-generations/components/RoutineChangeRequestPanel';
 import { RoutineContentView } from '../components/RoutineContentView';
 import {
   useRoutineContent,
   useStudentRoutines,
 } from '../hooks/usePrescriptions';
+import { LoadingState } from '../../../shared/ui/LoadingState';
 
 const TIPOS: Record<string, string> = {
   FUERZA: 'Fuerza',
@@ -33,12 +35,17 @@ function StudentRoutineSection({
   return (
     <section aria-labelledby={headingId} className="flex flex-col gap-4">
       <div>
-        <h2
-          id={headingId}
-          className="font-display text-xl font-semibold tracking-[-0.04em]"
-        >
-          {pendiente ? 'Rutina pendiente de revisión' : 'Rutina vigente'}
-        </h2>
+        <div className="flex flex-wrap items-center gap-3">
+          <h2
+            id={headingId}
+            className="font-display text-xl font-semibold tracking-[-0.04em]"
+          >
+            {pendiente ? 'Rutina pendiente de revisión' : 'Rutina vigente'}
+          </h2>
+          <span className={pendiente ? 'chip-warn' : 'chip-ok'}>
+            {pendiente ? 'Propuesta' : 'Activa'}
+          </span>
+        </div>
         <p className="mt-2 text-sm text-[#55534c]">
           {TIPOS[routine.routineType] ?? routine.routineType} ·{' '}
           {routine.targetWeeklyFrequency} días por semana · versión{' '}
@@ -75,9 +82,10 @@ function StudentRoutineSection({
       ) : null}
 
       {contenido.isPending ? (
-        <p role="status" className="text-sm text-[#77756d]">
-          Cargando los días, ejercicios y series…
-        </p>
+        <LoadingState
+          label="Cargando los días, ejercicios y series…"
+          variant="list"
+        />
       ) : null}
 
       {contenido.isError ? (
@@ -89,7 +97,7 @@ function StudentRoutineSection({
               type="button"
               onClick={() => void contenido.refetch()}
               disabled={contenido.isFetching}
-              className="w-fit rounded-full bg-graphite px-3.5 py-1.5 text-xs font-bold text-white disabled:opacity-60"
+              className="btn-secondary btn-sm w-fit"
             >
               Reintentar
             </button>
@@ -102,6 +110,10 @@ function StudentRoutineSection({
           <RoutinePrompt prompt={contenido.data.generationPrompt} />
           <RoutineContentView routine={contenido.data} />
         </>
+      ) : null}
+
+      {routine.state === 'PROPUESTA' ? (
+        <RoutineChangeRequestPanel studentId={studentId} />
       ) : null}
     </section>
   );
@@ -131,12 +143,10 @@ export function StudentRoutinePage({
         title="Mi rutina"
         description="Consultá los días, ejercicios y series de tus rutinas."
       />
-      <main className="flex flex-col gap-8 px-4 pb-10 sm:px-7 lg:px-9">
-        {generationPanel}
+      <main className="page-body flex flex-col gap-6">
+        {routines.isSuccess && !propuesta ? generationPanel : null}
         {routines.isLoading ? (
-          <p role="status" className="text-sm text-[#77756d]">
-            Cargando tu rutina…
-          </p>
+          <LoadingState label="Cargando tu rutina…" variant="card" />
         ) : null}
 
         {routines.isError ? (

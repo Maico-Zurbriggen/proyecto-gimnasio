@@ -1,4 +1,4 @@
-import { Link, useParams } from 'react-router-dom';
+import { Link, useLocation, useParams } from 'react-router-dom';
 
 import { ApiError } from '../../../api/client';
 import { Banner } from '../../../shared/components/Banner';
@@ -7,14 +7,18 @@ import { BentoCard } from '../../../shared/ui/BentoCard';
 import { PageHeader } from '../../../shared/ui/PageHeader';
 import { SectionTabs } from '../../../shared/ui/SectionTabs';
 import { RoutinePrescriptionPanel } from '../../prescriptions/components/RoutinePrescriptionPanel';
+import { TrainerConditionsCard } from '../../physical-conditions/components/TrainerConditionsCard';
 import { StudentPendingProposals } from '../../adaptation-proposals/components/StudentPendingProposals';
+import { RoutineHistoryTimeline } from '../../routine-history/components/RoutineHistoryTimeline';
+import { TrainingHistoryPage } from '../../training-sessions/pages/TrainingHistoryPage';
 import { ActiveRoutineCard } from '../components/ActiveRoutineCard';
+import { TrainerGoalsCard } from '../components/TrainerGoalsCard';
 import { UnlockPanel } from '../components/UnlockPanel';
 import { useStudentStatus } from '../hooks/useStudentStatus';
 import { useUnlockStudent } from '../hooks/useUnlockStudent';
+import { LoadingState } from '../../../shared/ui/LoadingState';
 
-const BACK_LINK_CLASS =
-  'rounded-full border border-[#292823]/10 bg-white px-3 py-1 text-[11px] font-bold';
+const BACK_LINK_CLASS = 'btn-secondary btn-sm';
 
 function loadErrorMessage(error: unknown): string {
   if (error instanceof ApiError && error.status === 403) {
@@ -47,6 +51,14 @@ function unlockErrorMessage(error: unknown): string {
  */
 export function StudentDetailPage() {
   const { studentId = '' } = useParams<{ studentId: string }>();
+  const { pathname } = useLocation();
+  const tab = pathname.endsWith('/rutina')
+    ? 'rutina'
+    : pathname.endsWith('/mediciones')
+      ? 'mediciones'
+      : pathname.endsWith('/historial')
+        ? 'historial'
+        : 'resumen';
   const status = useStudentStatus(studentId);
   const unlock = useUnlockStudent(studentId);
 
@@ -57,11 +69,7 @@ export function StudentDetailPage() {
   );
 
   if (status.isPending) {
-    return (
-      <div>
-        <PageHeader kicker="Ficha de alumno" title="Cargando ficha…" />
-      </div>
-    );
+    return <LoadingState label="Cargando ficha…" variant="page" />;
   }
 
   if (status.error) {
@@ -74,7 +82,7 @@ export function StudentDetailPage() {
           title="No se pudo abrir la ficha"
           actions={backLink}
         />
-        <main className="px-4 pb-10 sm:px-7 lg:px-9">
+        <main className="page-body">
           <Banner
             variant="danger"
             title={loadErrorMessage(status.error)}
@@ -84,7 +92,7 @@ export function StudentDetailPage() {
                   type="button"
                   onClick={() => void status.refetch()}
                   disabled={status.isFetching}
-                  className="rounded-full bg-graphite px-3.5 py-1.5 text-xs font-bold text-white transition hover:brightness-110 disabled:opacity-60"
+                  className="btn-secondary btn-sm"
                 >
                   Reintentar
                 </button>
@@ -101,6 +109,52 @@ export function StudentDetailPage() {
     ? `última medición ${formatDate(student.fechaUltimaMedicion)}`
     : 'sin mediciones registradas';
 
+  // Bloqueo o seguimiento: prioridad en Resumen y base de Mediciones.
+  const statusCard = student.bloqueado ? (
+    <div className="xl:col-span-8">
+      <UnlockPanel
+        student={student}
+        submitting={unlock.isPending}
+        errorMessage={unlock.error ? unlockErrorMessage(unlock.error) : null}
+        onUnlock={() => unlock.mutate()}
+      />
+    </div>
+  ) : (
+    <BentoCard className="xl:col-span-8">
+      <p className="eyebrow text-[#77756d]">Seguimiento</p>
+      <h2 className="font-display mt-2 text-lg font-semibold tracking-tight">
+        Alumno sin bloqueo
+      </h2>
+      <dl className="mt-5 grid gap-3 sm:grid-cols-3">
+        {[
+          ['Faltas consecutivas', String(student.faltasConsecutivas)],
+          [
+            'Altura',
+            student.alturaCm === null
+              ? 'Sin declarar'
+              : `${String(student.alturaCm)} cm`,
+          ],
+          [
+            'Última medición',
+            student.fechaUltimaMedicion
+              ? formatDate(student.fechaUltimaMedicion)
+              : 'Sin registrar',
+          ],
+        ].map(([label, value]) => (
+          <div
+            key={label}
+            className="surface-muted flex items-center justify-between gap-3 sm:block"
+          >
+            <dt className="eyebrow text-[#77756d]">{label}</dt>
+            <dd className="font-display text-base font-semibold tracking-tight sm:mt-2 sm:text-xl">
+              {value}
+            </dd>
+          </div>
+        ))}
+      </dl>
+    </BentoCard>
+  );
+
   return (
     <div>
       <PageHeader
@@ -109,7 +163,7 @@ export function StudentDetailPage() {
         description={`${student.faltasConsecutivas} ${student.faltasConsecutivas === 1 ? 'falta consecutiva' : 'faltas consecutivas'} · ${lastMeasurement}.`}
         actions={backLink}
       />
-      <main className="px-4 pb-10 sm:px-7 lg:px-9">
+      <main className="page-body">
         <SectionTabs
           tabs={[
             {
@@ -124,6 +178,10 @@ export function StudentDetailPage() {
             {
               label: 'Mediciones',
               to: `/entrenador/alumnos/${student.studentId}/mediciones`,
+            },
+            {
+              label: 'Historial',
+              to: `/entrenador/alumnos/${student.studentId}/historial`,
             },
           ]}
         />
@@ -150,50 +208,63 @@ export function StudentDetailPage() {
           </div>
         ) : null}
 
-        <div className="grid grid-cols-1 gap-4 xl:grid-cols-12">
-          {student.bloqueado ? (
-            <div className="xl:col-span-8">
-              <UnlockPanel
-                student={student}
-                submitting={unlock.isPending}
-                errorMessage={
-                  unlock.error ? unlockErrorMessage(unlock.error) : null
-                }
-                onUnlock={() => unlock.mutate()}
+        {tab === 'resumen' ? (
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 gap-5 xl:grid-cols-12">
+              {statusCard}
+              <ActiveRoutineCard
+                studentUserId={student.studentId}
+                routineHref={`/entrenador/alumnos/${student.studentId}/rutina`}
+                className="xl:col-span-4"
               />
             </div>
-          ) : (
-            <BentoCard className="xl:col-span-8">
-              <p className="eyebrow text-[#77756d]">Seguimiento</p>
-              <h2 className="font-display mt-2 text-2xl font-semibold tracking-[-0.06em]">
-                Alumno sin bloqueo
-              </h2>
-              <p className="mt-4 text-xs text-[#77756d]">
-                Faltas consecutivas: {student.faltasConsecutivas} · Altura:{' '}
-                {student.alturaCm === null
-                  ? 'sin declarar'
-                  : `${String(student.alturaCm)} cm`}{' '}
-                · {lastMeasurement}.
+            {/* HU11: condiciones declaradas por el alumno, sólo lectura. */}
+            <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+              <TrainerGoalsCard studentId={student.studentId} />
+              <TrainerConditionsCard studentId={student.studentId} />
+            </div>
+            {!student.bloqueado ? (
+              <StudentPendingProposals studentId={student.studentId} />
+            ) : null}
+          </div>
+        ) : null}
+
+        {tab === 'rutina' ? (
+          student.bloqueado ? (
+            <Banner variant="warning" title="Alumno bloqueado">
+              <p>
+                Aprobá la regularización desde la pestaña Resumen para volver a
+                prescribirle rutinas.
               </p>
-            </BentoCard>
-          )}
+            </Banner>
+          ) : (
+            <div className="space-y-6">
+              <StudentPendingProposals studentId={student.studentId} />
+              <RoutinePrescriptionPanel
+                key={`prescripcion-${student.studentId}`}
+                studentId={student.studentId}
+                nombreAlumno={student.displayName}
+              />
+            </div>
+          )
+        ) : null}
 
-          <ActiveRoutineCard
-            studentUserId={student.studentId}
-            routineHref={`/entrenador/alumnos/${student.studentId}/rutina`}
-            className="xl:col-span-4"
-          />
-        </div>
+        {tab === 'rutina' ? (
+          <section className="mt-6" aria-labelledby="historial-rutinas">
+            <h2
+              id="historial-rutinas"
+              className="font-display mb-3 text-xl font-semibold tracking-[-0.05em]"
+            >
+              Historial de rutinas
+            </h2>
+            <RoutineHistoryTimeline studentId={student.studentId} />
+          </section>
+        ) : null}
 
-        {!student.bloqueado ? (
-          <>
-            <StudentPendingProposals studentId={student.studentId} />
-            <RoutinePrescriptionPanel
-              key={`prescripcion-${student.studentId}`}
-              studentId={student.studentId}
-              nombreAlumno={student.displayName}
-            />
-          </>
+        {tab === 'mediciones' ? statusCard : null}
+
+        {tab === 'historial' ? (
+          <TrainingHistoryPage studentId={student.studentId} readOnly />
         ) : null}
       </main>
     </div>

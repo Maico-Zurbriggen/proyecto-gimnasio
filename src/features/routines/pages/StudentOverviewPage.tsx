@@ -9,6 +9,7 @@ import {
   fetchRoutineContent,
   studentRoutinesQueryKey,
   routineContentQueryKey,
+  type RoutineSummary,
 } from '../../../api/prescriptions';
 import { Banner } from '../../../shared/components/Banner';
 import { RoutinePrompt } from '../../../shared/components/RoutinePrompt';
@@ -18,6 +19,7 @@ import { RoutineGenerationPanel } from '../../routine-generations/components/Rou
 import { RenewalBanner } from '../components/RenewalBanner';
 import { RenewalMeasurementForm } from '../components/RenewalMeasurementForm';
 import { useActiveRoutine } from '../hooks/useActiveRoutine';
+import { LoadingState } from '../../../shared/ui/LoadingState';
 
 /**
  * Aviso de renovación alimentado por `GET /routines/active` (HU01). Declara
@@ -31,9 +33,7 @@ function RenewalNoticeSection() {
 
   if (isPending) {
     return (
-      <p role="status" className="text-xs text-[#77756d]">
-        Consultando tu rutina vigente…
-      </p>
+      <LoadingState label="Consultando tu rutina vigente…" variant="card" />
     );
   }
 
@@ -65,7 +65,7 @@ function RenewalNoticeSection() {
             type="button"
             onClick={() => void refetch()}
             disabled={isFetching}
-            className="rounded-full bg-graphite px-3.5 py-1.5 text-xs font-bold text-white transition hover:brightness-110 disabled:opacity-60"
+            className="btn-primary btn-sm"
           >
             Reintentar
           </button>
@@ -92,8 +92,8 @@ function RenewalNoticeSection() {
       />
 
       {cargando ? (
-        <div className="rounded-2xl border border-[#292823]/10 bg-white p-5">
-          <p className="eyebrow mb-3 text-[#77756d]">Cargar medidas</p>
+        <BentoCard>
+          <p className="eyebrow mb-4 text-[#77756d]">Cargar medidas</p>
           <RenewalMeasurementForm
             studentId={data.studentId}
             onRegistrada={() => {
@@ -104,7 +104,7 @@ function RenewalNoticeSection() {
               setCargando(false);
             }}
           />
-        </div>
+        </BentoCard>
       ) : null}
 
       {registrada ? (
@@ -124,12 +124,66 @@ export interface StudentOverviewPageProps {
   studentId: string;
 }
 
-function RoutinePreviewSection({ studentId }: StudentOverviewPageProps) {
-  const routines = useQuery({
-    queryKey: studentRoutinesQueryKey(studentId),
-    queryFn: ({ signal }) => fetchStudentRoutines(studentId, signal),
-    enabled: Boolean(studentId),
-  });
+interface RoutineListState {
+  data: RoutineSummary[] | undefined;
+  isPending: boolean;
+  isFetching: boolean;
+  isError: boolean;
+}
+
+function StudentGenerationSection({
+  studentId,
+  routines,
+}: StudentOverviewPageProps & { routines: RoutineListState }) {
+  if (routines.isPending || routines.isFetching) {
+    return (
+      <LoadingState
+        label="Verificando si tenés una propuesta pendiente…"
+        variant="card"
+      />
+    );
+  }
+
+  if (routines.isError) {
+    return (
+      <Banner
+        variant="danger"
+        title="No pudimos verificar si podés solicitar otra rutina"
+      >
+        <p>
+          Reintentá la consulta antes de crear una solicitud para evitar dos
+          propuestas pendientes.
+        </p>
+      </Banner>
+    );
+  }
+
+  const proposal = routines.data?.find(
+    (routine) => routine.state === 'PROPUESTA' || routine.state === 'BLOQUEADA',
+  );
+  if (proposal) {
+    return (
+      <Banner
+        variant="warning"
+        title="Ya tenés una rutina pendiente de revisión"
+        actions={
+          <Link to="/alumno/rutina" className="btn-primary btn-sm">
+            Ver rutina pendiente
+          </Link>
+        }
+      >
+        <p>Tu entrenador debe resolverla antes de que puedas solicitar otra.</p>
+      </Banner>
+    );
+  }
+
+  return <RoutineGenerationPanel studentId={studentId} />;
+}
+
+function RoutinePreviewSection({
+  studentId,
+  routines,
+}: StudentOverviewPageProps & { routines: RoutineListState }) {
   const routine =
     routines.data?.find(
       (item) => item.state === 'PROPUESTA' || item.state === 'BLOQUEADA',
@@ -143,12 +197,14 @@ function RoutinePreviewSection({ studentId }: StudentOverviewPageProps) {
 
   return (
     <BentoCard>
-      {routines.isPending ? <p role="status">Cargando tus rutinas…</p> : null}
+      {routines.isPending ? (
+        <LoadingState label="Cargando tus rutinas…" variant="list" />
+      ) : null}
       {routines.isError ? (
         <Banner variant="danger" title="No pudimos cargar tus rutinas" />
       ) : null}
       {!routines.isPending && !routines.isError && !routine ? (
-        <p className="text-sm text-[#77756d]">
+        <p className="surface-muted py-10 text-center text-sm text-[#68675f]">
           Todavía no tenés una rutina para consultar.
         </p>
       ) : null}
@@ -172,10 +228,13 @@ function RoutinePreviewSection({ studentId }: StudentOverviewPageProps) {
             ) : null}
           </div>
           {content.isPending ? (
-            <p role="status">Cargando los días y ejercicios…</p>
+            <LoadingState
+              label="Cargando los días y ejercicios…"
+              variant="list"
+            />
           ) : null}
           {content.isError ? (
-            <p role="alert">
+            <p role="alert" className="field-error">
               No pudimos cargar el detalle de esta rutina. Podés reintentar
               desde Mi rutina.
             </p>
@@ -184,32 +243,40 @@ function RoutinePreviewSection({ studentId }: StudentOverviewPageProps) {
             <RoutinePrompt prompt={content.data.generationPrompt} />
           ) : null}
           {content.data ? (
-            <ul className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+            <ul className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
               {content.data.days.map((day) => (
                 <li
                   key={day.position}
-                  className="rounded-xl border border-black/10 p-4"
+                  className="card-interactive flex gap-3 rounded-2xl border border-[#292823]/8 bg-white/70 p-4 hover:bg-white"
                 >
-                  <h3 className="text-sm font-semibold">
-                    Día {day.position} · {day.name}
-                  </h3>
-                  <p className="mt-2 text-xs text-[#77756d]">
-                    {day.exercises.length} ejercicios
-                  </p>
-                  <ul className="mt-2 space-y-1 text-xs text-[#55534c]">
-                    {day.exercises.slice(0, 3).map((exercise) => (
-                      <li key={exercise.position}>{exercise.exerciseName}</li>
-                    ))}
-                  </ul>
+                  <span
+                    aria-hidden="true"
+                    className="font-display flex size-8 shrink-0 items-center justify-center rounded-lg bg-graphite text-xs font-bold text-lime"
+                  >
+                    {day.position}
+                  </span>
+                  <div className="min-w-0">
+                    <h3 className="font-display text-base font-semibold tracking-tight">
+                      Día {day.position} · {day.name}
+                    </h3>
+                    <p className="chip-neutral mt-2">
+                      {day.exercises.length} ejercicios
+                    </p>
+                    <ul className="mt-3 space-y-1 text-sm text-[#68675f]">
+                      {day.exercises.slice(0, 3).map((exercise) => (
+                        <li key={exercise.position} className="truncate">
+                          {exercise.exerciseName}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
                 </li>
               ))}
             </ul>
           ) : null}
-          <Link
-            to="/alumno/rutina"
-            className="flex w-fit items-center gap-2 rounded-full bg-graphite px-4 py-2 text-xs font-bold text-white"
-          >
-            Ver rutina completa <ArrowUpRight className="size-4" />
+          <Link to="/alumno/rutina" className="btn-primary btn-sm w-fit">
+            Ver rutina completa{' '}
+            <ArrowUpRight className="size-4" aria-hidden="true" />
           </Link>
         </div>
       ) : null}
@@ -218,6 +285,12 @@ function RoutinePreviewSection({ studentId }: StudentOverviewPageProps) {
 }
 
 export function StudentOverviewPage({ studentId }: StudentOverviewPageProps) {
+  const routines = useQuery({
+    queryKey: studentRoutinesQueryKey(studentId),
+    queryFn: ({ signal }) => fetchStudentRoutines(studentId, signal),
+    enabled: Boolean(studentId),
+  });
+
   return (
     <div>
       <PageHeader
@@ -225,12 +298,12 @@ export function StudentOverviewPage({ studentId }: StudentOverviewPageProps) {
         title="Tu entrenamiento"
         description="Consultá tu rutina y seguí las solicitudes de generación."
       />
-      <main className="flex flex-col gap-4 px-4 pb-10 sm:px-7 lg:px-9">
+      <main className="page-body flex flex-col gap-6">
         <RenewalNoticeSection />
 
-        <RoutineGenerationPanel studentId={studentId} />
+        <StudentGenerationSection studentId={studentId} routines={routines} />
 
-        <RoutinePreviewSection studentId={studentId} />
+        <RoutinePreviewSection studentId={studentId} routines={routines} />
       </main>
     </div>
   );

@@ -36,19 +36,21 @@ export function TrainerPortfolioPage() {
         title="Tus alumnos, por señal."
         description="Ordenados por urgencia de atención para que el seguimiento no dependa de memoria o mensajes aislados."
       />
-      <main className="flex flex-col gap-4 px-4 pb-10 sm:px-7 lg:px-9">
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-12">
+      <main className="page-body flex flex-col gap-5">
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-12">
           <BentoCard tone="graphite" className="sm:col-span-2 xl:col-span-6">
-            <div className="flex items-start justify-between gap-4">
+            <div className="flex h-full items-start justify-between gap-4">
               <div>
                 <p className="eyebrow text-lime">Atención esta semana</p>
-                <h2 className="font-display mt-3 max-w-[24rem] text-2xl font-semibold leading-tight tracking-[-0.05em]">
+                <h2 className="font-display mt-3 max-w-[26rem] text-2xl leading-tight font-semibold tracking-tight sm:text-3xl">
                   {isPending
                     ? 'Revisando tu cartera…'
                     : attentionHeadline(blocked, pendingReviews)}
                 </h2>
               </div>
-              <CircleAlert className="size-5 shrink-0 text-lime" />
+              <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-white/10">
+                <CircleAlert className="size-5 text-lime" aria-hidden="true" />
+              </span>
             </div>
           </BentoCard>
           <StatCard
@@ -70,10 +72,10 @@ export function TrainerPortfolioPage() {
 
         <BentoCard>
           <p className="eyebrow text-[#77756d]">Cartera priorizada</p>
-          <h2 className="font-display mt-2 text-2xl font-semibold tracking-[-0.06em]">
+          <h2 className="font-display mt-2 text-lg font-semibold tracking-tight">
             Próximas intervenciones
           </h2>
-          <div className="mt-6">
+          <div className="mt-5">
             <StudentList />
           </div>
         </BentoCard>

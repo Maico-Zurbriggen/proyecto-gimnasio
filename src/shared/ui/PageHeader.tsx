@@ -15,19 +15,24 @@ export function PageHeader({
   actions,
 }: PageHeaderProps) {
   return (
-    <section className="flex flex-col justify-between gap-5 px-4 pb-7 pt-7 sm:px-7 sm:pt-9 lg:flex-row lg:items-end lg:px-9 lg:pb-9">
-      <div>
-        <div className="mb-3 flex items-center gap-2">
-          <span className="eyebrow text-[#77756d]">{kicker}</span>
-          <span className="h-px w-7 bg-lime" />
+    <section className="mx-auto flex w-full max-w-7xl flex-col gap-5 px-4 pt-7 pb-6 sm:px-7 sm:pt-9 sm:pb-8 lg:flex-row lg:items-end lg:justify-between lg:px-9">
+      {/* Kicker, título y descripción juntos: la descripción no flota sola a la derecha. */}
+      <div className="min-w-0">
+        <div className="mb-3 flex items-center gap-2.5">
+          <span className="h-[2px] w-6 rounded-full bg-lime" />
+          <span className="eyebrow text-[#6c6a62]">{kicker}</span>
         </div>
-        <h1 className="font-display text-[2rem] font-semibold leading-[0.95] tracking-[-0.05em] text-ink sm:text-[2.75rem]">
+        <h1 className="font-display text-[2rem] leading-[1.02] font-semibold tracking-[-0.045em] text-balance text-ink sm:text-[2.6rem]">
           {title}
         </h1>
+        {description ? (
+          <div className="mt-2.5 max-w-2xl text-sm leading-relaxed text-pretty text-[#68675f]">
+            {description}
+          </div>
+        ) : null}
       </div>
-      {description || actions ? (
-        <div className="flex max-w-[26rem] flex-wrap items-center gap-3 text-sm leading-6 text-[#68675f]">
-          {description}
+      {actions ? (
+        <div className="flex shrink-0 flex-wrap items-center gap-2.5">
           {actions}
         </div>
       ) : null}

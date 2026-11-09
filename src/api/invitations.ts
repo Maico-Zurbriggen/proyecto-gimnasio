@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 import { authenticatedUserSchema } from './auth';
-import { apiGet, apiPost } from './client';
+import { apiDelete, apiGet, apiPost } from './client';
 
 /**
  * Contrato de los endpoints de invitación del backend (HU06). Escrito a mano
@@ -68,19 +68,32 @@ export async function completeInvitationAccount(
 const invitableRoleSchema = z.enum(['ALUMNO', 'ENTRENADOR', 'ADMINISTRADOR']);
 export type InvitableRole = z.infer<typeof invitableRoleSchema>;
 
+/** Estado de una invitación emitida (HU08 - criterio 15). */
+export const invitationStatusSchema = z.enum([
+  'VIGENTE',
+  'USADA',
+  'REVOCADA',
+  'CADUCADA',
+]);
+export type InvitationStatus = z.infer<typeof invitationStatusSchema>;
+
 export const issuedInvitationSchema = z.object({
   id: z.string(),
   email: z.string(),
   roles: z.array(invitableRoleSchema),
+  status: invitationStatusSchema,
+  issuedAt: z.string(),
   expiresAt: z.string(),
   trainerName: z.string().nullable(),
+  /** Criterio 18: el correo no salió; la invitación sigue vigente. */
+  emailFailed: z.boolean(),
 });
 
 export const listedInvitationSchema = z.object({
   id: z.string(),
   email: z.string(),
   roles: z.array(invitableRoleSchema),
-  status: z.enum(['PENDIENTE', 'USADA', 'VENCIDA', 'REVOCADA']),
+  status: invitationStatusSchema,
   issuedAt: z.string(),
   expiresAt: z.string(),
   issuedByName: z.string().nullable(),
@@ -106,4 +119,23 @@ export async function fetchInvitations(
   return z
     .array(listedInvitationSchema)
     .parse(await apiGet('/invitations', { signal }));
+}
+
+/** `DELETE /invitations/:id`: revoca una invitación vigente (HU08 - T2). */
+export async function revokeInvitation(invitationId: string): Promise<void> {
+  await apiDelete(`/invitations/${encodeURIComponent(invitationId)}`);
+}
+
+/** `POST /invitations/:id/resend`: reenvía con un token nuevo (HU08 - T4). */
+export async function resendInvitation(
+  invitationId: string,
+): Promise<{ emailFailed: boolean; expiresAt: string }> {
+  return z
+    .object({ emailFailed: z.boolean(), expiresAt: z.string() })
+    .parse(
+      await apiPost(
+        `/invitations/${encodeURIComponent(invitationId)}/resend`,
+        {},
+      ),
+    );
 }

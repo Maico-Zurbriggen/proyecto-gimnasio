@@ -8,9 +8,10 @@ export const ownMeasurementBlockQueryKey = [
   'measurement-block',
 ] as const;
 
-export function useOwnMeasurementBlock() {
+export function useOwnMeasurementBlock({ enabled = true } = {}) {
   return useQuery({
     queryKey: ownMeasurementBlockQueryKey,
     queryFn: ({ signal }) => fetchOwnMeasurementBlock(signal),
+    enabled,
   });
 }

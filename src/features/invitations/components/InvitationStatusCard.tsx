@@ -53,19 +53,16 @@ export function InvitationStatusCard({ type }: InvitationStatusCardProps) {
   return (
     <div
       data-testid={`invitation-status-${type}`}
-      className="flex flex-col gap-3 rounded-2xl border border-[#292823]/10 bg-white p-6"
+      className="bento-card flex flex-col gap-3 text-center sm:items-center"
     >
       <p className="eyebrow text-coral-text">Invitación</p>
-      <h1 className="font-display text-xl leading-tight font-black tracking-[-0.03em]">
+      <h1 className="font-display text-xl leading-tight font-semibold tracking-tight">
         {estado.titulo}
       </h1>
-      <p className="text-sm font-medium text-[#55534c]">{estado.descripcion}</p>
+      <p className="text-sm text-[#68675f]">{estado.descripcion}</p>
 
       {estado.conLinkDeIngreso ? (
-        <Link
-          to="/ingresar"
-          className="bg-graphite mt-2 self-start rounded-full px-4 py-2.5 text-sm font-bold text-white transition hover:brightness-110"
-        >
+        <Link to="/ingresar" className="btn-primary mt-2 self-center">
           Iniciar sesión
         </Link>
       ) : null}

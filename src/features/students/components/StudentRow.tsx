@@ -8,9 +8,9 @@ import { pendingReviewsForStudent } from '../lib/pendingReviews';
 type Signal = 'En ritmo' | 'Revisar' | 'Bloqueado';
 
 const SIGNAL_CLASS: Record<Signal, string> = {
-  'En ritmo': 'bg-lime-soft text-[#526026]',
-  Revisar: 'bg-[#f7ecd1] text-[#916c22]',
-  Bloqueado: 'bg-[#fbe7e5] text-coral-text',
+  'En ritmo': 'chip-ok',
+  Revisar: 'chip-warn',
+  Bloqueado: 'chip-danger',
 };
 
 function signalOf(student: TrainerStudent): Signal {
@@ -59,36 +59,31 @@ export function StudentRow({ student }: { student: TrainerStudent }) {
   return (
     <Link
       to={`/entrenador/alumnos/${student.studentId}`}
-      className="flex flex-wrap items-center gap-3 rounded-2xl border border-[#292823]/8 p-3 transition hover:bg-[#faf9f4] sm:flex-nowrap"
+      className="group card-interactive flex flex-wrap items-center gap-3 rounded-2xl border border-[#292823]/8 bg-white/70 p-4 hover:bg-white sm:flex-nowrap"
     >
-      <div className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-coral text-[10px] font-bold text-[#35251e]">
-        {initials(student.displayName)}
-      </div>
+      <div className="avatar rounded-xl">{initials(student.displayName)}</div>
       <div className="min-w-[9rem] flex-1">
-        <p className="text-xs font-bold">{student.displayName}</p>
-        <p className="mt-0.5 text-[10px] text-[#77756d]">
+        <p className="text-sm font-bold">{student.displayName}</p>
+        <p className="mt-0.5 text-xs text-[#77756d]">
           {routineSummary(student)}
         </p>
       </div>
       {student.fechaUltimaMedicion === null ? (
-        <span className="text-[10px] font-bold text-coral-text">
-          Sin mediciones
-        </span>
+        <span className="text-xs font-bold text-[#b23f2f]">Sin mediciones</span>
       ) : null}
       {pendingReviews > 0 ? (
-        <span className="text-[10px] font-bold text-[#77756d]">
+        <span className="text-xs font-bold text-[#77756d]">
           {pendingReviews}{' '}
           {pendingReviews === 1
             ? 'revisión pendiente'
             : 'revisiones pendientes'}
         </span>
       ) : null}
-      <span
-        className={`rounded-full px-2.5 py-1 text-[10px] font-bold ${SIGNAL_CLASS[signal]}`}
-      >
-        {signal}
-      </span>
-      <ArrowUpRight className="size-4 text-[#77756d]" />
+      <span className={SIGNAL_CLASS[signal]}>{signal}</span>
+      <ArrowUpRight
+        className="size-4 text-[#77756d] transition group-hover:text-graphite"
+        aria-hidden="true"
+      />
     </Link>
   );
 }

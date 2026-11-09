@@ -73,4 +73,7 @@ it('shows removed source exercises and the parameters captured with the proposed
       name: 'Ejercicio nuevo Sin aparición en la versión de origen Nuevo día',
     }),
   ).toBeVisible();
+  expect(
+    screen.getByRole('heading', { name: 'Adaptación de rutina propuesta' }),
+  ).toBeVisible();
 });
