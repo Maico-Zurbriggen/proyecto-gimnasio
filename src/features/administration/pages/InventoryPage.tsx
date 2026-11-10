@@ -139,7 +139,7 @@ export function InventoryPage() {
                 <ul className="mt-4 grid gap-3 sm:grid-cols-2">
                   {inventory.data.equipment.map((item) => (
                     <li key={item.code}>
-                      <label className="flex items-center gap-3 rounded-2xl border border-[#292823]/8 bg-white/70 p-3 text-sm font-medium transition hover:border-[#292823]/15 has-[:checked]:border-graphite has-[:checked]:bg-lime-soft/40">
+                      <label className="flex cursor-pointer items-center gap-3 rounded-2xl border border-[#292823]/10 bg-white/80 p-3 text-sm font-medium shadow-xs transition-all hover:border-[#292823]/25 hover:bg-white has-[:checked]:border-graphite has-[:checked]:bg-lime-soft/60 has-[:checked]:shadow-xs">
                         <input
                           type="checkbox"
                           className="check"
@@ -151,7 +151,9 @@ export function InventoryPage() {
                             alternar(item.code, event.target.checked)
                           }
                         />
-                        {item.name}
+                        <span className="font-semibold text-ink">
+                          {item.name}
+                        </span>
                         {item.alwaysPresent ? (
                           <span className="text-xs text-[#77756d]">
                             (siempre disponible)

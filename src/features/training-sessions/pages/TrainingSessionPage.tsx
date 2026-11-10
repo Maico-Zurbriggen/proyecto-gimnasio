@@ -307,8 +307,10 @@ function SeriesRow({
   return (
     <li
       aria-current={current ? 'step' : undefined}
-      className={`row-interactive rounded-2xl border bg-white/70 p-4 ${
-        current ? 'border-2 border-graphite' : 'border-[#292823]/8'
+      className={`card-interactive rounded-2xl p-4.5 sm:p-5 transition-all ${
+        current
+          ? 'border-2 border-graphite bg-white ring-3 ring-lime/40 shadow-md'
+          : 'border border-[#292823]/12 bg-white/95 shadow-xs hover:border-[#292823]/30'
       }`}
     >
       <div className="flex items-baseline justify-between gap-2">
@@ -421,7 +423,7 @@ function SeriesRow({
                 setSubstituting(false);
               }}
               disabled={update.isPending}
-              className="btn-ghost min-h-11"
+              className="btn-secondary min-h-11"
             >
               Omitir
             </button>
@@ -435,7 +437,7 @@ function SeriesRow({
               setOmitting(false);
             }}
             disabled={update.isPending}
-            className="btn-ghost min-h-11"
+            className="btn-secondary min-h-11"
           >
             Sustituir ejercicio
           </button>

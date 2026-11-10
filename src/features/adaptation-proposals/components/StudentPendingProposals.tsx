@@ -47,7 +47,7 @@ export function StudentPendingProposals({ studentId }: { studentId: string }) {
           <li key={proposal.id}>
             <Link
               to={`/entrenador/rutinas/revisar/${proposal.id}`}
-              className="block rounded-2xl border border-[#292823]/8 bg-white/70 p-4 text-sm font-semibold transition hover:border-[#292823]/15 hover:bg-white"
+              className="block card-interactive rounded-2xl border border-[#292823]/12 bg-white p-4 text-sm font-semibold shadow-xs hover:border-[#292823]/25 hover:shadow-md"
             >
               Ver propuesta del {formatDate(proposal.createdAt)} ·{' '}
               {proposal.adjustmentsCount} ajuste

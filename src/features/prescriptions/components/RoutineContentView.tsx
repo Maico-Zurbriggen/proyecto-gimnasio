@@ -106,12 +106,12 @@ export function RoutineContentView({ routine }: RoutineContentViewProps) {
               {/* Plegable nativo: el primer día abierto, el resto se ve por su resumen. */}
               <details
                 open={index === 0}
-                className="group rounded-2xl border border-[#292823]/8 bg-white transition hover:border-[#292823]/20 open:shadow-[0_12px_32px_-22px_rgb(20_20_18/0.25)]"
+                className="group rounded-2xl border border-[#292823]/10 bg-white/90 backdrop-blur-md transition-all duration-200 hover:border-[#292823]/25 open:shadow-[0_12px_32px_-18px_rgb(20_20_18/0.18)]"
               >
                 <summary className="flex cursor-pointer list-none items-start gap-3 rounded-2xl p-4 transition hover:bg-[#faf9f4] sm:p-5 [&::-webkit-details-marker]:hidden">
                   <span
                     aria-hidden="true"
-                    className="font-display flex size-9 shrink-0 items-center justify-center rounded-xl bg-graphite text-sm font-bold text-lime"
+                    className="font-display flex size-9 shrink-0 items-center justify-center rounded-xl bg-graphite text-sm font-bold text-lime shadow-xs"
                   >
                     {day.position}
                   </span>
@@ -153,7 +153,7 @@ export function RoutineContentView({ routine }: RoutineContentViewProps) {
                   {day.exercises.map((exercise) => (
                     <li
                       key={exercise.position}
-                      className="rounded-2xl border border-[#292823]/8 bg-white/70 p-4 text-sm"
+                      className="rounded-2xl border border-[#292823]/12 bg-white p-4 text-sm shadow-2xs"
                     >
                       <p className="font-semibold">
                         {exercise.position}. {exercise.exerciseName}

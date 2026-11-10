@@ -36,9 +36,12 @@ export function TrainerPortfolioPage() {
         title="Tus alumnos, por señal."
         description="Ordenados por urgencia de atención para que el seguimiento no dependa de memoria o mensajes aislados."
       />
-      <main className="page-body flex flex-col gap-5">
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-12">
-          <BentoCard tone="graphite" className="sm:col-span-2 xl:col-span-6">
+      <main className="page-body flex flex-col gap-6">
+        <div className="grid grid-cols-1 items-stretch gap-5 sm:grid-cols-2 xl:grid-cols-12">
+          <BentoCard
+            tone="graphite"
+            className="flex flex-col justify-between sm:col-span-2 xl:col-span-6"
+          >
             <div className="flex h-full items-start justify-between gap-4">
               <div>
                 <p className="eyebrow text-lime">Atención esta semana</p>
@@ -48,8 +51,17 @@ export function TrainerPortfolioPage() {
                     : attentionHeadline(blocked, pendingReviews)}
                 </h2>
               </div>
-              <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-white/10">
-                <CircleAlert className="size-5 text-lime" aria-hidden="true" />
+              <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-white/10 shadow-xs">
+                <CircleAlert
+                  className="size-5.5 text-lime"
+                  aria-hidden="true"
+                />
+              </span>
+            </div>
+            <div className="mt-6 flex items-center gap-2 border-t border-white/10 pt-4 text-xs text-white/60">
+              <span className="size-2 rounded-full bg-lime animate-pulse" />
+              <span>
+                Prioridad calculada automáticamente por regularidad y revisiones
               </span>
             </div>
           </BentoCard>
@@ -59,22 +71,26 @@ export function TrainerPortfolioPage() {
             detail={`${withRoutine} con rutina vigente`}
             icon={UsersRound}
             tone="lime"
-            className="xl:col-span-3"
+            className="xl:col-span-3 h-full"
           />
           <StatCard
             label="Revisiones pendientes"
             value={String(pendingReviews)}
             detail="esperan tu revisión"
             icon={ClipboardCheck}
-            className="xl:col-span-3"
+            className="xl:col-span-3 h-full"
           />
         </div>
 
         <BentoCard>
-          <p className="eyebrow text-[#77756d]">Cartera priorizada</p>
-          <h2 className="font-display mt-2 text-lg font-semibold tracking-tight">
-            Próximas intervenciones
-          </h2>
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#292823]/10 pb-4">
+            <div>
+              <p className="eyebrow text-[#77756d]">Cartera priorizada</p>
+              <h2 className="font-display mt-1 text-lg font-semibold tracking-tight">
+                Próximas intervenciones
+              </h2>
+            </div>
+          </div>
           <div className="mt-5">
             <StudentList />
           </div>

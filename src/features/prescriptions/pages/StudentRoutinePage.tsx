@@ -33,89 +33,93 @@ function StudentRoutineSection({
   const headingId = `routine-${routine.id}`;
 
   return (
-    <section aria-labelledby={headingId} className="flex flex-col gap-4">
-      <div>
-        <div className="flex flex-wrap items-center gap-3">
-          <h2
-            id={headingId}
-            className="font-display text-xl font-semibold tracking-[-0.04em]"
-          >
-            {pendiente ? 'Rutina pendiente de revisión' : 'Rutina vigente'}
-          </h2>
-          <span className={pendiente ? 'chip-warn' : 'chip-ok'}>
-            {pendiente ? 'Propuesta' : 'Activa'}
-          </span>
-        </div>
-        <p className="mt-2 text-sm text-[#55534c]">
-          {TIPOS[routine.routineType] ?? routine.routineType} ·{' '}
-          {routine.targetWeeklyFrequency} días por semana · versión{' '}
-          {routine.versionNumber}
-        </p>
-        <p className="mt-1 text-xs text-[#77756d]">
-          {routine.origin === 'GENERADA'
-            ? 'Generada'
-            : 'Asignada por entrenador'}
-          {' · '}
-          Solicitada el{' '}
-          {new Intl.DateTimeFormat('es-AR', {
-            dateStyle: 'short',
-            timeStyle: 'short',
-          }).format(new Date(routine.requestedAt))}
-        </p>
-      </div>
-
-      {pendiente ? (
-        <Banner
-          variant="warning"
-          title={
-            routine.state === 'BLOQUEADA'
-              ? 'Esperando asignación de entrenador'
-              : 'Pendiente de revisión'
-          }
-        >
-          <p>
-            {routine.state === 'BLOQUEADA'
-              ? 'La rutina espera que el gimnasio te asigne un entrenador para revisarla y aprobarla.'
-              : 'Tu entrenador debe revisar y aprobar esta rutina antes de que puedas entrenar con ella.'}
+    <BentoCard className="flex flex-col gap-5">
+      <section aria-labelledby={headingId} className="flex flex-col gap-4">
+        <div className="border-b border-[#292823]/10 pb-4">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex flex-wrap items-center gap-3">
+              <h2
+                id={headingId}
+                className="font-display text-2xl font-semibold tracking-[-0.04em]"
+              >
+                {pendiente ? 'Rutina pendiente de revisión' : 'Rutina vigente'}
+              </h2>
+              <span className={pendiente ? 'chip-warn' : 'chip-ok'}>
+                {pendiente ? 'Propuesta' : 'Activa'}
+              </span>
+            </div>
+          </div>
+          <p className="mt-2 text-sm font-medium text-[#44423b]">
+            {TIPOS[routine.routineType] ?? routine.routineType} ·{' '}
+            {routine.targetWeeklyFrequency} días por semana · versión{' '}
+            {routine.versionNumber}
           </p>
-        </Banner>
-      ) : null}
+          <p className="mt-1 text-xs text-[#77756d]">
+            {routine.origin === 'GENERADA'
+              ? 'Generada'
+              : 'Asignada por entrenador'}
+            {' · '}
+            Solicitada el{' '}
+            {new Intl.DateTimeFormat('es-AR', {
+              dateStyle: 'short',
+              timeStyle: 'short',
+            }).format(new Date(routine.requestedAt))}
+          </p>
+        </div>
 
-      {contenido.isPending ? (
-        <LoadingState
-          label="Cargando los días, ejercicios y series…"
-          variant="list"
-        />
-      ) : null}
+        {pendiente ? (
+          <Banner
+            variant="warning"
+            title={
+              routine.state === 'BLOQUEADA'
+                ? 'Esperando asignación de entrenador'
+                : 'Pendiente de revisión'
+            }
+          >
+            <p>
+              {routine.state === 'BLOQUEADA'
+                ? 'La rutina espera que el gimnasio te asigne un entrenador para revisarla y aprobarla.'
+                : 'Tu entrenador debe revisar y aprobar esta rutina antes de que puedas entrenar con ella.'}
+            </p>
+          </Banner>
+        ) : null}
 
-      {contenido.isError ? (
-        <Banner
-          variant="danger"
-          title="No pudimos cargar el contenido de esta rutina"
-          actions={
-            <button
-              type="button"
-              onClick={() => void contenido.refetch()}
-              disabled={contenido.isFetching}
-              className="btn-secondary btn-sm w-fit"
-            >
-              Reintentar
-            </button>
-          }
-        />
-      ) : null}
+        {contenido.isPending ? (
+          <LoadingState
+            label="Cargando los días, ejercicios y series…"
+            variant="list"
+          />
+        ) : null}
 
-      {contenido.data ? (
-        <>
-          <RoutinePrompt prompt={contenido.data.generationPrompt} />
-          <RoutineContentView routine={contenido.data} />
-        </>
-      ) : null}
+        {contenido.isError ? (
+          <Banner
+            variant="danger"
+            title="No pudimos cargar el contenido de esta rutina"
+            actions={
+              <button
+                type="button"
+                onClick={() => void contenido.refetch()}
+                disabled={contenido.isFetching}
+                className="btn-secondary btn-sm w-fit"
+              >
+                Reintentar
+              </button>
+            }
+          />
+        ) : null}
 
-      {routine.state === 'PROPUESTA' ? (
-        <RoutineChangeRequestPanel studentId={studentId} />
-      ) : null}
-    </section>
+        {contenido.data ? (
+          <>
+            <RoutinePrompt prompt={contenido.data.generationPrompt} />
+            <RoutineContentView routine={contenido.data} />
+          </>
+        ) : null}
+
+        {routine.state === 'PROPUESTA' ? (
+          <RoutineChangeRequestPanel studentId={studentId} />
+        ) : null}
+      </section>
+    </BentoCard>
   );
 }
 

@@ -69,13 +69,13 @@ function PendingRoutineReviews() {
       ) : (
         <ul
           aria-label="Rutinas por aprobar"
-          className="mt-5 grid gap-3 xl:grid-cols-2"
+          className="mt-5 grid gap-3.5 xl:grid-cols-2"
         >
           {data.map((item) => (
             <li key={item.routineId}>
               <Link
                 to={`/entrenador/rutinas/propuestas/${item.studentId}/${item.routineId}`}
-                className="flex h-full items-center justify-between gap-3 rounded-2xl border border-[#292823]/8 bg-white/70 p-4 transition hover:border-[#292823]/15 hover:bg-white"
+                className="card-interactive flex h-full items-center justify-between gap-3 rounded-2xl border border-[#292823]/10 bg-white/90 p-4.5 shadow-xs hover:border-[#292823]/30 hover:bg-white hover:shadow-md"
               >
                 <div className="min-w-0">
                   <p className="text-sm font-bold">{item.studentName}</p>
@@ -150,7 +150,7 @@ function PendingAdaptationProposals() {
               <Link
                 key={proposal.id}
                 to={`/entrenador/rutinas/revisar/${proposal.id}`}
-                className="flex items-center justify-between gap-3 rounded-2xl border border-[#292823]/8 bg-white/70 p-4 transition hover:border-[#292823]/15 hover:bg-white"
+                className="card-interactive flex items-center justify-between gap-3 rounded-2xl border border-[#292823]/10 bg-white/90 p-4.5 shadow-xs hover:border-[#292823]/30 hover:bg-white hover:shadow-md"
               >
                 <div className="min-w-0">
                   <p className="text-sm font-bold">
@@ -224,7 +224,7 @@ function AssignedRoutines() {
           Ningún alumno de tu cartera tiene una rutina vigente.
         </p>
       ) : (
-        <div className="mt-5 overflow-hidden rounded-2xl border border-[#292823]/8">
+        <div className="mt-5 grid grid-cols-1 gap-3.5 md:grid-cols-2 xl:grid-cols-3">
           {withRoutine.map((student) => {
             const routine = student.rutinaVigente!;
             const vencida = routine.estadoAviso === 'vencido';
@@ -232,21 +232,34 @@ function AssignedRoutines() {
               <Link
                 key={student.studentId}
                 to={`/entrenador/alumnos/${student.studentId}`}
-                className="flex items-center justify-between gap-3 border-b border-[#292823]/7 px-4 py-4 last:border-b-0 hover:bg-[#faf9f4]"
+                className="card-interactive flex flex-col justify-between gap-3 rounded-2xl border border-[#292823]/10 bg-white/90 p-4.5 shadow-xs hover:border-[#292823]/30 hover:bg-white hover:shadow-md"
               >
-                <div>
-                  <p className="text-sm font-bold">{student.displayName}</p>
-                  <p className="text-xs text-[#68675f]">
-                    {humanizeEnum(routine.routineType)}
-                  </p>
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-bold text-ink">
+                      {student.displayName}
+                    </p>
+                    <p className="mt-0.5 text-xs text-[#68675f]">
+                      {humanizeEnum(routine.routineType)}
+                    </p>
+                  </div>
+                  <ArrowUpRight
+                    className="size-4 shrink-0 text-[#77756d]"
+                    aria-hidden="true"
+                  />
                 </div>
-                <span className={vencida ? 'chip-danger' : 'chip-ok'}>
-                  {vencida
-                    ? 'Ciclo vencido'
-                    : routine.estadoAviso === 'cerrado hoy'
-                      ? 'Renueva hoy'
-                      : `Renueva en ${routine.diasRestantesRenovacion} días`}
-                </span>
+                <div className="flex items-center justify-between border-t border-[#292823]/10 pt-3">
+                  <span className={vencida ? 'chip-danger' : 'chip-ok'}>
+                    {vencida
+                      ? 'Ciclo vencido'
+                      : routine.estadoAviso === 'cerrado hoy'
+                        ? 'Renueva hoy'
+                        : `Renueva en ${routine.diasRestantesRenovacion} días`}
+                  </span>
+                  <span className="text-[11px] font-semibold text-[#77756d]">
+                    Ver ficha
+                  </span>
+                </div>
               </Link>
             );
           })}

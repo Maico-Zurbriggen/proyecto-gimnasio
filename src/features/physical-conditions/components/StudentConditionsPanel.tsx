@@ -167,103 +167,110 @@ function DeclararCondicion({
       onSubmit={revisar}
       className="flex flex-col gap-4"
     >
-      <div className="flex flex-col gap-1.5">
-        <label htmlFor={idZona} className="field-label">
-          Zona corporal <span aria-hidden="true">*</span>
-        </label>
-        <select
-          id={idZona}
-          required
-          aria-required="true"
-          aria-invalid={errores.zona ? true : undefined}
-          aria-describedby={errores.zona ? `${idZona}-error` : undefined}
-          value={zona}
-          onChange={(event) => setZona(event.target.value)}
-          className="field"
-        >
-          <option value="">Elegí una zona</option>
-          <optgroup label="Músculos">
-            {MUSCLE_GROUPS.map(([code, label]) => (
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor={idZona} className="field-label">
+            Zona corporal <span aria-hidden="true">*</span>
+          </label>
+          <select
+            id={idZona}
+            required
+            aria-required="true"
+            aria-invalid={errores.zona ? true : undefined}
+            aria-describedby={errores.zona ? `${idZona}-error` : undefined}
+            value={zona}
+            onChange={(event) => setZona(event.target.value)}
+            className="field"
+          >
+            <option value="">Elegí una zona</option>
+            <optgroup label="Músculos">
+              {MUSCLE_GROUPS.map(([code, label]) => (
+                <option key={code} value={code}>
+                  {label}
+                </option>
+              ))}
+            </optgroup>
+            <optgroup label="Articulaciones">
+              {JOINTS.map(([code, label]) => (
+                <option key={code} value={code}>
+                  {label}
+                </option>
+              ))}
+            </optgroup>
+          </select>
+          {errores.zona ? (
+            <p id={`${idZona}-error`} className="field-error">
+              <span aria-hidden="true">✕ </span>
+              {errores.zona}
+            </p>
+          ) : null}
+        </div>
+
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor={idSeveridad} className="field-label">
+            Severidad <span aria-hidden="true">*</span>
+          </label>
+          <select
+            id={idSeveridad}
+            required
+            aria-required="true"
+            aria-invalid={errores.severidad ? true : undefined}
+            aria-describedby={`${idSeveridad}-ayuda${errores.severidad ? ` ${idSeveridad}-error` : ''}`}
+            value={severidad}
+            onChange={(event) => setSeveridad(event.target.value)}
+            className="field"
+          >
+            <option value="">Elegí la severidad</option>
+            {SEVERITIES.map(([code, label]) => (
               <option key={code} value={code}>
                 {label}
               </option>
             ))}
-          </optgroup>
-          <optgroup label="Articulaciones">
-            {JOINTS.map(([code, label]) => (
-              <option key={code} value={code}>
-                {label}
-              </option>
-            ))}
-          </optgroup>
-        </select>
-        {errores.zona ? (
-          <p id={`${idZona}-error`} className="field-error">
-            <span aria-hidden="true">✕ </span>
-            {errores.zona}
-          </p>
-        ) : null}
+          </select>
+          {errores.severidad ? (
+            <p id={`${idSeveridad}-error`} className="field-error">
+              <span aria-hidden="true">✕ </span>
+              {errores.severidad}
+            </p>
+          ) : null}
+        </div>
       </div>
+      <p
+        id={`${idSeveridad}-ayuda`}
+        className="field-hint text-[11px] text-[#706e65]"
+      >
+        Leve: se señala en la rutina. Moderada o severa: impide los ejercicios
+        que comprometen esa zona.
+      </p>
 
-      <div className="flex flex-col gap-1.5">
-        <label htmlFor={idSeveridad} className="field-label">
-          Severidad <span aria-hidden="true">*</span>
-        </label>
-        <select
-          id={idSeveridad}
-          required
-          aria-required="true"
-          aria-invalid={errores.severidad ? true : undefined}
-          aria-describedby={`${idSeveridad}-ayuda${errores.severidad ? ` ${idSeveridad}-error` : ''}`}
-          value={severidad}
-          onChange={(event) => setSeveridad(event.target.value)}
-          className="field"
-        >
-          <option value="">Elegí la severidad</option>
-          {SEVERITIES.map(([code, label]) => (
-            <option key={code} value={code}>
-              {label}
-            </option>
-          ))}
-        </select>
-        <p id={`${idSeveridad}-ayuda`} className="field-hint">
-          Leve: se señala en la rutina. Moderada o severa: impide los ejercicios
-          que comprometen esa zona.
-        </p>
-        {errores.severidad ? (
-          <p id={`${idSeveridad}-error`} className="field-error">
-            <span aria-hidden="true">✕ </span>
-            {errores.severidad}
-          </p>
-        ) : null}
-      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor={`${ids}-desde`} className="field-label">
+            Desde
+          </label>
+          <input
+            id={`${ids}-desde`}
+            type="date"
+            max={hoy()}
+            value={desde}
+            onChange={(event) => setDesde(event.target.value)}
+            className="field"
+          />
+        </div>
 
-      <div className="flex flex-col gap-1.5">
-        <label htmlFor={`${ids}-desde`} className="field-label">
-          Desde
-        </label>
-        <input
-          id={`${ids}-desde`}
-          type="date"
-          max={hoy()}
-          value={desde}
-          onChange={(event) => setDesde(event.target.value)}
-          className="field"
-        />
-      </div>
-
-      <div className="flex flex-col gap-1.5">
-        <label htmlFor={`${ids}-descripcion`} className="field-label">
-          Descripción (opcional)
-        </label>
-        <textarea
-          id={`${ids}-descripcion`}
-          rows={2}
-          maxLength={500}
-          value={descripcion}
-          onChange={(event) => setDescripcion(event.target.value)}
-          className="field"
-        />
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor={`${ids}-descripcion`} className="field-label">
+            Descripción (opcional)
+          </label>
+          <textarea
+            id={`${ids}-descripcion`}
+            rows={1}
+            maxLength={500}
+            value={descripcion}
+            onChange={(event) => setDescripcion(event.target.value)}
+            className="field resize-none"
+          />
+        </div>
       </div>
 
       {confirmando ? (
@@ -424,66 +431,76 @@ export function StudentConditionsPanel({ studentId }: { studentId: string }) {
               </button>
             </div>
           ) : (
-            <>
-              {conditions.data.length === 0 ? (
-                // Criterio front 10: "no respondió" vs "declaró ninguna".
-                status.data.declaredNone ? (
-                  <p className="rounded-xl bg-lime-soft p-3 text-sm text-[#3b4d14]">
-                    <span aria-hidden="true">✓ </span>
-                    Declaraste que no tenés ninguna condición física
-                    {status.data.declaredNoneAt
-                      ? ` (${formatDate(status.data.declaredNoneAt)})`
-                      : ''}
-                    .
-                  </p>
-                ) : (
-                  <p className="surface-muted py-10 text-center text-sm text-[#68675f]">
-                    Todavía no respondiste. Si no tenés ninguna, indicalo para
-                    que tu entrenador lo sepa.
-                  </p>
-                )
-              ) : (
-                <ConditionsList
-                  conditions={conditions.data}
-                  action={(c) => (
-                    <CerrarCondicion studentId={studentId} condition={c} />
-                  )}
-                />
-              )}
-
-              {conditions.data.every((c) => c.endsOn !== null) &&
-              !status.data.declaredNone ? (
-                <div className="flex flex-col items-start gap-2">
-                  <button
-                    type="button"
-                    disabled={ninguna.isPending}
-                    onClick={() => ninguna.mutate()}
-                    className="btn-secondary btn-sm"
-                  >
-                    {ninguna.isPending
-                      ? 'Guardando…'
-                      : 'No tengo ninguna condición física'}
-                  </button>
-                  {ninguna.isError ? (
-                    <p role="alert" className="field-error">
-                      {ninguna.error instanceof ApiError
-                        ? (apiMessage(ninguna.error) ?? 'No se pudo guardar.')
-                        : 'No se pudo guardar.'}
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-12 lg:items-start">
+              {/* Columna Izquierda: Condiciones vigentes e historial */}
+              <div className="space-y-4 lg:col-span-7">
+                {conditions.data.length === 0 ? (
+                  // Criterio front 10: "no respondió" vs "declaró ninguna".
+                  status.data.declaredNone ? (
+                    <p className="rounded-xl bg-lime-soft p-3.5 text-sm font-medium text-[#3b4d14]">
+                      <span aria-hidden="true">✓ </span>
+                      Declaraste que no tenés ninguna condición física
+                      {status.data.declaredNoneAt
+                        ? ` (${formatDate(status.data.declaredNoneAt)})`
+                        : ''}
+                      .
                     </p>
-                  ) : null}
-                </div>
-              ) : null}
+                  ) : (
+                    <p className="surface-muted py-8 text-center text-sm text-[#68675f]">
+                      Todavía no respondiste. Si no tenés ninguna, indicalo para
+                      que tu entrenador lo sepa.
+                    </p>
+                  )
+                ) : (
+                  <ConditionsList
+                    conditions={conditions.data}
+                    action={(c) => (
+                      <CerrarCondicion studentId={studentId} condition={c} />
+                    )}
+                  />
+                )}
 
-              <div className="border-t border-[#292823]/8 pt-5">
-                <h3 className="eyebrow mb-3 text-[#68675f]">
-                  Declarar una condición
-                </h3>
+                {conditions.data.every((c) => c.endsOn !== null) &&
+                !status.data.declaredNone ? (
+                  <div className="flex flex-col items-start gap-2">
+                    <button
+                      type="button"
+                      disabled={ninguna.isPending}
+                      onClick={() => ninguna.mutate()}
+                      className="btn-secondary btn-sm"
+                    >
+                      {ninguna.isPending
+                        ? 'Guardando…'
+                        : 'No tengo ninguna condición física'}
+                    </button>
+                    {ninguna.isError ? (
+                      <p role="alert" className="field-error">
+                        {ninguna.error instanceof ApiError
+                          ? (apiMessage(ninguna.error) ?? 'No se pudo guardar.')
+                          : 'No se pudo guardar.'}
+                      </p>
+                    ) : null}
+                  </div>
+                ) : null}
+              </div>
+
+              {/* Columna Derecha: Formulario para declarar condición */}
+              <div className="surface-muted rounded-2xl p-5 lg:col-span-5">
+                <div className="mb-3.5 flex items-center gap-2">
+                  <span
+                    className="size-2 rounded-full bg-lime shadow-[0_0_6px_#c6ff36]"
+                    aria-hidden="true"
+                  />
+                  <h3 className="eyebrow text-[#55534c]">
+                    Declarar una condición
+                  </h3>
+                </div>
                 <DeclararCondicion
                   studentId={studentId}
                   onDeclared={refrescar}
                 />
               </div>
-            </>
+            </div>
           )}
         </div>
       )}
