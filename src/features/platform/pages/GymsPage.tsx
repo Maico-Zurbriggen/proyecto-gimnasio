@@ -295,7 +295,7 @@ function FilaGimnasio({ gym }: { gym: GymSummary }) {
   const estado = invitacion ? ESTADO_INVITACION[invitacion.status] : null;
 
   return (
-    <li className="card-interactive flex flex-col flex-wrap gap-3 rounded-2xl border border-[#292823]/8 bg-white/70 p-4 hover:bg-white sm:flex-row sm:items-center sm:justify-between">
+    <li className="card-interactive flex flex-col flex-wrap gap-4 rounded-2xl border border-[#292823]/10 bg-white/85 p-5 shadow-xs backdrop-blur-xs hover:border-[#292823]/25 hover:bg-white hover:shadow-md sm:flex-row sm:items-center sm:justify-between">
       <div className="min-w-0">
         <p className="text-sm font-bold break-words">{gym.name}</p>
         <p className="mt-1 text-xs text-[#77756d] break-words">

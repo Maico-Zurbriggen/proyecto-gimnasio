@@ -36,15 +36,15 @@ function FilaAlumno({
   const sinCambios = elegido === (student.trainer?.id ?? '');
 
   return (
-    <li className="flex flex-col gap-3 rounded-2xl border border-[#292823]/8 bg-white/70 p-4 hover:border-[#292823]/15 hover:bg-white lg:flex-row lg:items-center lg:justify-between">
+    <li className="card-interactive flex flex-col gap-3 rounded-2xl border border-[#292823]/10 bg-white/85 p-4 shadow-xs backdrop-blur-xs hover:border-[#292823]/25 hover:bg-white lg:flex-row lg:items-center lg:justify-between">
       <div className="min-w-0">
-        <p className="text-sm font-bold">{student.displayName}</p>
+        <p className="text-sm font-bold text-ink">{student.displayName}</p>
         <p className="mt-0.5 text-xs break-all text-[#77756d]">
           {student.email}
         </p>
         <p className="mt-1 text-xs">
           {student.trainer ? (
-            <span className="text-[#3b4d14]">
+            <span className="inline-flex items-center gap-1 font-semibold text-[#3b4d14]">
               <span aria-hidden="true">✓ </span>
               {student.trainer.displayName}
               {student.assignedAt
@@ -52,7 +52,7 @@ function FilaAlumno({
                 : ''}
             </span>
           ) : (
-            <span className="text-coral-text font-bold">
+            <span className="chip-danger font-bold">
               <span aria-hidden="true">! </span>Sin entrenador asignado
             </span>
           )}
@@ -67,7 +67,7 @@ function FilaAlumno({
             id={`${ids}-entrenador`}
             value={elegido}
             onChange={(event) => setElegido(event.target.value)}
-            className="field w-auto"
+            className="field w-full sm:w-auto"
           >
             <option value="">Elegí un entrenador</option>
             {opciones.map((trainer) => (

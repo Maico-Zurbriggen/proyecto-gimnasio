@@ -18,11 +18,11 @@ export function PageHeader({
     <section className="mx-auto flex w-full max-w-7xl flex-col gap-5 px-4 pt-7 pb-6 sm:px-7 sm:pt-9 sm:pb-8 lg:flex-row lg:items-end lg:justify-between lg:px-9">
       {/* Kicker, título y descripción juntos: la descripción no flota sola a la derecha. */}
       <div className="min-w-0">
-        <div className="mb-3 flex items-center gap-2.5">
-          <span className="h-[2px] w-6 rounded-full bg-lime" />
-          <span className="eyebrow text-[#6c6a62]">{kicker}</span>
+        <div className="mb-3.5 inline-flex items-center gap-2 rounded-full border border-black/10 bg-white/80 px-3 py-1 shadow-2xs backdrop-blur-xs">
+          <span className="size-2 rounded-full bg-lime shadow-[0_0_6px_#c6ff36]" />
+          <span className="eyebrow text-[#5a5851]">{kicker}</span>
         </div>
-        <h1 className="font-display text-[2rem] leading-[1.02] font-semibold tracking-[-0.045em] text-balance text-ink sm:text-[2.6rem]">
+        <h1 className="font-display text-[2.1rem] leading-[1.05] font-bold tracking-[-0.04em] text-balance text-ink sm:text-[2.65rem]">
           {title}
         </h1>
         {description ? (

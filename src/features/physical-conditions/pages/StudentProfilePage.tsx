@@ -19,7 +19,7 @@ import { StudentGoalsPanel } from '../components/StudentGoalsPanel';
 import { LoadingState } from '../../../shared/ui/LoadingState';
 
 /** Ficha propia: identidad, entrenador y datos físicos que ve el entrenador. */
-function ProfileSummary() {
+function ProfileSummary({ studentId }: { studentId: string }) {
   const { user } = useSession();
   const status = useOwnMeasurementBlock();
   const context = useQuery({
@@ -80,78 +80,52 @@ function ProfileSummary() {
     : [];
 
   return (
-    <div className="flex flex-col gap-5">
-      <BentoCard>
-        <div className="flex items-center gap-4">
-          <span className="avatar size-14 text-base" aria-hidden="true">
-            {initialsOf(name)}
-          </span>
-          <div className="min-w-0">
-            <p className="font-display truncate text-xl font-bold tracking-tight">
-              {name}
-            </p>
-            {email ? (
-              <p className="truncate text-sm text-[#68675f]">{email}</p>
-            ) : null}
-            <span className="chip-neutral mt-1.5">Alumno</span>
-          </div>
-        </div>
-        <div className="surface-muted mt-5 flex items-center gap-3">
-          <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-graphite text-lime">
-            <UserRound aria-hidden="true" className="size-4" />
-          </span>
-          <div className="min-w-0">
-            <p className="eyebrow text-[#77756d]">Entrenador asignado</p>
-            {data?.trainer ? (
-              <p className="mt-1 truncate text-sm font-semibold">
-                {data.trainer.displayName}
-              </p>
-            ) : context.isPending ? (
-              <LoadingState label="Cargando…" variant="card" className="mt-1" />
-            ) : (
-              <span className="chip-warn mt-1">Esperando asignación</span>
-            )}
-          </div>
-        </div>
-      </BentoCard>
-
-      <BentoCard>
-        <h2 className="font-display text-lg font-semibold tracking-tight">
-          Datos de entrenamiento
-        </h2>
-        {context.isPending ? (
-          <LoadingState
-            label="Cargando tus datos…"
-            variant="card"
-            className="mt-4"
-          />
-        ) : context.isError ? (
-          <div className="mt-4 flex flex-col items-start gap-3">
-            <p role="alert" className="field-error">
-              No pudimos cargar tus datos.
-            </p>
-            <button
-              type="button"
-              onClick={() => void context.refetch()}
-              disabled={context.isFetching}
-              className="btn-secondary btn-sm"
+    <div className="grid grid-cols-1 items-stretch gap-5 md:grid-cols-2 lg:grid-cols-3">
+      {/* 1. Identidad y Entrenador */}
+      <BentoCard className="flex h-full flex-col justify-between">
+        <div>
+          <div className="flex items-center gap-3.5">
+            <span
+              className="avatar size-12 text-sm shadow-xs ring-1 ring-black/5"
+              aria-hidden="true"
             >
-              Reintentar
-            </button>
+              {initialsOf(name)}
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="font-display truncate text-lg font-bold tracking-tight text-ink">
+                {name}
+              </p>
+              {email ? (
+                <p className="truncate text-xs text-[#68675f]">{email}</p>
+              ) : null}
+              <span className="chip-neutral mt-1">Alumno</span>
+            </div>
           </div>
-        ) : (
-          <dl className="mt-4 grid grid-cols-2 gap-2.5">
-            {stats.map(([label, value]) => (
-              <div key={label} className="surface-muted row-interactive p-3.5">
-                <dt className="eyebrow text-[#77756d]">{label}</dt>
-                <dd className="font-display mt-1.5 text-base font-semibold tracking-tight">
-                  {value}
-                </dd>
-              </div>
-            ))}
-          </dl>
-        )}
-        <div className="mt-5 flex flex-wrap gap-2">
+
+          <div className="surface-muted mt-4 flex items-center gap-3">
+            <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-graphite text-lime shadow-xs">
+              <UserRound aria-hidden="true" className="size-4" />
+            </span>
+            <div className="min-w-0">
+              <p className="eyebrow text-[#77756d]">Entrenador asignado</p>
+              {data?.trainer ? (
+                <p className="mt-0.5 truncate text-sm font-bold text-ink">
+                  {data.trainer.displayName}
+                </p>
+              ) : context.isPending ? (
+                <LoadingState
+                  label="Cargando…"
+                  variant="card"
+                  className="mt-1"
+                />
+              ) : (
+                <span className="chip-warn mt-1">Esperando asignación</span>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-5 flex flex-wrap gap-2 border-t border-[#292823]/8 pt-4">
           <Link
             to="/alumno/puesta-en-contexto"
             className="btn-secondary btn-sm"
@@ -165,6 +139,56 @@ function ProfileSummary() {
           </Link>
         </div>
       </BentoCard>
+
+      {/* 2. Datos antropométricos y nivel */}
+      <BentoCard className="flex h-full flex-col justify-between">
+        <div>
+          <div className="flex items-center justify-between">
+            <h2 className="font-display text-lg font-semibold tracking-tight text-ink">
+              Datos de entrenamiento
+            </h2>
+            <span className="eyebrow text-[#77756d]">Ficha</span>
+          </div>
+
+          {context.isPending ? (
+            <LoadingState
+              label="Cargando tus datos…"
+              variant="card"
+              className="mt-4"
+            />
+          ) : context.isError ? (
+            <div className="mt-4 flex flex-col items-start gap-3">
+              <p role="alert" className="field-error">
+                No pudimos cargar tus datos.
+              </p>
+              <button
+                type="button"
+                onClick={() => void context.refetch()}
+                disabled={context.isFetching}
+                className="btn-secondary btn-sm"
+              >
+                Reintentar
+              </button>
+            </div>
+          ) : (
+            <dl className="mt-3.5 grid grid-cols-2 gap-2">
+              {stats.map(([label, value]) => (
+                <div key={label} className="surface-muted p-2.5">
+                  <dt className="eyebrow text-[#77756d]">{label}</dt>
+                  <dd className="font-display mt-1 text-sm font-bold tracking-tight text-ink">
+                    {value}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          )}
+        </div>
+      </BentoCard>
+
+      {/* 3. Objetivo de entrenamiento */}
+      <div className="h-full">
+        <StudentGoalsPanel studentId={studentId} />
+      </div>
     </div>
   );
 }
@@ -178,14 +202,9 @@ export function StudentProfilePage({ studentId }: { studentId: string }) {
         title="Tus datos de entrenamiento."
         description="Lo que declares acá lo ve tu entrenador para cuidar tu rutina."
       />
-      <main className="page-body grid grid-cols-1 items-start gap-6 lg:grid-cols-12">
-        <div className="lg:col-span-5">
-          <ProfileSummary />
-        </div>
-        <div className="flex flex-col gap-6 lg:col-span-7">
-          <StudentGoalsPanel studentId={studentId} />
-          <StudentConditionsPanel studentId={studentId} />
-        </div>
+      <main className="page-body space-y-6">
+        <ProfileSummary studentId={studentId} />
+        <StudentConditionsPanel studentId={studentId} />
       </main>
     </div>
   );

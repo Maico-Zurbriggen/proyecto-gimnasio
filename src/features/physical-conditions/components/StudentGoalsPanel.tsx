@@ -51,154 +51,156 @@ export function StudentGoalsPanel({ studentId }: { studentId: string }) {
   };
 
   return (
-    <BentoCard>
-      <h2 className="font-display text-lg font-semibold tracking-tight">
-        Objetivo de entrenamiento
-      </h2>
-      <p className="mt-1 text-sm text-[#68675f]">
-        Tu objetivo vigente se utiliza para construir y revisar tus rutinas.
-      </p>
+    <BentoCard className="flex h-full flex-col justify-between">
+      <div>
+        <h2 className="font-display text-lg font-semibold tracking-tight">
+          Objetivo de entrenamiento
+        </h2>
+        <p className="mt-1 text-sm text-[#68675f]">
+          Tu objetivo vigente se utiliza para construir y revisar tus rutinas.
+        </p>
 
-      {goals.isPending ? (
-        <LoadingState
-          label="Cargando objetivo…"
-          variant="card"
-          className="mt-4"
-        />
-      ) : goals.isError ? (
-        <div className="mt-4 flex flex-col items-start gap-3">
-          <p role="alert" className="field-error">
-            No pudimos cargar tu objetivo.
-          </p>
-          <button
-            type="button"
-            className="btn-secondary btn-sm"
-            disabled={goals.isFetching}
-            onClick={() => void goals.refetch()}
-          >
-            Reintentar
-          </button>
-        </div>
-      ) : (
-        <>
-          <div className="surface-muted mt-4">
-            <p className="eyebrow text-[#77756d]">Objetivo vigente</p>
-            <p className="font-display mt-1.5 text-base font-semibold tracking-tight">
-              {goals.data.current
-                ? humanizeEnum(goals.data.current.type)
-                : 'Sin declarar'}
+        {goals.isPending ? (
+          <LoadingState
+            label="Cargando objetivo…"
+            variant="card"
+            className="mt-4"
+          />
+        ) : goals.isError ? (
+          <div className="mt-4 flex flex-col items-start gap-3">
+            <p role="alert" className="field-error">
+              No pudimos cargar tu objetivo.
             </p>
-            {goals.data.current ? (
-              <p className="mt-1 text-xs text-[#68675f]">
-                Desde {formatDate(goals.data.current.startsOn)}
-              </p>
-            ) : null}
-          </div>
-
-          <form
-            aria-label="Actualizar objetivo de entrenamiento"
-            className="mt-4 flex flex-col gap-3"
-            onSubmit={submit}
-          >
-            <label htmlFor={selectId} className="field-label">
-              {goals.data.current ? 'Cambiar objetivo' : 'Declarar objetivo'}
-            </label>
-            <select
-              id={selectId}
-              className="field"
-              value={selected}
-              onChange={(event) => {
-                setSelected(event.target.value as GoalType | '');
-                setConfirming(false);
-                setFeedback(null);
-              }}
-            >
-              <option value="">Elegí un objetivo</option>
-              {GOAL_TYPES.map((type) => (
-                <option key={type} value={type}>
-                  {humanizeEnum(type)}
-                </option>
-              ))}
-            </select>
             <button
-              type="submit"
-              className="btn-primary btn-sm self-start"
-              disabled={!selected || save.isPending}
+              type="button"
+              className="btn-secondary btn-sm"
+              disabled={goals.isFetching}
+              onClick={() => void goals.refetch()}
             >
-              {save.isPending ? 'Guardando…' : 'Guardar objetivo'}
+              Reintentar
             </button>
-            {save.isError ? (
-              <p role="alert" className="field-error">
-                No pudimos guardar el objetivo. Probá de nuevo.
+          </div>
+        ) : (
+          <>
+            <div className="surface-muted mt-4">
+              <p className="eyebrow text-[#77756d]">Objetivo vigente</p>
+              <p className="font-display mt-1.5 text-base font-semibold tracking-tight">
+                {goals.data.current
+                  ? humanizeEnum(goals.data.current.type)
+                  : 'Sin declarar'}
               </p>
-            ) : null}
-            {feedback ? (
-              <p role="status" className="text-sm text-[#426b45]">
-                {feedback}
-              </p>
-            ) : null}
-          </form>
-
-          {confirming && selected ? (
-            <div
-              role="alertdialog"
-              aria-labelledby="goal-change-title"
-              aria-describedby="goal-change-description"
-              className="surface-muted mt-4"
-            >
-              <h3 id="goal-change-title" className="font-semibold">
-                Confirmar cambio de objetivo
-              </h3>
-              <p
-                id="goal-change-description"
-                className="mt-2 text-sm text-[#68675f]"
-              >
-                Cambiar tu objetivo puede generar una propuesta de ajuste de
-                rutina. La propuesta deberá ser revisada por tu entrenador.
-              </p>
-              <div className="mt-4 flex flex-wrap gap-2">
-                <button
-                  type="button"
-                  className="btn-primary btn-sm"
-                  disabled={save.isPending}
-                  onClick={() => save.mutate(selected)}
-                >
-                  {save.isPending ? 'Guardando…' : 'Confirmar cambio'}
-                </button>
-                <button
-                  type="button"
-                  className="btn-secondary btn-sm"
-                  disabled={save.isPending}
-                  onClick={() => setConfirming(false)}
-                >
-                  Cancelar
-                </button>
-              </div>
+              {goals.data.current ? (
+                <p className="mt-1 text-xs text-[#68675f]">
+                  Desde {formatDate(goals.data.current.startsOn)}
+                </p>
+              ) : null}
             </div>
-          ) : null}
 
-          {goals.data.history.length > 1 ? (
-            <details className="mt-5">
-              <summary className="cursor-pointer text-sm font-semibold">
-                Ver historial ({String(goals.data.history.length)})
-              </summary>
-              <ul className="mt-3 flex flex-col gap-2">
-                {goals.data.history.map((goal) => (
-                  <li key={goal.id} className="surface-muted text-sm">
-                    <span className="font-semibold">
-                      {humanizeEnum(goal.type)}
-                    </span>{' '}
-                    <span className="text-[#68675f]">
-                      desde {formatDate(goal.startsOn)}
-                      {goal.endsOn ? ` hasta ${formatDate(goal.endsOn)}` : ''}
-                    </span>
-                  </li>
+            <form
+              aria-label="Actualizar objetivo de entrenamiento"
+              className="mt-4 flex flex-col gap-3"
+              onSubmit={submit}
+            >
+              <label htmlFor={selectId} className="field-label">
+                {goals.data.current ? 'Cambiar objetivo' : 'Declarar objetivo'}
+              </label>
+              <select
+                id={selectId}
+                className="field"
+                value={selected}
+                onChange={(event) => {
+                  setSelected(event.target.value as GoalType | '');
+                  setConfirming(false);
+                  setFeedback(null);
+                }}
+              >
+                <option value="">Elegí un objetivo</option>
+                {GOAL_TYPES.map((type) => (
+                  <option key={type} value={type}>
+                    {humanizeEnum(type)}
+                  </option>
                 ))}
-              </ul>
-            </details>
-          ) : null}
-        </>
-      )}
+              </select>
+              <button
+                type="submit"
+                className="btn-primary btn-sm self-start"
+                disabled={!selected || save.isPending}
+              >
+                {save.isPending ? 'Guardando…' : 'Guardar objetivo'}
+              </button>
+              {save.isError ? (
+                <p role="alert" className="field-error">
+                  No pudimos guardar el objetivo. Probá de nuevo.
+                </p>
+              ) : null}
+              {feedback ? (
+                <p role="status" className="text-sm text-[#426b45]">
+                  {feedback}
+                </p>
+              ) : null}
+            </form>
+
+            {confirming && selected ? (
+              <div
+                role="alertdialog"
+                aria-labelledby="goal-change-title"
+                aria-describedby="goal-change-description"
+                className="surface-muted mt-4"
+              >
+                <h3 id="goal-change-title" className="font-semibold">
+                  Confirmar cambio de objetivo
+                </h3>
+                <p
+                  id="goal-change-description"
+                  className="mt-2 text-sm text-[#68675f]"
+                >
+                  Cambiar tu objetivo puede generar una propuesta de ajuste de
+                  rutina. La propuesta deberá ser revisada por tu entrenador.
+                </p>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    className="btn-primary btn-sm"
+                    disabled={save.isPending}
+                    onClick={() => save.mutate(selected)}
+                  >
+                    {save.isPending ? 'Guardando…' : 'Confirmar cambio'}
+                  </button>
+                  <button
+                    type="button"
+                    className="btn-secondary btn-sm"
+                    disabled={save.isPending}
+                    onClick={() => setConfirming(false)}
+                  >
+                    Cancelar
+                  </button>
+                </div>
+              </div>
+            ) : null}
+
+            {goals.data.history.length > 1 ? (
+              <details className="mt-5">
+                <summary className="cursor-pointer text-sm font-semibold">
+                  Ver historial ({String(goals.data.history.length)})
+                </summary>
+                <ul className="mt-3 flex flex-col gap-2">
+                  {goals.data.history.map((goal) => (
+                    <li key={goal.id} className="surface-muted text-sm">
+                      <span className="font-semibold">
+                        {humanizeEnum(goal.type)}
+                      </span>{' '}
+                      <span className="text-[#68675f]">
+                        desde {formatDate(goal.startsOn)}
+                        {goal.endsOn ? ` hasta ${formatDate(goal.endsOn)}` : ''}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </details>
+            ) : null}
+          </>
+        )}
+      </div>
     </BentoCard>
   );
 }
