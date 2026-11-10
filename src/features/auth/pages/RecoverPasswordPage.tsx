@@ -45,7 +45,7 @@ function Marco({
             </p>
           </div>
         </div>
-        <div className="flex flex-col gap-4 rounded-3xl border border-[#292823]/8 bg-white p-6 sm:p-8">
+        <div className="flex flex-col gap-4 rounded-3xl border border-[#292823]/12 bg-white p-6 shadow-[0_16px_40px_-20px_rgb(20_20_18/0.15)] sm:p-8">
           {children}
         </div>
       </div>

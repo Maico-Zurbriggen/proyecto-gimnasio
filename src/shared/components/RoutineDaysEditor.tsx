@@ -44,7 +44,7 @@ function ExercisePicker({
   }
 
   return (
-    <div className="rounded-2xl border border-[#292823]/8 bg-white/70 p-3">
+    <div className="rounded-2xl border border-[#292823]/12 bg-white p-3.5 shadow-2xs">
       <div className="flex gap-2">
         <label className="sr-only" htmlFor={`buscar-${dayKey}`}>
           Buscar ejercicio habilitado
@@ -140,23 +140,41 @@ export function RoutineDaysEditor({ days, onChange }: RoutineDaysEditorProps) {
   return (
     <div className="space-y-4">
       {days.map((day, dayIndex) => (
-        <fieldset key={day.key} className="surface-muted space-y-3">
-          <legend className="font-display float-left mb-1 flex w-full items-center gap-2 text-base font-semibold tracking-tight">
-            <span
-              aria-hidden="true"
-              className="flex size-7 items-center justify-center rounded-lg bg-graphite text-xs font-bold text-lime"
+        <fieldset
+          key={day.key}
+          className="surface-muted space-y-3.5 overflow-hidden"
+        >
+          <div className="flex items-center justify-between gap-3 border-b border-[#292823]/10 pb-2">
+            <legend className="font-display flex items-center gap-2 text-base font-semibold tracking-tight p-0 m-0">
+              <span
+                aria-hidden="true"
+                className="flex size-7 items-center justify-center rounded-lg bg-graphite text-xs font-bold text-lime shadow-xs"
+              >
+                {dayIndex + 1}
+              </span>
+              Día {dayIndex + 1}
+            </legend>
+            <button
+              type="button"
+              className="btn-danger btn-sm shrink-0"
+              disabled={days.length <= 1}
+              onClick={() =>
+                update((current) =>
+                  current.filter((item) => item.key !== day.key),
+                )
+              }
+              aria-label={`Quitar día ${dayIndex + 1}`}
             >
-              {dayIndex + 1}
-            </span>
-            Día {dayIndex + 1}
-          </legend>
-          <div className="flex gap-2">
+              Quitar
+            </button>
+          </div>
+          <div>
             <label className="sr-only" htmlFor={`dia-${day.key}`}>
               Nombre del día {dayIndex + 1}
             </label>
             <input
               id={`dia-${day.key}`}
-              className="field"
+              className="field w-full"
               value={day.name}
               onChange={(event) =>
                 update((current) =>
@@ -170,25 +188,12 @@ export function RoutineDaysEditor({ days, onChange }: RoutineDaysEditorProps) {
               maxLength={80}
               placeholder="p. ej. Día A - Empuje"
             />
-            <button
-              type="button"
-              className="btn-danger btn-sm"
-              disabled={days.length <= 1}
-              onClick={() =>
-                update((current) =>
-                  current.filter((item) => item.key !== day.key),
-                )
-              }
-              aria-label={`Quitar día ${dayIndex + 1}`}
-            >
-              Quitar
-            </button>
           </div>
 
           {day.exercises.map((exercise) => (
             <div
               key={exercise.key}
-              className="space-y-2 rounded-2xl border border-[#292823]/8 bg-white p-3"
+              className="space-y-2 rounded-2xl border border-[#292823]/12 bg-white p-3.5 shadow-2xs"
             >
               <div className="flex items-center justify-between gap-2">
                 <p className="text-sm font-bold">{exercise.exerciseName}</p>

@@ -52,7 +52,7 @@ function InventoryPanel({
     onSuccess: (result) => onSaved(result.relatedExercises),
   });
   return (
-    <details className="rounded-2xl border border-[#292823]/8 bg-white p-4 sm:p-5">
+    <details className="rounded-2xl border border-[#292823]/12 bg-white p-4 sm:p-5 shadow-xs">
       <summary className="cursor-pointer font-semibold">
         Equipamiento del gimnasio
       </summary>
@@ -508,7 +508,7 @@ function CatalogContent({ manage }: { manage: boolean }) {
           />
         )}
         {relatedExercises.length > 0 && (
-          <section className="rounded-2xl border border-[#292823]/8 bg-white p-4 sm:p-5">
+          <section className="rounded-2xl border border-[#292823]/12 bg-white p-4 sm:p-5 shadow-xs">
             <h2 className="font-semibold">
               Ejercicios relacionados con el inventario
             </h2>
@@ -588,7 +588,7 @@ function CatalogContent({ manage }: { manage: boolean }) {
           </p>
         )}
         <section
-          className="space-y-4 rounded-3xl border border-[#292823]/8 bg-white p-4 sm:p-5"
+          className="space-y-4 rounded-3xl border border-[#292823]/12 bg-white p-4 sm:p-5 shadow-xs"
           aria-label="Buscar y filtrar ejercicios"
         >
           <form
@@ -837,7 +837,7 @@ function CatalogContent({ manage }: { manage: boolean }) {
                 {catalog.data.items.map((item) => (
                   <article
                     key={item.id}
-                    className="card-interactive flex flex-col overflow-hidden rounded-2xl border border-[#292823]/8 bg-white/70 p-4 hover:bg-white"
+                    className="card-interactive flex flex-col overflow-hidden rounded-2xl border border-[#292823]/12 bg-white p-4 shadow-xs hover:border-[#292823]/30 hover:shadow-md"
                   >
                     <button
                       type="button"

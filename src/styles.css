@@ -7,8 +7,8 @@
   --color-ink: #20201d;
   --color-graphite: #242420;
   --color-graphite-soft: #292823;
-  --color-ivory: #f4f3ee;
-  --color-ivory-card: #fbfaf5;
+  --color-ivory: #eceae3;
+  --color-ivory-card: #ffffff;
   --color-lime: #c6ff36;
   --color-lime-soft: #e9f8c6;
   --color-coral: #efd5c9;
@@ -27,11 +27,9 @@ body {
   font-family: var(--font-sans);
   color: var(--color-ink);
   background: var(--color-ivory);
-  background-image: radial-gradient(
-    circle at 95% 5%,
-    rgb(198 255 54 / 14%),
-    transparent 23rem
-  );
+  background-image:
+    radial-gradient(circle at 92% 4%, rgb(198 255 54 / 16%), transparent 28rem),
+    radial-gradient(circle at 8% 92%, rgb(198 255 54 / 6%), transparent 24rem);
 }
 
 * {
@@ -58,13 +56,17 @@ aside :focus-visible {
   .bento-card {
     position: relative;
     overflow: hidden;
-    border: 1px solid rgb(41 40 35 / 8%);
-    background: rgb(255 254 250 / 86%);
+    border: 1px solid rgb(36 36 32 / 12%);
+    background: #ffffff;
     box-shadow:
-      0 1px 2px rgb(20 20 18 / 4%),
-      0 12px 32px -18px rgb(20 20 18 / 14%);
+      0 1px 3px rgb(20 20 18 / 4%),
+      0 10px 28px -6px rgb(20 20 18 / 7%);
     border-radius: 1.5rem;
     padding: 1.5rem;
+    transition:
+      transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+      box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+      border-color 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
   .technical-notch::after {
@@ -72,9 +74,10 @@ aside :focus-visible {
     position: absolute;
     top: 0;
     right: 2.4rem;
-    width: 2.1rem;
+    width: 2.5rem;
     height: 3px;
     background: var(--color-lime);
+    box-shadow: 0 0 10px var(--color-lime);
   }
 }
 
@@ -94,51 +97,51 @@ aside :focus-visible {
 
 /* Tarjeta que reacciona al cursor; el cursor lo pone el link si lo hay. */
 @utility card-interactive {
-  @apply transition duration-200 hover:-translate-y-0.5 hover:border-[#292823]/20 hover:shadow-[0_14px_30px_-20px_rgb(20_20_18/0.35)];
+  @apply transition-all duration-200 ease-out hover:-translate-y-1 hover:border-[#292823]/30 hover:bg-white hover:shadow-[0_16px_36px_-14px_rgb(20_20_18/0.18)];
 }
 
 /* Fila de lista que reacciona al cursor sin moverse. */
 @utility row-interactive {
-  @apply transition duration-150 hover:border-[#292823]/20 hover:bg-[#faf9f4];
+  @apply transition-all duration-150 hover:border-[#292823]/25 hover:bg-[#f6f5ee] hover:shadow-xs;
 }
 
 /* Bloque secundario dentro de una tarjeta (sub-secciones, filas, resúmenes). */
 @utility surface-muted {
-  @apply rounded-2xl border border-[#292823]/8 bg-[#faf9f4] p-4;
+  @apply rounded-2xl border border-[#292823]/10 bg-[#f7f6f1] p-4.5;
 }
 
 /* Botones: una sola escala de tamaño y forma para toda la app. */
 @utility btn {
-  @apply inline-flex items-center justify-center gap-2 rounded-full px-4.5 py-2.5 text-sm leading-5 font-bold whitespace-nowrap transition duration-150 disabled:cursor-not-allowed disabled:opacity-55;
+  @apply inline-flex items-center justify-center gap-2 rounded-full px-4.5 py-2.5 text-sm leading-5 font-bold whitespace-nowrap transition-all duration-150 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-55 disabled:active:scale-100;
 }
 
 @utility btn-sm {
-  @apply px-3.5 py-1.5 text-xs;
+  @apply px-3.5 py-1.5 text-xs font-semibold;
 }
 
 @utility btn-primary {
-  @apply btn bg-graphite text-white hover:bg-[#3a3933] active:translate-y-px disabled:bg-[#292823]/12 disabled:text-[#77756d] disabled:opacity-100;
+  @apply btn bg-graphite text-white shadow-xs hover:bg-[#1a1a17] hover:shadow-md active:translate-y-px disabled:bg-[#292823]/15 disabled:text-[#8c8a82] disabled:opacity-100 disabled:shadow-none;
 }
 
 @utility btn-accent {
-  @apply btn bg-lime text-graphite hover:brightness-95 active:translate-y-px;
+  @apply btn bg-lime text-graphite shadow-xs hover:brightness-105 hover:shadow-[0_4px_16px_rgba(198,255,54,0.35)] active:translate-y-px;
 }
 
 @utility btn-secondary {
-  @apply btn border border-[#292823]/15 bg-white text-ink hover:border-[#292823]/30 hover:bg-[#faf9f4];
+  @apply btn border border-[#242420]/25 bg-[#eae7de] text-ink shadow-2xs hover:border-[#242420]/45 hover:bg-[#dedad0] hover:shadow-xs active:translate-y-px;
 }
 
 @utility btn-ghost {
-  @apply btn text-[#3d3c36] hover:bg-black/5;
+  @apply btn border border-transparent text-[#3d3c36] hover:border-[#292823]/15 hover:bg-[#292823]/8 hover:text-ink;
 }
 
 @utility btn-danger {
-  @apply btn border border-coral-strong/40 bg-white text-[#7a2a20] hover:bg-[#fbe7e5];
+  @apply btn border border-[#e36a5b]/60 bg-[#feebe8] text-[#a42616] shadow-2xs hover:bg-[#fcdad5] hover:border-[#e36a5b] hover:text-[#881a0c] active:translate-y-px;
 }
 
 /* Campos de formulario. */
 @utility field {
-  @apply w-full rounded-xl border font-sans tracking-normal normal-case border-[#292823]/15 bg-white px-3.5 py-2.5 text-sm font-medium text-ink transition outline-none placeholder:text-[#a3a096] hover:border-[#292823]/25 focus:border-graphite focus:ring-3 focus:ring-lime/45 disabled:cursor-not-allowed disabled:bg-[#f4f3ee] disabled:text-[#8c897f] aria-[invalid=true]:border-coral-strong;
+  @apply w-full rounded-xl border font-sans tracking-normal normal-case border-[#292823]/20 bg-white px-3.5 py-2.5 text-sm font-medium text-ink transition-all shadow-xs outline-none placeholder:text-[#a3a096] hover:border-[#292823]/35 focus:border-graphite focus:ring-3 focus:ring-lime/60 disabled:cursor-not-allowed disabled:bg-[#eceae3] disabled:text-[#8c897f] aria-[invalid=true]:border-coral-strong;
 }
 
 @utility field-label {

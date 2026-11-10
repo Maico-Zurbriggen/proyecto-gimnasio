@@ -32,7 +32,7 @@ export function CodeChoices({
   onChange: (value: string[]) => void;
 }) {
   return (
-    <fieldset className="rounded-2xl border border-[#292823]/8 bg-white/70 p-4">
+    <fieldset className="rounded-2xl border border-[#292823]/12 bg-white p-4 shadow-xs">
       <legend className="px-1 text-sm font-semibold">{title}</legend>
       <div className="grid max-h-48 grid-cols-1 gap-2 overflow-auto sm:grid-cols-2">
         {options.map((item) => (
@@ -130,7 +130,7 @@ export function ExerciseForm({
   return (
     <form
       onSubmit={submit}
-      className="space-y-5 rounded-3xl border border-[#292823]/8 bg-white p-5 sm:p-6"
+      className="space-y-5 rounded-3xl border border-[#292823]/12 bg-white p-5 sm:p-6 shadow-xs"
       aria-label={
         item ? 'Editar ejercicio propio' : 'Proponer ejercicio propio'
       }

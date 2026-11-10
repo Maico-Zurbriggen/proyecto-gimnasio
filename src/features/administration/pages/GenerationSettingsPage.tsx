@@ -131,7 +131,7 @@ export function GenerationSettingsPage() {
                 {ranges.map(([label, minimum, maximum, lower, upper]) => (
                   <div
                     key={minimum}
-                    className="rounded-2xl border border-[#292823]/8 bg-white/70 p-4"
+                    className="rounded-2xl border border-[#292823]/12 bg-white p-4 shadow-xs"
                   >
                     <p className="mb-2 text-sm font-bold">{label}</p>
                     <div className="grid grid-cols-2 gap-3">
@@ -160,7 +160,7 @@ export function GenerationSettingsPage() {
                     </div>
                   </div>
                 ))}
-                <label className="rounded-2xl border border-[#292823]/8 bg-white/70 p-4 text-sm font-bold">
+                <label className="rounded-2xl border border-[#292823]/12 bg-white p-4 text-sm font-bold shadow-xs">
                   Series de calentamiento por ejercicio
                   <input
                     aria-label="Series de calentamiento por ejercicio"

@@ -133,7 +133,7 @@ export function RoutinePrescriptionPanel({
         ) : null}
 
         {vigente ? (
-          <section className="flex flex-col gap-4 rounded-2xl border border-[#292823]/8 bg-white/60 p-4 sm:p-5">
+          <section className="flex flex-col gap-4 rounded-2xl border border-[#292823]/12 bg-white p-4 sm:p-5 shadow-xs">
             <div className="flex flex-wrap items-center gap-2">
               <span className="chip-ok">Rutina vigente</span>
               <span className="text-xs font-medium text-[#77756d]">
