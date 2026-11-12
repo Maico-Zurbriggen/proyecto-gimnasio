@@ -25,6 +25,8 @@ function review(overrides: Record<string, unknown> = {}) {
       periodEnd: '2026-09-14',
       globalSituation: 'ESTANCAMIENTO',
       adherence: 62.5,
+      componentVersion: 'evolution-diagnostic-v1',
+      dataOrigin: 'REAL',
     },
     adjustments: [
       {
@@ -463,7 +465,7 @@ describe('ProposalReviewPage (HU04)', () => {
       screen.getByRole('link', { name: 'Editar rutina manualmente' }),
     ).toHaveAttribute(
       'href',
-      '/entrenador/alumnos/20000000-0000-4000-8000-000000000005/rutina',
+      `/entrenador/alumnos/20000000-0000-4000-8000-000000000005/rutina?proposalId=${PROPOSAL}&adjustmentId=${ADJ_LOAD}&routineExerciseId=re-1&exerciseName=Press%20militar#manual-routine-editor`,
     );
   });
 

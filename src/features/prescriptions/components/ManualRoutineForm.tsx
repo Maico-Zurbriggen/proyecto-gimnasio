@@ -1,13 +1,15 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { ApiError } from '../../../api/client';
 import {
   TRAINING_PURPOSES,
+  type RoutineContent,
   type WriteManualRoutine,
 } from '../../../api/prescriptions';
 import { RoutineDaysEditor } from '../../../shared/components/RoutineDaysEditor';
 import {
   blankDayForm,
+  detailToDayForms,
   dayFormsToPayload,
   validateDayForms,
   type RoutineDayForm,
@@ -41,6 +43,7 @@ export interface ManualRoutineFormProps {
   pending: boolean;
   problems: string[];
   onSubmit: (input: WriteManualRoutine) => void;
+  initialRoutine?: RoutineContent;
 }
 
 /**
@@ -52,11 +55,26 @@ export function ManualRoutineForm({
   pending,
   problems,
   onSubmit,
+  initialRoutine,
 }: ManualRoutineFormProps) {
   const [routineType, setRoutineType] =
     useState<WriteManualRoutine['routineType']>('HIPERTROFIA');
   const [days, setDays] = useState<RoutineDayForm[]>([blankDayForm()]);
   const [localProblems, setLocalProblems] = useState<string[]>([]);
+  const initialized = useRef(false);
+
+  useEffect(() => {
+    if (!initialRoutine || initialized.current) return;
+    initialized.current = true;
+    setRoutineType(initialRoutine.routineType);
+    setDays(
+      detailToDayForms({
+        name: '',
+        routineType: initialRoutine.routineType,
+        days: initialRoutine.days,
+      }),
+    );
+  }, [initialRoutine]);
 
   function guardar(event: React.FormEvent) {
     event.preventDefault();
