@@ -185,6 +185,21 @@ export function ProposalReviewPage() {
         actions={backLink}
       />
       <main className="page-body flex flex-col gap-4">
+        <Banner
+          variant={diagnostic.dataOrigin === 'REAL' ? 'info' : 'warning'}
+          title={
+            diagnostic.dataOrigin === 'REAL'
+              ? 'Diagnóstico calculado con datos reales'
+              : 'Diagnóstico de prueba con datos simulados'
+          }
+        >
+          <p>
+            {diagnostic.dataOrigin === 'REAL'
+              ? 'Las sesiones simuladas fueron excluidas del cálculo.'
+              : 'Este diagnóstico fue cargado como fixture de prueba y no representa actividad real del alumno.'}{' '}
+            Componente: {diagnostic.componentVersion}.
+          </p>
+        </Banner>
         <OutdatedDataWarning proposal={proposal.advertenciaDatos} />
 
         {diagnostic.adherence === null ? (
@@ -346,7 +361,7 @@ export function ProposalReviewPage() {
                         />
                         {manual ? (
                           <Link
-                            to={`/entrenador/alumnos/${proposal.student.id}/rutina`}
+                            to={`/entrenador/alumnos/${proposal.student.id}/rutina?proposalId=${encodeURIComponent(proposal.id)}&adjustmentId=${encodeURIComponent(adjustment.id)}${adjustment.routineExerciseId ? `&routineExerciseId=${encodeURIComponent(adjustment.routineExerciseId)}` : ''}${adjustment.exerciseName ? `&exerciseName=${encodeURIComponent(adjustment.exerciseName)}` : ''}#manual-routine-editor`}
                             className="btn-secondary btn-sm mt-3 inline-flex"
                           >
                             Editar rutina manualmente
