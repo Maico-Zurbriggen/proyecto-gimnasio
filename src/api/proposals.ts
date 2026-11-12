@@ -66,6 +66,8 @@ export const proposalReviewSchema = z.object({
     periodEnd: z.string(),
     globalSituation: z.string(),
     adherence: z.number().nullable(),
+    componentVersion: z.string(),
+    dataOrigin: z.enum(['REAL', 'SIMULATED']),
   }),
   adjustments: z.array(proposalAdjustmentSchema),
   advertenciaDatos: advertenciaDatosSchema,

@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 
 import { ApiError } from '../../../api/client';
 import type { RoutineSummary } from '../../../api/prescriptions';
@@ -50,6 +51,13 @@ export interface RoutinePrescriptionPanelProps {
    * del alumno en tercera persona (vista del entrenador).
    */
   nombreAlumno?: string;
+  /** Contexto del ajuste que llevó al entrenador a esta edición manual. */
+  manualEditContext?: {
+    proposalId: string;
+    adjustmentId: string | null;
+    routineExerciseId: string | null;
+    exerciseName: string | null;
+  };
 }
 
 /**
@@ -62,6 +70,7 @@ export interface RoutinePrescriptionPanelProps {
 export function RoutinePrescriptionPanel({
   studentId,
   nombreAlumno,
+  manualEditContext,
 }: RoutinePrescriptionPanelProps) {
   const templates = useRoutineTemplates();
   const routines = useStudentRoutines(studentId);
@@ -81,8 +90,36 @@ export function RoutinePrescriptionPanel({
   const operando = assign.isPending || review.isPending;
   const error = assign.error;
 
+  useEffect(() => {
+    if (!manualEditContext || !contenidoVigente.data || propuesta) return;
+    const editor = document.getElementById('manual-routine-editor');
+    editor?.scrollIntoView?.({ behavior: 'smooth', block: 'start' });
+    editor?.querySelector<HTMLElement>('select, input, button')?.focus();
+  }, [contenidoVigente.data, manualEditContext, propuesta]);
+
   return (
     <>
+      {manualEditContext ? (
+        <Banner
+          variant="warning"
+          title="Edición manual vinculada a una propuesta"
+        >
+          <p>
+            Llegaste desde un ajuste que requiere intervención manual. Revisá la
+            rutina vigente y armá la corrección; la propuesta original seguirá
+            pendiente hasta que la resuelvas.
+            {manualEditContext.exerciseName
+              ? ` El ajuste señalado corresponde a ${manualEditContext.exerciseName}.`
+              : ''}
+          </p>
+          <Link
+            to={`/entrenador/propuestas/${manualEditContext.proposalId}`}
+            className="btn-secondary btn-sm mt-3 inline-flex"
+          >
+            Volver a la propuesta
+          </Link>
+        </Banner>
+      ) : null}
       <BentoCard className="flex flex-col gap-4">
         <div>
           <p className="eyebrow text-[#77756d]">Prescripción</p>
@@ -257,7 +294,10 @@ export function RoutinePrescriptionPanel({
             revisionHref={`/entrenador/alumnos/${studentId}/rutina`}
             nombreAlumno={nombreAlumno ?? 'el alumno'}
           />
-          <BentoCard className="flex flex-col gap-4">
+          <BentoCard
+            id="manual-routine-editor"
+            className="flex scroll-mt-6 flex-col gap-4"
+          >
             <div>
               <p className="eyebrow text-[#77756d]">Rutina manual</p>
               <h3 className="font-display mt-2 text-lg font-semibold tracking-tight">
@@ -281,6 +321,7 @@ export function RoutinePrescriptionPanel({
             <ManualRoutineForm
               pending={manual.isPending}
               problems={[]}
+              initialRoutine={contenidoVigente.data}
               onSubmit={(input) => manual.mutate(input)}
             />
           </BentoCard>

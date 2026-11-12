@@ -2,7 +2,7 @@ import { ArrowUpRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 import type { TrainerStudent } from '../../../api/students';
-import { humanizeEnum } from '../../../shared/lib/format';
+import { formatDate, humanizeEnum } from '../../../shared/lib/format';
 import { pendingReviewsForStudent } from '../lib/pendingReviews';
 
 type Signal = 'En ritmo' | 'Revisar' | 'Bloqueado';
@@ -71,6 +71,21 @@ export function StudentRow({ student }: { student: TrainerStudent }) {
         <p className="mt-0.5 text-xs text-[#77756d]">
           {routineSummary(student)}
         </p>
+        <p className="mt-1 text-xs text-[#77756d]">
+          Última sesión:{' '}
+          {student.ultimaSesion
+            ? formatDate(student.ultimaSesion)
+            : 'sin datos'}
+          {' · '}Adherencia:{' '}
+          {student.adherenciaReciente === null
+            ? 'sin datos suficientes'
+            : `${Math.round(student.adherenciaReciente)} %`}
+        </p>
+        {student.senales.length > 0 ? (
+          <p className="mt-1 text-xs font-semibold text-[#8a5a00]">
+            {student.senales.map(humanizeEnum).join(' · ')}
+          </p>
+        ) : null}
       </div>
       {student.fechaUltimaMedicion === null ? (
         <span className="text-xs font-bold text-[#b23f2f]">Sin mediciones</span>

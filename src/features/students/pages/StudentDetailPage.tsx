@@ -52,7 +52,17 @@ function unlockErrorMessage(error: unknown): string {
  */
 export function StudentDetailPage() {
   const { studentId = '' } = useParams<{ studentId: string }>();
-  const { pathname } = useLocation();
+  const { pathname, search } = useLocation();
+  const searchParams = new URLSearchParams(search);
+  const proposalId = searchParams.get('proposalId');
+  const manualEditContext = proposalId
+    ? {
+        proposalId,
+        adjustmentId: searchParams.get('adjustmentId'),
+        routineExerciseId: searchParams.get('routineExerciseId'),
+        exerciseName: searchParams.get('exerciseName'),
+      }
+    : undefined;
   const tab = pathname.endsWith('/rutina')
     ? 'rutina'
     : pathname.endsWith('/mediciones')
@@ -263,6 +273,7 @@ export function StudentDetailPage() {
                 key={`prescripcion-${student.studentId}`}
                 studentId={student.studentId}
                 nombreAlumno={student.displayName}
+                manualEditContext={manualEditContext}
               />
             </div>
           )

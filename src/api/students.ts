@@ -36,6 +36,25 @@ export const trainerStudentSchema = studentStatusSchema.extend({
     .nullable(),
   rutinasPendientesRevision: z.number().int().nonnegative(),
   propuestasAdaptacionPendientes: z.number().int().nonnegative(),
+  ultimaSesion: z.string().nullable(),
+  adherenciaReciente: z.number().nullable(),
+  estadoAdherencia: z.enum(['DISPONIBLE', 'DATOS_INSUFICIENTES']),
+  senales: z.array(
+    z.enum([
+      'INCOMPATIBILIDAD_SOBREVENIDA',
+      'ESTANCAMIENTO',
+      'CAIDA_ADHERENCIA',
+      'DATOS_INSUFICIENTES',
+    ]),
+  ),
+  prioridad: z.number().int().min(1).max(5),
+  motivoPrioridad: z.enum([
+    'REVISION_PENDIENTE',
+    'INCOMPATIBILIDAD_SOBREVENIDA',
+    'ESTANCAMIENTO',
+    'CAIDA_ADHERENCIA',
+    'SIN_SENAL',
+  ]),
 });
 
 export type StudentStatus = z.infer<typeof studentStatusSchema>;
