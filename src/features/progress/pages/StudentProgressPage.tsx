@@ -1,4 +1,5 @@
 import { PageHeader } from '../../../shared/ui/PageHeader';
+import { EvolutionDiagnosticCard } from '../../evolution-diagnostics/components/EvolutionDiagnosticCard';
 import { AdherenceCard } from '../components/AdherenceCard';
 import { MuscleActivityCard } from '../components/MuscleActivityCard';
 import { SessionComplianceCard } from '../components/SessionComplianceCard';
@@ -23,6 +24,8 @@ export function StudentProgressPage({ studentId }: StudentProgressPageProps) {
         description="Adherencia a la rutina, cumplimiento de sesiones y volumen por grupo muscular."
       />
       <main className="page-body space-y-6">
+        <EvolutionDiagnosticCard studentId={studentId} />
+
         {/* Fila superior: Adherencia y Cumplimiento de última sesión (HU34 T1) */}
         <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
           <AdherenceCard studentId={studentId} />
