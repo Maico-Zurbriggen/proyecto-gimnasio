@@ -8,6 +8,7 @@ import { PageHeader } from '../../../shared/ui/PageHeader';
 import { SectionTabs } from '../../../shared/ui/SectionTabs';
 import { RoutinePrescriptionPanel } from '../../prescriptions/components/RoutinePrescriptionPanel';
 import { TrainerConditionsCard } from '../../physical-conditions/components/TrainerConditionsCard';
+import { EvolutionDiagnosticCard } from '../../evolution-diagnostics/components/EvolutionDiagnosticCard';
 import { StudentPendingProposals } from '../../adaptation-proposals/components/StudentPendingProposals';
 import { RoutineHistoryTimeline } from '../../routine-history/components/RoutineHistoryTimeline';
 import { TrainingHistoryPage } from '../../training-sessions/pages/TrainingHistoryPage';
@@ -247,6 +248,10 @@ export function StudentDetailPage() {
             </div>
             {/* HU35: Señales en pantalla para el entrenador (estancamiento, caída, desbalance) */}
             <TrainerSignalsCard studentId={student.studentId} />
+            <EvolutionDiagnosticCard
+              studentId={student.studentId}
+              allowRecalculate
+            />
             {/* HU11: condiciones declaradas por el alumno, sólo lectura. */}
             <div className="grid grid-cols-1 items-stretch gap-5 lg:grid-cols-2">
               <TrainerGoalsCard studentId={student.studentId} />
