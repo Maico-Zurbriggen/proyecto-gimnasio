@@ -4,7 +4,14 @@ import { renderRoute } from '../../../test/apiMocks';
 import { ApiError } from '../../api/client';
 import { CatalogPage } from './CatalogPage';
 const fixtures = vi.hoisted(() => ({
-  user: { id: 'actor', gymId: 'gym', roles: ['ALUMNO'] },
+  user: {
+    id: 'actor',
+    gymId: 'gym',
+    displayName: 'Alumno Demo',
+    email: 'alumno@vivaz.test',
+    gymName: 'Vivaz Demo',
+    roles: ['ALUMNO'],
+  },
   list: vi.fn(),
   taxonomies: vi.fn(),
   inventory: vi.fn(),
