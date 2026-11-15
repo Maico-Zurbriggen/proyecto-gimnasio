@@ -1,10 +1,9 @@
 /**
  * Nombre y correo visibles de quien está en la cuenta.
  *
- * `GET /auth/me` sólo devuelve id, gimnasio y roles, así que el frontend
- * recuerda lo que el propio usuario tipeó (correo al ingresar, nombre al
- * completar la invitación). Se guarda atado al id para no mostrar datos de
- * otra cuenta que haya usado el mismo navegador.
+ * La identidad canónica llega desde `GET /auth/me`. Este recuerdo local queda
+ * como respaldo durante el instante posterior al login o al alta, y está atado
+ * al id para no mostrar datos de otra cuenta que haya usado el navegador.
  */
 const STORAGE_KEY = 'vivaz_identity';
 

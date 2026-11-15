@@ -34,7 +34,16 @@ function status(
 function renderGate(blockState: StudentStatus['measurementBlockState']) {
   mockApi({
     'GET /auth/me': {
-      body: { user: { id: STUDENT, gymId: 'gym-1', roles: ['ALUMNO'] } },
+      body: {
+        user: {
+          id: STUDENT,
+          gymId: 'gym-1',
+          displayName: 'Alumno Demo',
+          email: 'alumno@vivaz.test',
+          gymName: 'Vivaz Demo',
+          roles: ['ALUMNO'],
+        },
+      },
     },
     'GET /students/me/measurement-block': { body: status(blockState) },
   });

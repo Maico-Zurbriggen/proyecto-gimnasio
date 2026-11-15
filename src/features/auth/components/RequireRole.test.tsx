@@ -9,7 +9,14 @@ function mockSession(
   roles: NonNullable<sessionHook.SessionContextValue['user']>['roles'],
 ) {
   vi.spyOn(sessionHook, 'useSession').mockReturnValue({
-    user: { id: 'user-1', gymId: 'gym-1', roles },
+    user: {
+      id: 'user-1',
+      gymId: 'gym-1',
+      displayName: 'Usuario Demo',
+      email: 'usuario@vivaz.test',
+      gymName: 'Vivaz Demo',
+      roles,
+    },
     loading: false,
     login: vi.fn(),
     logout: vi.fn(),

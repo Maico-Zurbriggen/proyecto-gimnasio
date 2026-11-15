@@ -87,7 +87,14 @@ function botonCrear() {
 const CREADA = (roles: string[]): MockResponse => ({
   status: 201,
   body: {
-    user: { id: USER_ID, gymId: GYM_ID, roles },
+    user: {
+      id: USER_ID,
+      gymId: GYM_ID,
+      displayName: 'Usuario Invitado',
+      email: 'invitado@vivaz.test',
+      gymName: 'Vivaz Demo',
+      roles,
+    },
     expiresAt: '2026-10-21T10:00:00.000Z',
   },
 });
