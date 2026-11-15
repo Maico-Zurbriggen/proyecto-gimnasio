@@ -1,20 +1,15 @@
-import { KeyRound, LogOut } from 'lucide-react';
+import { KeyRound, LogOut, UserRound } from 'lucide-react';
 import { useState } from 'react';
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
 
 import { useSession } from '../../features/auth/hooks/useSession';
-import {
-  initialsOf,
-  nameFromEmail,
-  readIdentity,
-} from '../../features/auth/identity';
+import { initialsOf } from '../../features/auth/identity';
 import {
   availableAppRoles,
   homeForRoles,
   resolveAppRole,
   type UserRole,
 } from '../../features/auth/roles';
-import { useOwnMeasurementBlock } from '../../features/students/hooks/useOwnMeasurementBlock';
 import { useTrainerStudents } from '../../features/students/hooks/useTrainerStudents';
 import { totalPendingReviews } from '../../features/students/lib/pendingReviews';
 import { NoticesMenu } from '../../features/notifications/components/NoticesMenu';
@@ -85,27 +80,18 @@ interface UserIdentity {
 }
 
 /**
- * Quién está en la cuenta. `/auth/me` no trae el nombre, así que se combinan
- * las fuentes que sí lo tienen (ver `features/auth/identity.ts`).
+ * Quién está en la cuenta. La sesión es la fuente canónica de identidad.
  */
 function useUserIdentity(
   role: ReturnType<typeof resolveAppRole>,
 ): UserIdentity {
   const { user } = useSession();
-  // Cualquier cuenta con rol alumno tiene su nombre en el estado de medición,
-  // aunque esté navegando como entrenador.
-  const studentStatus = useOwnMeasurementBlock({
-    enabled: Boolean(user?.roles.includes('ALUMNO')),
-  });
-  const stored = user ? readIdentity(user.id) : null;
-  const email = user?.email ?? stored?.email ?? null;
-  const name =
-    user?.displayName ??
-    studentStatus.data?.displayName ??
-    stored?.name ??
-    (email ? nameFromEmail(email) : null);
-  return name
-    ? { name, email, initials: initialsOf(name) }
+  return user
+    ? {
+        name: user.displayName,
+        email: user.email,
+        initials: initialsOf(user.displayName),
+      }
     : {
         name: ROLE_META[role].name,
         email: null,
@@ -123,7 +109,7 @@ function UserBadge({
 }) {
   return (
     <Link
-      to="/cuenta/contrasena"
+      to="/cuenta/perfil"
       title={identity.email ?? 'Mi cuenta'}
       aria-label={`Mi cuenta: ${identity.name}, ${roleName}`}
       className="flex min-w-0 items-center gap-2.5 rounded-full border border-black/8 bg-white/85 py-1 pr-1 pl-1 shadow-xs transition hover:border-black/20 hover:bg-white hover:shadow-sm sm:pr-3.5"
@@ -292,7 +278,16 @@ function Sidebar({
               </p>
             </div>
           </div>
-          <div className="mt-2.5 grid grid-cols-2 gap-1.5">
+          <div className="mt-2.5 grid grid-cols-3 gap-1.5">
+            <Link
+              to="/cuenta/perfil"
+              aria-label="Ver mi cuenta"
+              title="Ver mi cuenta"
+              className={FOOTER_ACTION_CLASS}
+            >
+              <UserRound className="size-3.5" aria-hidden="true" />
+              Cuenta
+            </Link>
             {/* HU09 - RF-003: disponible para todos los roles. */}
             <Link
               to="/cuenta/contrasena"

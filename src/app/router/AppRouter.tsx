@@ -9,6 +9,7 @@ import { RequireRole } from '../../features/auth/components/RequireRole';
 import { RequireSession } from '../../features/auth/components/RequireSession';
 import { useSession } from '../../features/auth/hooks/useSession';
 import { ChangePasswordPage } from '../../features/auth/pages/ChangePasswordPage';
+import { AccountProfilePage } from '../../features/auth/pages/AccountProfilePage';
 import { LoginPage } from '../../features/auth/pages/LoginPage';
 import { RecoverPasswordPage } from '../../features/auth/pages/RecoverPasswordPage';
 import { NoAssignedRolePage } from '../../features/auth/pages/NoAssignedRolePage';
@@ -117,6 +118,7 @@ export function AppRouter() {
           <Route path="/" element={<HomeForSession />} />
           {/* HU09 - RF-003: cada usuario cambia sólo su propia contraseña. */}
           <Route path="/cuenta/contrasena" element={<ChangePasswordPage />} />
+          <Route path="/cuenta/perfil" element={<AccountProfilePage />} />
 
           {/* Alumno */}
           <Route element={<RequireRole role="ALUMNO" />}>

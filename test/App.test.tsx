@@ -25,7 +25,14 @@ describe('App', () => {
       // HU07: la app exige sesión; sin ella el router redirige al login.
       'GET /auth/me': {
         body: {
-          user: { id: JUAN, gymId: 'gym-1', roles: ['ALUMNO', 'ENTRENADOR'] },
+          user: {
+            id: JUAN,
+            gymId: 'gym-1',
+            displayName: 'Juan Pérez',
+            email: 'juan@vivaz.test',
+            gymName: 'Vivaz Demo',
+            roles: ['ALUMNO', 'ENTRENADOR'],
+          },
         },
       },
       'GET /routines/active': {
@@ -77,7 +84,11 @@ describe('App', () => {
       await screen.findByRole('heading', { name: 'Tus alumnos, por señal.' }),
     ).toBeVisible();
 
-    fireEvent.click(await screen.findByText('Juan Pérez'));
+    fireEvent.click(
+      await screen.findByRole('link', {
+        name: /Juan Pérez Sin rutina vigente/,
+      }),
+    );
     expect(
       await screen.findByRole('heading', { name: 'Juan Pérez' }),
     ).toBeVisible();

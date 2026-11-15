@@ -52,7 +52,14 @@ describe('LoginPage (HU07 - T6)', () => {
       new ApiError(401, 'unauthorized'),
     );
     const login = vi.spyOn(authApi, 'login').mockResolvedValue({
-      user: { id: 'u1', gymId: 'g1', roles: ['ALUMNO'] },
+      user: {
+        id: 'u1',
+        gymId: 'g1',
+        displayName: 'Alumno Demo',
+        email: 'alumno@vivaz.test',
+        gymName: 'Vivaz Demo',
+        roles: ['ALUMNO'],
+      },
       expiresAt: '2026-10-20T12:00:00.000Z',
     });
 
@@ -91,7 +98,14 @@ describe('LoginPage (HU07 - T6)', () => {
       new ApiError(401, 'unauthorized'),
     );
     vi.spyOn(authApi, 'login').mockResolvedValue({
-      user: { id: 'u2', gymId: 'g1', roles: ['ALUMNO', 'ENTRENADOR'] },
+      user: {
+        id: 'u2',
+        gymId: 'g1',
+        displayName: 'Usuario Dual',
+        email: 'dual@vivaz.test',
+        gymName: 'Vivaz Demo',
+        roles: ['ALUMNO', 'ENTRENADOR'],
+      },
       expiresAt: '2026-10-20T12:00:00.000Z',
     });
 

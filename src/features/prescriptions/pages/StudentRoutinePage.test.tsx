@@ -60,7 +60,14 @@ function renderPage(
   showGenerationPanel = false,
 ) {
   vi.spyOn(sessionHook, 'useSession').mockReturnValue({
-    user: { id: STUDENT, gymId: 'gym-1', roles: ['ALUMNO'] },
+    user: {
+      id: STUDENT,
+      gymId: 'gym-1',
+      displayName: 'Alumno Demo',
+      email: 'alumno@vivaz.test',
+      gymName: 'Vivaz Demo',
+      roles: ['ALUMNO'],
+    },
     loading: false,
     login: vi.fn(),
     logout: vi.fn(),
