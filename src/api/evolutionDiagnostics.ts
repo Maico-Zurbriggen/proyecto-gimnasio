@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
 import { apiGet, apiPost, type ApiRequestOptions } from './client';
+import { evolutionDiagnosticDataOriginSchema } from './generated/adaptation-demo';
 
 export const evolutionSituationSchema = z.enum([
   'DATOS_INSUFICIENTES',
@@ -28,6 +29,7 @@ const availableDiagnosticSchema = z.object({
   adherencia: z.number().nullable(),
   criteriosNoEvaluados: z.array(z.string()),
   componentVersion: z.string(),
+  dataOrigin: evolutionDiagnosticDataOriginSchema.optional(),
   calculadoEl: z.string(),
   ejercicios: z.array(exerciseDiagnosticSchema),
 });

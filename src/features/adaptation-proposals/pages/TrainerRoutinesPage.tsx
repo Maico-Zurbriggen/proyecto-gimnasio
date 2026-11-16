@@ -280,6 +280,28 @@ export function TrainerRoutinesPage() {
         kicker="Rutinas"
         title="Prescripción por alumno."
         description="Las ediciones sobre una rutina asignada no modifican la plantilla de origen ni el historial de sesiones."
+        actions={
+          <a
+            className="btn-secondary btn-sm"
+            href="/entrenador/demostracion/adaptacion"
+            target="vivaz-demo-panel"
+            rel="noopener noreferrer"
+            onClick={(event) => {
+              const panel = window.open(
+                '/entrenador/demostracion/adaptacion',
+                'vivaz-demo-panel',
+                'popup=yes,width=1100,height=850',
+              );
+              if (panel) {
+                panel.opener = null;
+                event.preventDefault();
+              }
+            }}
+          >
+            Preparar demo{' '}
+            <ArrowUpRight className="ml-2 size-4" aria-hidden="true" />
+          </a>
+        }
       />
       <main className="page-body">
         <SectionTabs

@@ -131,11 +131,19 @@ describe('ProposalReviewPage (HU04)', () => {
     fireEvent.change(textarea, {
       target: { value: 'Más variedad de ejercicios' },
     });
+    fireEvent.click(screen.getByRole('button', { name: 'Seleccionar todos' }));
     fireEvent.click(button);
     expect(
       await screen.findByText(/La IA está generando otra adaptación/),
     ).toBeVisible();
-    expect(screen.getByRole('button', { name: 'Aprobar' })).toBeDisabled();
+    expect(
+      screen.getByRole('button', { name: 'Aprobar todos (2)' }),
+    ).toBeDisabled();
+    expect(
+      screen.getByRole('checkbox', {
+        name: 'Aceptar Carga · Sentadilla con barra',
+      }),
+    ).toBeDisabled();
     expect(input).toMatchObject({
       feedback: 'Más variedad de ejercicios',
       candidateRequestId,
@@ -166,7 +174,14 @@ describe('ProposalReviewPage (HU04)', () => {
     expect(await screen.findByText(/No se pudo regenerar:/)).toHaveTextContent(
       'adaptación anterior sigue disponible',
     );
-    expect(screen.getByRole('button', { name: 'Aprobar' })).toBeEnabled();
+    fireEvent.click(
+      screen.getByRole('checkbox', {
+        name: 'Aceptar Carga · Sentadilla con barra',
+      }),
+    );
+    expect(
+      screen.getByRole('button', { name: 'Aprobar seleccionados (1)' }),
+    ).toBeEnabled();
   });
 
   afterEach(() => {
@@ -174,7 +189,9 @@ describe('ProposalReviewPage (HU04)', () => {
   });
 
   it('Esc. 2: muestra la advertencia y los ajustes antes de decidir', async () => {
-    mockApi({ [`GET /proposals/${PROPOSAL}`]: { body: review() } });
+    const fetchMock = mockApi({
+      [`GET /proposals/${PROPOSAL}`]: { body: review() },
+    });
 
     renderPage();
 
@@ -185,15 +202,22 @@ describe('ProposalReviewPage (HU04)', () => {
     expect(screen.getByText('62,5 kg')).toBeVisible();
     // T3 (RF-090, FL-10): cada ajuste muestra su criterio y el dato que lo sustenta.
     expect(
-      screen.getByText(/variación de carga máxima estimada/i),
+      screen.getByText(/variación de carga máxima estimada/i, {
+        selector: 'p',
+      }),
     ).toBeVisible();
+    expect(screen.getAllByText('Sesiones consideradas').length).toBeGreaterThan(
+      0,
+    );
+    const approve = screen.getByRole('button', {
+      name: 'Aprobar seleccionados',
+    });
+    expect(approve).toBeDisabled();
+    expect(screen.getByText('0 de 2 ajustes seleccionados')).toBeVisible();
+    fireEvent.click(approve);
     expect(
-      screen.getAllByText(/Sesiones consideradas:/).length,
-    ).toBeGreaterThan(0);
-    expect(screen.getByRole('button', { name: 'Aprobar' })).toBeEnabled();
-    expect(
-      screen.getByRole('button', { name: 'Aprobar parcialmente' }),
-    ).toBeDisabled();
+      fetchMock.mock.calls.some(([, init]) => init?.method === 'POST'),
+    ).toBe(false);
     expect(screen.getByRole('button', { name: 'Rechazar' })).toBeDisabled();
   });
 
@@ -325,13 +349,79 @@ describe('ProposalReviewPage (HU04)', () => {
     ).toBe(false);
   });
 
-  it('Esc. 3: aprobar parcialmente envía sólo los ajustes marcados', async () => {
+  it.each(['marcar uno', 'seleccionar todos y desmarcar uno'])(
+    'la acción principal aprueba sólo los ajustes seleccionados al %s',
+    async (selection) => {
+      let proposal = review();
+      const fetchMock = mockApi({
+        [`GET /proposals/${PROPOSAL}`]: () => ({ body: proposal }),
+        [`POST /proposals/${PROPOSAL}/resolution`]: () => {
+          proposal = review({
+            state: 'ACEPTADA_PARCIAL',
+            resolvedAt: '2026-09-17T12:00:00.000Z',
+            adjustments: review().adjustments.map((adjustment) => ({
+              ...adjustment,
+              state: adjustment.id === ADJ_LOAD ? 'ACEPTADO' : 'RECHAZADO',
+            })),
+          });
+          return {
+            body: {
+              proposalId: PROPOSAL,
+              state: 'ACEPTADA_PARCIAL',
+              resultingVersionNumber: 2,
+            },
+          };
+        },
+      });
+
+      renderPage();
+      const load = await screen.findByRole('checkbox', {
+        name: 'Aceptar Carga · Sentadilla con barra',
+      });
+      if (selection === 'marcar uno') {
+        fireEvent.click(load);
+      } else {
+        fireEvent.click(
+          screen.getByRole('button', { name: 'Seleccionar todos' }),
+        );
+        fireEvent.click(
+          screen.getByRole('checkbox', {
+            name: 'Aceptar Rango de repeticiones · Press de banca plano',
+          }),
+        );
+      }
+      expect(screen.getByText('1 de 2 ajustes seleccionados')).toBeVisible();
+      expect(screen.getAllByRole('button', { name: /^Aprobar/ })).toHaveLength(
+        1,
+      );
+      fireEvent.click(
+        screen.getByRole('button', { name: 'Aprobar seleccionados (1)' }),
+      );
+
+      expect(
+        await screen.findByText(
+          'Propuesta aprobada parcialmente: se creó la versión 2 de la rutina.',
+        ),
+      ).toBeVisible();
+      expect(await screen.findByText('Aceptado')).toBeVisible();
+      expect(screen.getByText('Rechazado')).toBeVisible();
+      const post = fetchMock.mock.calls.find(
+        ([, init]) => init?.method === 'POST',
+      );
+      expect(JSON.parse(String(post?.[1]?.body))).toEqual({
+        decision: 'ACEPTADA_PARCIAL',
+        acceptedAdjustmentIds: [ADJ_LOAD],
+      });
+    },
+  );
+
+  it('seleccionar todos permite aprobar la propuesta completa y quitar la selección bloquea la aprobación', async () => {
     const fetchMock = mockApi({
       [`GET /proposals/${PROPOSAL}`]: { body: review() },
       [`POST /proposals/${PROPOSAL}/resolution`]: {
         body: {
           proposalId: PROPOSAL,
-          state: 'ACEPTADA_PARCIAL',
+          state: 'ACEPTADA_TOTAL',
           resultingVersionNumber: 2,
         },
       },
@@ -340,18 +430,107 @@ describe('ProposalReviewPage (HU04)', () => {
     renderPage();
 
     fireEvent.click(
-      await screen.findByRole('checkbox', {
-        name: 'Aceptar Carga · Sentadilla con barra',
-      }),
+      await screen.findByRole('button', { name: 'Seleccionar todos' }),
     );
-    fireEvent.click(
-      screen.getByRole('button', { name: 'Aprobar parcialmente' }),
-    );
+    expect(
+      screen
+        .getAllByRole('checkbox')
+        .every((checkbox) => (checkbox as HTMLInputElement).checked),
+    ).toBe(true);
+    expect(
+      screen.getByRole('button', { name: 'Aprobar todos (2)' }),
+    ).toBeEnabled();
+    fireEvent.click(screen.getByRole('button', { name: 'Quitar selección' }));
+    expect(
+      screen
+        .getAllByRole('checkbox')
+        .every((checkbox) => !(checkbox as HTMLInputElement).checked),
+    ).toBe(true);
+    expect(
+      screen.getByRole('button', { name: 'Aprobar seleccionados' }),
+    ).toBeDisabled();
+    fireEvent.click(screen.getByRole('button', { name: 'Seleccionar todos' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Aprobar todos (2)' }));
 
     expect(
       await screen.findByText(
         'Propuesta aprobada: se creó la versión 2 de la rutina.',
       ),
+    ).toBeVisible();
+    const post = fetchMock.mock.calls.find(
+      ([, init]) => init?.method === 'POST',
+    );
+    expect(JSON.parse(String(post?.[1]?.body))).toEqual({
+      decision: 'ACEPTADA_TOTAL',
+    });
+  });
+
+  it('seleccionar el único ajuste de la propuesta envía una aceptación total', async () => {
+    const fetchMock = mockApi({
+      [`GET /proposals/${PROPOSAL}`]: {
+        body: review({ adjustments: review().adjustments.slice(0, 1) }),
+      },
+      [`POST /proposals/${PROPOSAL}/resolution`]: {
+        body: {
+          proposalId: PROPOSAL,
+          state: 'ACEPTADA_TOTAL',
+          resultingVersionNumber: 2,
+        },
+      },
+    });
+    renderPage();
+
+    fireEvent.click(
+      await screen.findByRole('checkbox', {
+        name: 'Aceptar Carga · Sentadilla con barra',
+      }),
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Aprobar todos (1)' }));
+
+    expect(await screen.findByText(/Propuesta aprobada:/)).toBeVisible();
+    const post = fetchMock.mock.calls.find(
+      ([, init]) => init?.method === 'POST',
+    );
+    expect(JSON.parse(String(post?.[1]?.body))).toEqual({
+      decision: 'ACEPTADA_TOTAL',
+    });
+  });
+
+  it('seleccionar todos excluye las sustituciones que requieren intervención manual', async () => {
+    const fetchMock = mockApi({
+      [`GET /proposals/${PROPOSAL}`]: {
+        body: review({
+          adjustments: [
+            review().adjustments[0],
+            {
+              ...review().adjustments[1],
+              type: 'SUSTITUCION',
+              proposedValue: { requires_manual_intervention: true },
+            },
+          ],
+        }),
+      },
+      [`POST /proposals/${PROPOSAL}/resolution`]: {
+        body: {
+          proposalId: PROPOSAL,
+          state: 'ACEPTADA_PARCIAL',
+          resultingVersionNumber: 2,
+        },
+      },
+    });
+    renderPage();
+
+    fireEvent.click(
+      await screen.findByRole('button', { name: 'Seleccionar todos' }),
+    );
+    expect(screen.getByText('1 de 2 ajustes seleccionados')).toBeVisible();
+    expect(screen.getAllByRole('checkbox')).toHaveLength(1);
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Aprobar seleccionados (1)' }),
+    );
+
+    expect(
+      await screen.findByText(/Propuesta aprobada parcialmente:/),
     ).toBeVisible();
     const post = fetchMock.mock.calls.find(
       ([, init]) => init?.method === 'POST',
@@ -376,7 +555,10 @@ describe('ProposalReviewPage (HU04)', () => {
     });
 
     renderPage();
-    fireEvent.click(await screen.findByRole('button', { name: 'Aprobar' }));
+    fireEvent.click(
+      await screen.findByRole('button', { name: 'Seleccionar todos' }),
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Aprobar todos (2)' }));
 
     const error = await screen.findByText(
       /Rango de repeticiones de Press de banca plano:/,
@@ -460,7 +642,9 @@ describe('ProposalReviewPage (HU04)', () => {
       await screen.findByText('Hay ejercicios sin reemplazo automático'),
     ).toBeVisible();
     expect(screen.getByText('Selección manual requerida')).toBeVisible();
-    expect(screen.getByRole('button', { name: 'Aprobar' })).toBeDisabled();
+    expect(
+      screen.getByRole('button', { name: 'Aprobar seleccionados' }),
+    ).toBeDisabled();
     expect(
       screen.getByRole('link', { name: 'Editar rutina manualmente' }),
     ).toHaveAttribute(
@@ -480,7 +664,10 @@ describe('ProposalReviewPage (HU04)', () => {
 
     renderPage();
 
-    fireEvent.click(await screen.findByRole('button', { name: 'Aprobar' }));
+    fireEvent.click(
+      await screen.findByRole('button', { name: 'Seleccionar todos' }),
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Aprobar todos (2)' }));
 
     expect(
       await screen.findByText('La propuesta ya fue resuelta.'),
