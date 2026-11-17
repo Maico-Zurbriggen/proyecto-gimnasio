@@ -83,6 +83,27 @@ describe('ProposalReviewPage (HU04)', () => {
     vi.unstubAllGlobals();
   });
 
+  it('identifies the demo without a test-data alert and retains outdated-data warnings', async () => {
+    const proposal = review();
+    mockApi({
+      [`GET /proposals/${PROPOSAL}`]: {
+        body: {
+          ...proposal,
+          diagnostic: { ...proposal.diagnostic, dataOrigin: 'SIMULATED' },
+        },
+      },
+    });
+    renderPage();
+
+    expect(await screen.findByText('Demostración')).toBeVisible();
+    expect(
+      screen.queryByText('Diagnóstico de prueba con datos simulados'),
+    ).not.toBeInTheDocument();
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      'Propuesta generada sin datos actualizados',
+    );
+  });
+
   it('avisa que la propuesta está bloqueada cuando el alumno no tiene entrenador', async () => {
     mockApi({
       [`GET /proposals/${PROPOSAL}`]: {

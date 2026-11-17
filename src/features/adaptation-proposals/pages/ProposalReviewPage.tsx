@@ -194,24 +194,24 @@ export function ProposalReviewPage() {
         kicker="Revisión de adaptación"
         title={proposal.student.displayName}
         description={`${humanizeEnum(diagnostic.globalSituation)} · período ${formatDate(diagnostic.periodStart)} – ${formatDate(diagnostic.periodEnd)}${diagnostic.adherence !== null ? ` · adherencia ${diagnostic.adherence.toLocaleString('es-AR')} %` : ''}.`}
-        actions={backLink}
+        actions={
+          <>
+            {diagnostic.dataOrigin === 'SIMULATED' ? (
+              <span className="chip-neutral">Demostración</span>
+            ) : null}
+            {backLink}
+          </>
+        }
       />
       <main className="page-body flex flex-col gap-4">
-        <Banner
-          variant={diagnostic.dataOrigin === 'REAL' ? 'info' : 'warning'}
-          title={
-            diagnostic.dataOrigin === 'REAL'
-              ? 'Diagnóstico calculado con datos reales'
-              : 'Diagnóstico de prueba con datos simulados'
-          }
-        >
-          <p>
-            {diagnostic.dataOrigin === 'REAL'
-              ? 'Las sesiones simuladas fueron excluidas del cálculo.'
-              : 'Este diagnóstico usa historial preparado para demostración y no representa entrenamiento real del alumno.'}{' '}
-            Componente: {diagnostic.componentVersion}.
-          </p>
-        </Banner>
+        {diagnostic.dataOrigin === 'REAL' ? (
+          <Banner variant="info" title="Diagnóstico calculado con datos reales">
+            <p>
+              Las sesiones simuladas fueron excluidas del cálculo. Componente:{' '}
+              {diagnostic.componentVersion}.
+            </p>
+          </Banner>
+        ) : null}
         <OutdatedDataWarning proposal={proposal.advertenciaDatos} />
 
         {diagnostic.adherence === null ? (
