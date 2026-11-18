@@ -324,6 +324,70 @@ describe('TrainingSessionPage (RF-027, FL-05, FL-07)', () => {
     });
   });
 
+  it('HU36: el valor atípico abre un diálogo, corregir no registra y confirmar registra una vez', async () => {
+    HTMLDialogElement.prototype.showModal = function () {
+      this.setAttribute('open', '');
+    };
+    HTMLDialogElement.prototype.close = function () {
+      this.removeAttribute('open');
+    };
+    const session = activeSession();
+    const bodies: Record<string, unknown>[] = [];
+    mockApi({
+      'GET /training-sessions/active': { body: session },
+      [`PATCH /students/${STUDENT_ID}/training-sessions/${SESSION_ID}/records/1`]:
+        (init) => {
+          const body = JSON.parse(String(init?.body)) as Record<
+            string,
+            unknown
+          >;
+          bodies.push(body);
+          return body.atypicalConfirmed === true
+            ? { body: session }
+            : {
+                status: 409,
+                body: { error: 'atypical_series_requires_confirmation' },
+              };
+        },
+    });
+    renderPage();
+
+    const load = await screen.findByLabelText(/carga de la serie 1/i);
+    fireEvent.change(load, { target: { value: '200' } });
+    fireEvent.change(screen.getByLabelText(/repeticiones de la serie 1/i), {
+      target: { value: '5' },
+    });
+    fireEvent.blur(load);
+
+    const dialog = await screen.findByRole('alertdialog', {
+      name: /valor atípico/i,
+    });
+    expect(dialog).toHaveTextContent('200 kg');
+    expect(dialog).toHaveTextContent('× 5 reps');
+    expect(screen.getByRole('button', { name: 'Corregir' })).toHaveFocus();
+
+    fireEvent(dialog, new Event('cancel', { cancelable: true }));
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+    expect(load).toHaveFocus();
+    expect(bodies).toHaveLength(1);
+
+    fireEvent.click(
+      screen.getByRole('button', { name: /revisar valor atípico/i }),
+    );
+    const confirm = screen.getByRole('button', {
+      name: /confirmar y registrar/i,
+    });
+    fireEvent.click(confirm);
+    fireEvent.click(confirm);
+
+    await waitFor(() => expect(bodies).toHaveLength(2));
+    expect(bodies[1]).toMatchObject({
+      performedLoad: 200,
+      atypicalConfirmed: true,
+    });
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+  });
+
   it('guarda automáticamente sin botón: debounce y aviso de guardado', async () => {
     vi.useFakeTimers();
     try {

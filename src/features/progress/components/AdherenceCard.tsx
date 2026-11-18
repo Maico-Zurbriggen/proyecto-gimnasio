@@ -18,9 +18,17 @@ export function AdherenceCard({ studentId }: { studentId: string }) {
     return (
       <BentoCard>
         <p className="eyebrow text-[#77756d]">Adherencia</p>
-        <p className="mt-2 text-sm text-[#9b2c1f]">
+        <p role="alert" className="mt-2 text-sm text-[#9b2c1f]">
           No pudimos cargar tu adherencia.
         </p>
+        <button
+          type="button"
+          className="btn-secondary btn-sm mt-3"
+          disabled={query.isFetching}
+          onClick={() => void query.refetch()}
+        >
+          Reintentar
+        </button>
       </BentoCard>
     );
   }

@@ -3,11 +3,15 @@ import { useState } from 'react';
 
 import { BentoCard } from '../../../shared/ui/BentoCard';
 import { PageHeader } from '../../../shared/ui/PageHeader';
-import { StudentList } from '../components/StudentList';
+import {
+  StudentList,
+  type StudentSignalFilter,
+} from '../components/StudentList';
 
 /** Listado completo de la cartera, filtrable por nombre (el backend ya la ordena por urgencia). */
 export function TrainerStudentsListPage() {
   const [query, setQuery] = useState('');
+  const [signal, setSignal] = useState<StudentSignalFilter>('TODAS');
   return (
     <div>
       <PageHeader
@@ -32,12 +36,30 @@ export function TrainerStudentsListPage() {
                 className="field pl-10"
               />
             </div>
+            <label className="flex min-w-56 flex-col gap-1 text-xs font-semibold text-[#68675f]">
+              Filtrar por señal
+              <select
+                value={signal}
+                onChange={(event) =>
+                  setSignal(event.target.value as StudentSignalFilter)
+                }
+                className="field min-h-11"
+              >
+                <option value="TODAS">Todas las señales</option>
+                <option value="ESTANCAMIENTO">Estancamiento</option>
+                <option value="CAIDA_ADHERENCIA">Caída de adherencia</option>
+                <option value="INCOMPATIBILIDAD_SOBREVENIDA">
+                  Incompatibilidad sobrevenida
+                </option>
+                <option value="DATOS_INSUFICIENTES">Datos insuficientes</option>
+              </select>
+            </label>
             <span className="chip-neutral self-start px-3.5 py-2 sm:self-center">
               <ArrowDownWideNarrow className="size-3.5" aria-hidden="true" />
               Ordenados por urgencia
             </span>
           </div>
-          <StudentList query={query} />
+          <StudentList query={query} signal={signal} />
         </BentoCard>
       </main>
     </div>

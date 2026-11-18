@@ -13,7 +13,7 @@ export function SessionComplianceCard({ studentId }: { studentId: string }) {
     queryFn: ({ signal }) =>
       fetchTrainingSessions(
         studentId,
-        { state: 'COMPLETADA', pageSize: 1 },
+        { state: 'COMPLETADA', simulated: false, pageSize: 1 },
         signal,
       ),
     enabled: Boolean(studentId),
@@ -34,12 +34,24 @@ export function SessionComplianceCard({ studentId }: { studentId: string }) {
   }
 
   if (sessionsQuery.isError || complianceQuery.isError) {
+    const busy = sessionsQuery.isFetching || complianceQuery.isFetching;
     return (
       <BentoCard>
         <p className="eyebrow text-[#77756d]">Cumplimiento</p>
-        <p className="mt-2 text-sm text-[#9b2c1f]">
+        <p role="alert" className="mt-2 text-sm text-[#9b2c1f]">
           No pudimos cargar el cumplimiento de tu última sesión.
         </p>
+        <button
+          type="button"
+          className="btn-secondary btn-sm mt-3"
+          disabled={busy}
+          onClick={() => {
+            if (sessionsQuery.isError) void sessionsQuery.refetch();
+            if (complianceQuery.isError) void complianceQuery.refetch();
+          }}
+        >
+          Reintentar
+        </button>
       </BentoCard>
     );
   }
