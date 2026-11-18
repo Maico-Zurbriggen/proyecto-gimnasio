@@ -50,6 +50,9 @@ function useNow(ticking: boolean): number {
 
 function errorMessage(error: unknown): string {
   if (error instanceof ApiError) {
+    if (error.code === 'adaptation_demo_active') {
+      return 'El entrenador debe restaurar la preparación de la demo antes de iniciar un entrenamiento real.';
+    }
     if (error.code === 'session_already_in_progress') {
       return 'Ya tenés una sesión en curso. Reanudala antes de iniciar otra.';
     }

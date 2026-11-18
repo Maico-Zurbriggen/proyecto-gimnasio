@@ -1,6 +1,11 @@
 import { InsufficientInfo } from '../../../shared/components/InsufficientInfo';
 import { formatDate, humanizeEnum } from '../../../shared/lib/format';
 import { criterionLabel } from '../lib/adjustments';
+import {
+  DiagnosticMetrics,
+  DIAGNOSTIC_METRIC_KEYS,
+  hasDiagnosticMetrics,
+} from './DiagnosticMetrics';
 
 type AdjustmentType =
   'CARGA' | 'VOLUMEN' | 'ESQUEMA' | 'SUSTITUCION' | 'ESTRUCTURA';
@@ -31,6 +36,12 @@ const KEY_LABEL: Record<string, string> = {
   kind: 'Tipo de desbalance',
   stimulatingPattern: 'Patrón que lo estimula',
   goalChange: 'Cambio de objetivo',
+  sesionesConsideradas: 'Sesiones consideradas',
+  variacionCargaMaxima: 'Variación de carga máxima estimada (%)',
+  variacionE1RM: 'Variación de carga máxima estimada (%)',
+  cumplimientoRepeticionesPorSesion: 'Cumplimiento por sesión (%)',
+  esfuerzoMedioPorSesion: 'Esfuerzo medio por sesión (1–10)',
+  criteriosNoEvaluados: 'Criterios no evaluados',
 };
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -103,10 +114,26 @@ function SupportingDataList({
       </p>
     );
   }
-  const entries = Object.entries(supportingData).filter(
-    ([key]) => !HIDDEN_KEYS.has(key.toLowerCase()),
+  const nestedMetrics = isRecord(supportingData['metrics'])
+    ? supportingData['metrics']
+    : null;
+  const metrics =
+    type !== 'ESTRUCTURA'
+      ? nestedMetrics && hasDiagnosticMetrics(nestedMetrics)
+        ? nestedMetrics
+        : hasDiagnosticMetrics(supportingData)
+          ? supportingData
+          : null
+      : null;
+  const entries = Object.entries({
+    ...supportingData,
+    ...(metrics === nestedMetrics ? nestedMetrics : {}),
+  }).filter(
+    ([key]) =>
+      !HIDDEN_KEYS.has(key.toLowerCase()) &&
+      !(metrics && (key === 'metrics' || DIAGNOSTIC_METRIC_KEYS.has(key))),
   );
-  if (entries.length === 0) {
+  if (entries.length === 0 && !metrics) {
     return (
       <p className="mt-1 text-[11px] text-[#77756d]">
         Dato: sin datos adicionales declarados.
@@ -119,24 +146,38 @@ function SupportingDataList({
   }
 
   return (
-    <dl className="mt-1 space-y-0.5 text-[11px] text-[#77756d]">
-      {entries.map(([key, value]) => (
-        <div key={key} className="flex gap-1">
-          <dt className="font-bold text-[#3d3c36]">{humanizeKey(key)}:</dt>
-          <dd className="min-w-0 flex-1 break-words">
-            {value === null || (Array.isArray(value) && value.length === 0) ? (
-              <InsufficientInfo missing={humanizeKey(key).toLowerCase()} />
-            ) : (
-              renderEvidenceValue(key, value)
-            )}
-          </dd>
-        </div>
-      ))}
-    </dl>
+    <div>
+      {metrics ? <DiagnosticMetrics metrics={metrics} /> : null}
+      <dl className="mt-3 space-y-2 text-xs text-[#77756d]">
+        {entries.map(([key, value]) => (
+          <div key={key} className="flex flex-col gap-0.5 sm:flex-row sm:gap-2">
+            <dt className="font-semibold text-[#3d3c36]">
+              {humanizeKey(key)}:
+            </dt>
+            <dd className="min-w-0 flex-1 break-words">
+              {value === null ||
+              (Array.isArray(value) && value.length === 0) ? (
+                <InsufficientInfo missing={humanizeKey(key).toLowerCase()} />
+              ) : (
+                renderEvidenceValue(key, value)
+              )}
+            </dd>
+          </div>
+        ))}
+      </dl>
+    </div>
   );
 }
 
 function renderEvidenceValue(key: string, value: unknown): string {
+  if (key === 'situation' && typeof value === 'string')
+    return humanizeEnum(value);
+  if (
+    key === 'criteriosNoEvaluados' &&
+    Array.isArray(value) &&
+    value.length === 0
+  )
+    return 'Ninguno';
   if (key === 'esquemaPropuesto' && isRecord(value)) {
     const parts: string[] = [];
     const get = (k: string) => value[k];
@@ -177,11 +218,12 @@ function renderEvidenceValue(key: string, value: unknown): string {
   }
   if (Array.isArray(value)) {
     if (value.length === 0) return '—';
-    return value.map((item) => formatPrimitive(item)).join('; ');
+    return value.map((item) => renderEvidenceValue('', item)).join('; ');
   }
   if (isRecord(value)) {
     return Object.entries(value)
-      .map(([k, v]) => `${humanizeKey(k)} ${formatPrimitive(v)}`)
+      .filter(([k]) => !HIDDEN_KEYS.has(k.toLowerCase()))
+      .map(([k, v]) => `${humanizeKey(k)}: ${renderEvidenceValue(k, v)}`)
       .join(' · ');
   }
   return formatPrimitive(value);
@@ -277,7 +319,11 @@ export function adjustmentEvidenceSummary(adjustment: {
   const base = `${where}: ${criterionLabel(adjustment.criterion)}`;
   if (!isRecord(adjustment.supportingData)) return base;
   // HU28: hasta 3 pares etiqueta: valor primitivos, sin claves técnicas.
-  const pairs = Object.entries(adjustment.supportingData).filter(
+  const metrics = adjustment.supportingData['metrics'];
+  const pairs = Object.entries({
+    ...adjustment.supportingData,
+    ...(isRecord(metrics) ? metrics : {}),
+  }).filter(
     ([key, value]) =>
       !HIDDEN_KEYS.has(key.toLowerCase()) &&
       !/(^|_)id$|Id$/.test(key) &&

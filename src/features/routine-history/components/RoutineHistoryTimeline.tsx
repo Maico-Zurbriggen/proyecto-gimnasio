@@ -32,6 +32,7 @@ const STATE_LABEL: Record<string, string> = {
 const ORIGIN_LABEL: Record<string, string> = {
   GENERADA: 'Generada con IA',
   PLANTILLA_ENTRENADOR: 'Plantilla del entrenador',
+  DEMOSTRACION: 'Preparación de demostración',
 };
 
 const dateTime = (value: string) =>
