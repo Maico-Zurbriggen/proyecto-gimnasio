@@ -1,8 +1,9 @@
-import { fireEvent, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { renderRoute } from '../../../test/apiMocks';
 import { ApiError } from '../../api/client';
 import { CatalogPage } from './CatalogPage';
+import { ExerciseForm } from './ExerciseForm';
 const fixtures = vi.hoisted(() => ({
   user: {
     id: 'actor',
@@ -99,6 +100,28 @@ beforeEach(() => {
   fixtures.availability.mockResolvedValue({ changed: 1 });
 });
 describe('Catalogue workflows by role', () => {
+  it('allows cancelling a proposal even while its save request is pending', () => {
+    const onCancel = vi.fn();
+    render(
+      <ExerciseForm
+        item={null}
+        taxonomies={{
+          muscles: [{ code: 'GLUTEO', name: 'Glúteo' }],
+          equipment: [{ code: 'PESO_CORPORAL', name: 'Peso corporal' }],
+          joints: [{ code: 'HOMBRO', name: 'Hombro' }],
+        }}
+        pending
+        onSave={vi.fn()}
+        onCancel={onCancel}
+      />,
+    );
+
+    const cancel = screen.getByRole('button', { name: 'Cancelar' });
+    expect(cancel).toBeEnabled();
+    fireEvent.click(cancel);
+    expect(onCancel).toHaveBeenCalledOnce();
+  });
+
   it('enables an own exercise on approval only when the administrator explicitly selects it', async () => {
     fixtures.user.roles = ['ADMINISTRADOR'];
     const own = {
@@ -210,5 +233,9 @@ describe('Catalogue workflows by role', () => {
       screen.getByText(/requiere revisión del administrador/),
     ).toBeVisible();
     expect(fixtures.create).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole('button', { name: 'Cancelar' }));
+    expect(
+      screen.queryByRole('form', { name: 'Proponer ejercicio propio' }),
+    ).not.toBeInTheDocument();
   });
 });

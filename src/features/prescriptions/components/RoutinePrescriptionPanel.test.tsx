@@ -355,10 +355,18 @@ describe('RoutinePrescriptionPanel (RF-022, RF-110)', () => {
   it('con rutina vigente informa su tipo y frecuencia', async () => {
     render({
       [`GET /students/${STUDENT}/routines`]: { body: [rutina('VIGENTE')] },
+      [`GET /students/${STUDENT}/routines/${ROUTINE}`]: {
+        body: { ...CONTENIDO, ...rutina('VIGENTE') },
+      },
     });
 
     expect(
       await screen.findByText('Rutina vigente: fuerza · 4 días por semana.'),
+    ).toBeInTheDocument();
+    expect(
+      await screen.findByRole('button', {
+        name: 'Guardar cambios como propuesta',
+      }),
     ).toBeInTheDocument();
   });
 
