@@ -6,6 +6,7 @@ import {
 } from '../../../api/proposals';
 import { proposalQueryKey } from './useProposalReview';
 import { trainerProposalsQueryKey } from './useTrainerProposals';
+import { broadcastDataChange } from '../../../shared/lib/cross-window-data';
 
 /** Aceptación total, parcial o rechazo de una propuesta (HU04-T3). */
 export function useResolveProposal(proposalId: string) {
@@ -15,6 +16,7 @@ export function useResolveProposal(proposalId: string) {
     mutationFn: (input: ResolveProposalInput) =>
       resolveProposal(proposalId, input),
     onSuccess: async () => {
+      broadcastDataChange();
       // La resolución cambia la propuesta, la cartera y la rutina vigente del alumno.
       await Promise.all([
         queryClient.invalidateQueries({

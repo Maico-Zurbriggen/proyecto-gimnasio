@@ -7,6 +7,7 @@ import { AssignmentsPage } from '../../features/administration/pages/Assignments
 import { InventoryPage } from '../../features/administration/pages/InventoryPage';
 import { RequireRole } from '../../features/auth/components/RequireRole';
 import { RequireSession } from '../../features/auth/components/RequireSession';
+import { AdaptationDemoPage } from '../../features/adaptation-demo/pages/AdaptationDemoPage';
 import { useSession } from '../../features/auth/hooks/useSession';
 import { ChangePasswordPage } from '../../features/auth/pages/ChangePasswordPage';
 import { AccountProfilePage } from '../../features/auth/pages/AccountProfilePage';
@@ -113,6 +114,12 @@ export function AppRouter() {
 
       {/* HU07-T7: el resto exige sesión; sin ella se redirige al login. */}
       <Route element={<RequireSession />}>
+        <Route element={<RequireRole role="ENTRENADOR" />}>
+          <Route
+            path="/entrenador/demostracion/adaptacion"
+            element={<AdaptationDemoPage />}
+          />
+        </Route>
         <Route path="/sin-acceso" element={<NoAssignedRolePage />} />
         <Route element={<AppShell />}>
           <Route path="/" element={<HomeForSession />} />

@@ -3,9 +3,10 @@ import {
   QueryClient,
   QueryClientProvider,
 } from '@tanstack/react-query';
-import { useState, type ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 
 import { ApiError } from '../../api/client';
+import { subscribeToDataChanges } from '../../shared/lib/cross-window-data';
 import {
   SessionProvider,
   sessionQueryKey,
@@ -41,6 +42,13 @@ function createQueryClient() {
 
 export function AppProviders({ children }: { children: ReactNode }) {
   const [queryClient] = useState(createQueryClient);
+  useEffect(
+    () =>
+      subscribeToDataChanges(() => {
+        void queryClient.invalidateQueries();
+      }),
+    [queryClient],
+  );
 
   return (
     <QueryClientProvider client={queryClient}>

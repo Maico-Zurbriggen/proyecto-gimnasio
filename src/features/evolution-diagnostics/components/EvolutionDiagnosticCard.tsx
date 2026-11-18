@@ -116,6 +116,11 @@ export function EvolutionDiagnosticCard({
           <h2 className="font-display mt-2 text-xl font-semibold tracking-tight">
             {humanizeEnum(result.globalSituation)}
           </h2>
+          {result.dataOrigin === 'SIMULATED' ? (
+            <p className="chip-warn mt-2">
+              Historial preparado para demostración · datos simulados
+            </p>
+          ) : null}
           <p className="mt-1 text-sm text-[#68675f]">
             Período {formatDate(result.periodStart)} –{' '}
             {formatDate(result.periodEnd)}
