@@ -90,7 +90,9 @@ export function ManualRoutineForm({
     <form
       onSubmit={guardar}
       className="space-y-4"
-      aria-label="Crear rutina manual"
+      aria-label={
+        initialRoutine ? 'Editar rutina manualmente' : 'Crear rutina manual'
+      }
     >
       <div>
         <label className="field-label" htmlFor="rutina-manual-tipo">
@@ -128,7 +130,13 @@ export function ManualRoutineForm({
       <RoutineDaysEditor days={days} onChange={setDays} />
 
       <button type="submit" disabled={pending} className="btn-primary">
-        {pending ? 'Creando…' : 'Crear rutina manual'}
+        {pending
+          ? initialRoutine
+            ? 'Guardando…'
+            : 'Creando…'
+          : initialRoutine
+            ? 'Guardar cambios como propuesta'
+            : 'Crear rutina manual'}
       </button>
     </form>
   );

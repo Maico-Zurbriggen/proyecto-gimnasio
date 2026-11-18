@@ -348,12 +348,7 @@ export function ExerciseForm({
         <button disabled={pending} className={buttonClass} type="submit">
           {pending ? 'Guardando…' : 'Enviar a revisión'}
         </button>
-        <button
-          className="btn-secondary"
-          type="button"
-          disabled={pending}
-          onClick={onCancel}
-        >
+        <button className="btn-secondary" type="button" onClick={onCancel}>
           Cancelar
         </button>
       </div>
