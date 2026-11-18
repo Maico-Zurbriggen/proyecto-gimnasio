@@ -18,7 +18,7 @@ export type EnviarSerie = (
 export interface UsePendingSeriesSyncOptions {
   enviarSerie: EnviarSerie;
   /** Se avisa cuando la sesión dejó de admitir registros (criterio 8). */
-  onSesionCerrada?: (codigo: string) => void;
+  onSesionCerrada?: (codigo: string, position: number) => void;
 }
 
 export interface UsePendingSeriesSyncResult {
@@ -149,6 +149,7 @@ export function usePendingSeriesSync({
               );
               cerradaRef.current?.(
                 error instanceof ApiError ? error.code : 'unknown_error',
+                serie.position,
               );
               continue;
             }
