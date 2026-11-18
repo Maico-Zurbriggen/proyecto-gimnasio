@@ -3,8 +3,21 @@ import { matchesStudentName } from '../lib/matchesStudentName';
 import { StudentRow } from './StudentRow';
 import { LoadingState } from '../../../shared/ui/LoadingState';
 
+export type StudentSignalFilter =
+  | 'TODAS'
+  | 'INCOMPATIBILIDAD_SOBREVENIDA'
+  | 'ESTANCAMIENTO'
+  | 'CAIDA_ADHERENCIA'
+  | 'DATOS_INSUFICIENTES';
+
 /** Cartera del entrenador desde `GET /trainers/me/students`, con carga, vacío y error. */
-export function StudentList({ query = '' }: { query?: string }) {
+export function StudentList({
+  query = '',
+  signal = 'TODAS',
+}: {
+  query?: string;
+  signal?: StudentSignalFilter;
+}) {
   const { data, error, isPending, isFetching, refetch } = useTrainerStudents();
 
   if (isPending) {
@@ -35,8 +48,10 @@ export function StudentList({ query = '' }: { query?: string }) {
     );
   }
 
-  const visibles = data.filter((student) =>
-    matchesStudentName(student.displayName, query),
+  const visibles = data.filter(
+    (student) =>
+      matchesStudentName(student.displayName, query) &&
+      (signal === 'TODAS' || student.senales.includes(signal)),
   );
   if (visibles.length === 0) {
     return (
@@ -44,7 +59,7 @@ export function StudentList({ query = '' }: { query?: string }) {
         role="status"
         className="surface-muted py-10 text-center text-sm text-[#68675f]"
       >
-        Ningún alumno coincide con «{query.trim()}».
+        Ningún alumno coincide con los filtros seleccionados.
       </p>
     );
   }

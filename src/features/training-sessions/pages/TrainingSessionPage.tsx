@@ -1,5 +1,5 @@
 import { useMutationState } from '@tanstack/react-query';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { ApiError, validationMessages } from '../../../api/client';
 import {
@@ -11,6 +11,7 @@ import {
 import { Banner } from '../../../shared/components/Banner';
 import { BentoCard } from '../../../shared/ui/BentoCard';
 import { PageHeader } from '../../../shared/ui/PageHeader';
+import { AtypicalSeriesDialog } from '../components/AtypicalSeriesDialog';
 import { PreloadedSetFields } from '../components/PreloadedSetFields';
 import { SubstituteExercisePanel } from '../components/SubstituteExercisePanel';
 import { useSetPreload } from '../hooks/useSetPreload';
@@ -87,7 +88,8 @@ function SeriesRow({
   position,
   preload,
   current,
-  onAtypical,
+  atypicalFromQueue,
+  onAtypicalShown,
   onEnvioPendiente,
   onEnvioConfirmado,
 }: {
@@ -98,7 +100,8 @@ function SeriesRow({
   preload: SeriePrecargada | undefined;
   /** Primera serie sin completar: se resalta. */
   current: boolean;
-  onAtypical: (body: unknown) => void;
+  atypicalFromQueue: boolean;
+  onAtypicalShown: (position: number) => void;
   /** El envío se agotó sin llegar: queda en la cola de reintento (RNF-10). */
   onEnvioPendiente: (position: number, valores: UpdateSeriesInput) => void;
   onEnvioConfirmado: (position: number) => void;
@@ -121,6 +124,8 @@ function SeriesRow({
   const [localErrors, setLocalErrors] = useState<SeriesFieldErrors>({});
   const [savedAt, setSavedAt] = useState<string | null>(null);
   const [needsConfirm, setNeedsConfirm] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const rowRef = useRef<HTMLLIElement>(null);
   const [omitting, setOmitting] = useState(false);
   const [omitReason, setOmitReason] = useState('');
   const [substituting, setSubstituting] = useState(false);
@@ -189,7 +194,7 @@ function SeriesRow({
           ) {
             // Pausa el autoguardado hasta confirmar o corregir (RN-55a).
             setNeedsConfirm(true);
-            onAtypical(error.body);
+            setConfirmOpen(true);
             return;
           }
 
@@ -225,6 +230,27 @@ function SeriesRow({
       }
     };
   }, [load, reps, effort, dirty, needsConfirm]);
+
+  useEffect(() => {
+    if (!atypicalFromQueue) return;
+    setNeedsConfirm(true);
+    setConfirmOpen(true);
+    onAtypicalShown(position);
+  }, [atypicalFromQueue, onAtypicalShown, position]);
+
+  const confirmAtypical = () => {
+    setConfirmOpen(false);
+    saveNow(true);
+  };
+
+  const correctAtypical = () => {
+    setConfirmOpen(false);
+    const input = rowRef.current?.querySelector<HTMLInputElement>(
+      `input[aria-label="Carga de la serie ${String(position)}"]`,
+    );
+    input?.focus();
+    input?.select();
+  };
 
   /** Al salir del campo se guarda de inmediato, sin esperar el debounce. */
   const flush = () => {
@@ -309,6 +335,7 @@ function SeriesRow({
 
   return (
     <li
+      ref={rowRef}
       aria-current={current ? 'step' : undefined}
       className={`card-interactive rounded-2xl p-4.5 sm:p-5 transition-all ${
         current
@@ -445,20 +472,28 @@ function SeriesRow({
             Sustituir ejercicio
           </button>
         ) : null}
-        {(needsConfirm ||
-          (update.isError &&
-            update.error instanceof ApiError &&
-            update.error.code === 'atypical_series_requires_confirmation')) &&
-        !update.isPending ? (
+        {needsConfirm && !confirmOpen && !update.isPending ? (
           <button
             type="button"
-            onClick={() => saveNow(true)}
-            className="btn-secondary btn-sm"
+            onClick={() => setConfirmOpen(true)}
+            className="btn-secondary min-h-11"
           >
-            Confirmar valor atípico
+            Revisar valor atípico
           </button>
         ) : null}
       </div>
+      {confirmOpen ? (
+        <AtypicalSeriesDialog
+          position={record.position}
+          exerciseName={
+            record.performedExerciseName ?? record.prescribedExerciseName
+          }
+          load={load}
+          reps={reps}
+          onConfirm={confirmAtypical}
+          onCorrect={correctAtypical}
+        />
+      ) : null}
       {omitting ? (
         <div className="surface-muted mt-3 flex flex-col gap-2">
           <label className="flex flex-col gap-1.5 text-xs font-semibold text-[#68675f]">
@@ -514,7 +549,12 @@ export function TrainingSessionPage({ studentId }: TrainingSessionPageProps) {
   const [paused, setPaused] = useState(false);
   const [pausedMs, setPausedMs] = useState(0);
   const [pauseStartedAt, setPauseStartedAt] = useState<number | null>(null);
-  const [atypicalBody, setAtypicalBody] = useState<unknown>(null);
+  const [atypicalQueued, setAtypicalQueued] = useState<number[]>([]);
+  const clearAtypicalQueued = useCallback((position: number) => {
+    setAtypicalQueued((positions) =>
+      positions.filter((candidate) => candidate !== position),
+    );
+  }, []);
   const [closedMessage, setClosedMessage] = useState<string | null>(null);
 
   // Al cerrar la sesión el refetch de /active responde 404 y TanStack Query
@@ -564,7 +604,13 @@ export function TrainingSessionPage({ studentId }: TrainingSessionPageProps) {
         position,
         valores,
       ).then(() => undefined),
-    onSesionCerrada: () => {
+    onSesionCerrada: (code, position) => {
+      if (code === 'atypical_series_requires_confirmation') {
+        setAtypicalQueued((positions) =>
+          positions.includes(position) ? positions : [...positions, position],
+        );
+        return;
+      }
       // Criterio 8: la sesión dejó de admitir registros mientras el teléfono
       // estaba sin señal. Se avisa en lugar de descartar en silencio.
       setClosedMessage(
@@ -793,15 +839,6 @@ export function TrainingSessionPage({ studentId }: TrainingSessionPageProps) {
             </p>
           </Banner>
         ) : null}
-        {atypicalBody ? (
-          <Banner variant="info" title="Serie atípica">
-            <p>
-              Confirmá explícitamente para registrarla; puede producir un
-              récord.
-            </p>
-          </Banner>
-        ) : null}
-
         <BentoCard>
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
@@ -884,7 +921,8 @@ export function TrainingSessionPage({ studentId }: TrainingSessionPageProps) {
                   (serie) => serie.position === record.position,
                 )}
                 current={record.position === currentPosition}
-                onAtypical={setAtypicalBody}
+                atypicalFromQueue={atypicalQueued.includes(record.position)}
+                onAtypicalShown={clearAtypicalQueued}
                 onEnvioPendiente={pendientes.encolar}
                 onEnvioConfirmado={pendientes.confirmar}
               />

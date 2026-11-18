@@ -30,6 +30,16 @@ function recalculationError(error: unknown): string {
   return 'No pudimos recalcular el diagnóstico. Intentá nuevamente.';
 }
 
+function noProposalExplanation(situation: string): string | null {
+  if (situation === 'DATOS_INSUFICIENTES') {
+    return 'No se genera una propuesta porque todavía no hay evidencia suficiente para fundamentar ajustes.';
+  }
+  if (situation === 'PROGRESION_ADECUADA') {
+    return 'No se genera una propuesta porque la evolución es adecuada y no requiere ajustes.';
+  }
+  return null;
+}
+
 export function EvolutionDiagnosticCard({
   studentId,
   allowRecalculate = false,
@@ -65,6 +75,9 @@ export function EvolutionDiagnosticCard({
   }
 
   const result = diagnostic.data;
+  const noProposal = result.disponible
+    ? noProposalExplanation(result.globalSituation)
+    : null;
   const action = allowRecalculate ? (
     <button
       type="button"
@@ -153,6 +166,15 @@ export function EvolutionDiagnosticCard({
           </div>
         ))}
       </div>
+
+      {noProposal ? (
+        <p
+          role="status"
+          className="mt-4 rounded-xl border border-[#dce8c6] bg-[#f5faec] p-3 text-sm text-[#3f5b20]"
+        >
+          {noProposal}
+        </p>
+      ) : null}
 
       {result.criteriosNoEvaluados.length > 0 ? (
         <p className="mt-4 text-xs leading-relaxed text-[#68675f]">
