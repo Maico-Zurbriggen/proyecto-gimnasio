@@ -110,6 +110,9 @@ function resolutionTitle(resolution: ProposalResolution): string {
   if (resolution.state === 'RECHAZADA') {
     return 'Propuesta rechazada. El motivo quedó registrado.';
   }
+  if (resolution.state === 'ACEPTADA_PARCIAL') {
+    return `Propuesta aprobada parcialmente: se creó la versión ${resolution.resultingVersionNumber} de la rutina.`;
+  }
   return `Propuesta aprobada: se creó la versión ${resolution.resultingVersionNumber} de la rutina.`;
 }
 
@@ -159,7 +162,16 @@ export function ProposalReviewPage() {
     requiresManualIntervention,
   );
   const hasManualAdjustments = manualAdjustments.length > 0;
-  const canApprovePartially = accepted.size > 0 && accepted.size < total;
+  const selectableAdjustments = proposal.adjustments.filter(
+    (adjustment) => !requiresManualIntervention(adjustment),
+  );
+  const acceptedIds = selectableAdjustments
+    .filter((adjustment) => accepted.has(adjustment.id))
+    .map((adjustment) => adjustment.id);
+  const canApprove = acceptedIds.length > 0;
+  const allSelected = canApprove && acceptedIds.length === total;
+  const allSelectableSelected =
+    canApprove && acceptedIds.length === selectableAdjustments.length;
   const canReject = reason.trim().length > 0;
   const busy = resolve.isPending || regeneration.busy;
   const optionalReason = reason.trim() ? reason.trim() : undefined;
@@ -182,24 +194,24 @@ export function ProposalReviewPage() {
         kicker="Revisión de adaptación"
         title={proposal.student.displayName}
         description={`${humanizeEnum(diagnostic.globalSituation)} · período ${formatDate(diagnostic.periodStart)} – ${formatDate(diagnostic.periodEnd)}${diagnostic.adherence !== null ? ` · adherencia ${diagnostic.adherence.toLocaleString('es-AR')} %` : ''}.`}
-        actions={backLink}
+        actions={
+          <>
+            {diagnostic.dataOrigin === 'SIMULATED' ? (
+              <span className="chip-neutral">Demostración</span>
+            ) : null}
+            {backLink}
+          </>
+        }
       />
       <main className="page-body flex flex-col gap-4">
-        <Banner
-          variant={diagnostic.dataOrigin === 'REAL' ? 'info' : 'warning'}
-          title={
-            diagnostic.dataOrigin === 'REAL'
-              ? 'Diagnóstico calculado con datos reales'
-              : 'Diagnóstico de prueba con datos simulados'
-          }
-        >
-          <p>
-            {diagnostic.dataOrigin === 'REAL'
-              ? 'Las sesiones simuladas fueron excluidas del cálculo.'
-              : 'Este diagnóstico fue cargado como fixture de prueba y no representa actividad real del alumno.'}{' '}
-            Componente: {diagnostic.componentVersion}.
-          </p>
-        </Banner>
+        {diagnostic.dataOrigin === 'REAL' ? (
+          <Banner variant="info" title="Diagnóstico calculado con datos reales">
+            <p>
+              Las sesiones simuladas fueron excluidas del cálculo. Componente:{' '}
+              {diagnostic.componentVersion}.
+            </p>
+          </Banner>
+        ) : null}
         <OutdatedDataWarning proposal={proposal.advertenciaDatos} />
 
         {diagnostic.adherence === null ? (
@@ -324,6 +336,28 @@ export function ProposalReviewPage() {
                   para que no se pierda la intervención.
                 </Banner>
               ) : null}
+              {pending && selectableAdjustments.length > 0 ? (
+                <button
+                  type="button"
+                  disabled={busy}
+                  className="btn-secondary btn-sm mt-4"
+                  onClick={() =>
+                    setAccepted(
+                      new Set(
+                        allSelectableSelected
+                          ? []
+                          : selectableAdjustments.map(
+                              (adjustment) => adjustment.id,
+                            ),
+                      ),
+                    )
+                  }
+                >
+                  {allSelectableSelected
+                    ? 'Quitar selección'
+                    : 'Seleccionar todos'}
+                </button>
+              ) : null}
               <ul className="mt-4 divide-y divide-[#292823]/8">
                 {proposal.adjustments.map((adjustment) => {
                   const label = `${adjustmentTypeLabel(adjustment.type)} · ${adjustment.exerciseName ?? 'Rutina completa'}`;
@@ -335,6 +369,7 @@ export function ProposalReviewPage() {
                           type="checkbox"
                           checked={accepted.has(adjustment.id)}
                           onChange={() => toggle(adjustment.id)}
+                          disabled={busy}
                           aria-label={`Aceptar ${label}`}
                           className="check mt-0.5"
                         />
@@ -393,9 +428,12 @@ export function ProposalReviewPage() {
                   Decisión del entrenador
                 </p>
                 <p className="mt-2 text-xs text-[#77756d]">
-                  Aprobar genera una versión nueva de la rutina y conserva la
-                  anterior. Para aprobar parcialmente, marcá los ajustes que
-                  aceptás.
+                  Marcá los ajustes que aceptás. Aprobar aplica únicamente los
+                  seleccionados en una versión nueva y conserva la anterior. Los
+                  ajustes sin seleccionar quedarán rechazados.
+                </p>
+                <p role="status" className="mt-3 text-sm font-semibold">
+                  {acceptedIds.length} de {total} ajustes seleccionados
                 </p>
                 <label htmlFor="motivo-resolucion" className="field-label mt-4">
                   Motivo (obligatorio para rechazar)
@@ -419,10 +457,15 @@ export function ProposalReviewPage() {
                 <div className="mt-4 flex flex-wrap gap-2">
                   <button
                     type="button"
-                    disabled={busy || hasManualAdjustments}
+                    disabled={busy || !canApprove}
                     onClick={() =>
                       resolve.mutate({
-                        decision: 'ACEPTADA_TOTAL',
+                        decision: allSelected
+                          ? 'ACEPTADA_TOTAL'
+                          : 'ACEPTADA_PARCIAL',
+                        ...(!allSelected
+                          ? { acceptedAdjustmentIds: acceptedIds }
+                          : {}),
                         candidateRequestId:
                           proposal.regeneration?.candidateRequestId,
                         reason: optionalReason,
@@ -430,23 +473,11 @@ export function ProposalReviewPage() {
                     }
                     className="btn-primary"
                   >
-                    Aprobar
-                  </button>
-                  <button
-                    type="button"
-                    disabled={busy || !canApprovePartially}
-                    onClick={() =>
-                      resolve.mutate({
-                        decision: 'ACEPTADA_PARCIAL',
-                        candidateRequestId:
-                          proposal.regeneration?.candidateRequestId,
-                        acceptedAdjustmentIds: [...accepted],
-                        reason: optionalReason,
-                      })
-                    }
-                    className="btn-secondary"
-                  >
-                    Aprobar parcialmente
+                    {allSelected
+                      ? `Aprobar todos (${acceptedIds.length})`
+                      : canApprove
+                        ? `Aprobar seleccionados (${acceptedIds.length})`
+                        : 'Aprobar seleccionados'}
                   </button>
                   <button
                     type="button"
