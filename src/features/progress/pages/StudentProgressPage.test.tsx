@@ -107,6 +107,12 @@ describe('StudentProgressPage (HU34 - T1, T2, T3)', () => {
               volume: 12.5,
               frequency: 3,
             },
+            {
+              group: 'GEMELOS',
+              status: 'CALCULADO',
+              volume: 0,
+              frequency: 0,
+            },
           ],
           exerciseVolumes: [],
           calculatedAt: '2026-11-09T12:00:00Z',
@@ -117,6 +123,7 @@ describe('StudentProgressPage (HU34 - T1, T2, T3)', () => {
           muscles: [
             { code: 'PECTORAL', name: 'Pectoral' },
             { code: 'DORSAL', name: 'Dorsal' },
+            { code: 'GEMELOS', name: 'Gemelos' },
           ],
           equipment: [],
           movementPatterns: [],
@@ -150,6 +157,11 @@ describe('StudentProgressPage (HU34 - T1, T2, T3)', () => {
     expect(screen.getByText(/4 sesiones/i)).toBeInTheDocument();
     expect(screen.getByText('Dorsal')).toBeInTheDocument();
     expect(screen.getByText(/12.5 series ef\./i)).toBeInTheDocument();
+    expect(screen.getByText('Gemelos')).toBeInTheDocument();
+    expect(screen.getByText(/0 series ef\./i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/sesiones simuladas se excluyen/i),
+    ).toBeInTheDocument();
   });
 
   it('T3: muestra InsufficientInfo cuando falta historial y no dibuja gráficos vacíos ni ceros engañosos', async () => {

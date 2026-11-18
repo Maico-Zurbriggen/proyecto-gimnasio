@@ -95,6 +95,14 @@ describe('TrainerSignalsCard (HU35 - T1)', () => {
     expect(
       screen.getByText(/sin clasificación muscular asignada/i),
     ).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        /no constituyen un diagnóstico ni una recomendación de salud/i,
+      ),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/sesiones simuladas se excluyen/i),
+    ).toBeInTheDocument();
   });
 
   it('muestra estado verde cuando no hay señales detectadas', async () => {

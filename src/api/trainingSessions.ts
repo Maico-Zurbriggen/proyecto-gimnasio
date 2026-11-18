@@ -189,6 +189,7 @@ export async function fetchTrainingSessions(
   studentId: string,
   query: {
     state?: Exclude<HistoryStateFilter, 'TODAS'>;
+    simulated?: boolean;
     page?: number;
     pageSize?: number;
   } = {},
@@ -196,6 +197,8 @@ export async function fetchTrainingSessions(
 ): Promise<TrainingSessionPage> {
   const params = new URLSearchParams();
   if (query.state) params.set('state', query.state);
+  if (query.simulated !== undefined)
+    params.set('simulated', String(query.simulated));
   if (query.page) params.set('page', String(query.page));
   if (query.pageSize) params.set('pageSize', String(query.pageSize));
   const suffix = params.toString() ? `?${params.toString()}` : '';

@@ -113,6 +113,7 @@ describe('usePendingSeriesSync', () => {
     await waitFor(() => {
       expect(onSesionCerrada).toHaveBeenCalledWith(
         'training_session_not_in_progress',
+        1,
       );
     });
     // Sale de la cola: insistir no la va a reabrir.

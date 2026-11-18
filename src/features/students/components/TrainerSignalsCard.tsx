@@ -27,9 +27,17 @@ export function TrainerSignalsCard({ studentId }: { studentId: string }) {
     return (
       <BentoCard>
         <p className="eyebrow text-[#77756d]">Señales de seguimiento</p>
-        <p className="mt-2 text-sm text-[#9b2c1f]">
+        <p role="alert" className="mt-2 text-sm text-[#9b2c1f]">
           No pudimos consultar las señales del alumno.
         </p>
+        <button
+          type="button"
+          className="btn-secondary btn-sm mt-3"
+          disabled={query.isFetching}
+          onClick={() => void query.refetch()}
+        >
+          Reintentar
+        </button>
       </BentoCard>
     );
   }
@@ -75,6 +83,11 @@ export function TrainerSignalsCard({ studentId }: { studentId: string }) {
       <h2 className="font-display mt-2 text-lg font-semibold tracking-tight text-[#1f1e1a]">
         Señales de estancamiento, adherencia y desbalance
       </h2>
+      <p className="mt-2 text-xs leading-relaxed text-[#68675f]">
+        Referencias de seguimiento calculadas con sesiones reales; las sesiones
+        simuladas se excluyen. No constituyen un diagnóstico ni una
+        recomendación de salud.
+      </p>
 
       <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-3">
         {/* Señal 1: Estancamiento */}

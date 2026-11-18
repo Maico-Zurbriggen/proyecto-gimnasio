@@ -60,6 +60,27 @@ describe('EvolutionDiagnosticCard (HU32)', () => {
     ).not.toBeInTheDocument();
   });
 
+  it.each([
+    [
+      'DATOS_INSUFICIENTES',
+      /no hay evidencia suficiente para fundamentar ajustes/i,
+    ],
+    ['PROGRESION_ADECUADA', /evolución es adecuada y no requiere ajustes/i],
+  ] as const)(
+    'explica por qué %s no produce una propuesta',
+    async (globalSituation, message) => {
+      mockApi({
+        [`GET ${PATH}`]: {
+          body: { ...diagnostic, globalSituation },
+        },
+      });
+
+      renderCard();
+
+      expect(await screen.findByText(message)).toBeVisible();
+    },
+  );
+
   it('declara la ausencia de cálculo sin degradar la vista', async () => {
     mockApi({
       [`GET ${PATH}`]: {

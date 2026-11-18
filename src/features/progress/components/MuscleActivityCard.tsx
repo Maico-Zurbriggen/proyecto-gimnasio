@@ -74,8 +74,17 @@ export function MuscleActivityCard({ studentId }: { studentId: string }) {
         </div>
       ) : activityQuery.isError ? (
         <div className="mt-4 rounded-xl border border-[#fbe1dc] bg-[#fff5f4] p-4 text-sm text-[#9b2c1f]">
-          No pudimos calcular la actividad muscular del período. Intentá
-          nuevamente.
+          <p role="alert">
+            No pudimos calcular la actividad muscular del período.
+          </p>
+          <button
+            type="button"
+            className="btn-secondary btn-sm mt-3"
+            disabled={activityQuery.isFetching}
+            onClick={() => void activityQuery.refetch()}
+          >
+            Reintentar
+          </button>
         </div>
       ) : activityQuery.data.insufficientData ? (
         <div className="mt-6">
@@ -89,6 +98,10 @@ export function MuscleActivityCard({ studentId }: { studentId: string }) {
         </div>
       ) : (
         <div className="mt-6 space-y-6">
+          <p className="text-xs text-[#68675f]">
+            Calculado únicamente con sesiones reales. Las sesiones simuladas se
+            excluyen de estos indicadores.
+          </p>
           {activityQuery.data.unclassifiedSets > 0 && (
             <div className="flex items-start gap-2 rounded-xl border border-[#fbeccb] bg-[#fffcf5] p-3 text-xs text-[#8a5a00]">
               <AlertTriangle className="mt-0.5 size-4 shrink-0 text-[#8a5a00]" />
@@ -102,9 +115,12 @@ export function MuscleActivityCard({ studentId }: { studentId: string }) {
           )}
 
           {(() => {
-            const groupsWithVolume = activityQuery.data.groups
-              .filter((g) => (g.volume ?? 0) > 0)
-              .sort((a, b) => (b.volume ?? 0) - (a.volume ?? 0));
+            const groups = [...activityQuery.data.groups].sort(
+              (a, b) => (b.volume ?? 0) - (a.volume ?? 0),
+            );
+            const groupsWithVolume = groups.filter(
+              (group) => (group.volume ?? 0) > 0,
+            );
 
             const maxVolume = Math.max(
               ...activityQuery.data.groups.map((g) => g.volume ?? 0),
@@ -119,25 +135,16 @@ export function MuscleActivityCard({ studentId }: { studentId: string }) {
               .slice(3)
               .map((g) => g.group);
 
-            if (groupsWithVolume.length === 0) {
-              return (
-                <div className="rounded-xl border border-[#e4e1d6] bg-[#fdfdfc] p-6 text-center text-sm text-[#77756d]">
-                  No se registraron series de trabajo en los ejercicios
-                  clasificados durante este período.
-                </div>
-              );
-            }
-
             return (
               <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
                 {/* Barras y lista de grupos musculares */}
                 <div className="space-y-3 lg:col-span-7">
                   <h3 className="eyebrow text-[#77756d]">
-                    Grupos estimulados ({groupsWithVolume.length})
+                    Grupos musculares ({groups.length})
                   </h3>
 
                   <div className="space-y-2.5">
-                    {groupsWithVolume.map((group) => {
+                    {groups.map((group) => {
                       const volume = group.volume ?? 0;
                       const frequency = group.frequency ?? 0;
                       const percentage = Math.round((volume / maxVolume) * 100);
